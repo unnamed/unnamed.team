@@ -3,6 +3,7 @@
   "description": "Site at https://unnamed.team/ built using Next.js",
   "version": "0.1.0",
   "license": "MIT",
+  "private": true,
   "author": {
     "name": "yusshu",
     "email": "yushu@unnamed.team"
@@ -14,9 +15,28 @@
   },
   "main": "index.js",
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
-  "keywords": ["unnamed", "team"],
+  "keywords": [
+    "unnamed",
+    "team"
+  ],
   "bugs": {
     "url": "https://github.com/unnamed/unnamed.team/issues"
+  },
+  "dependencies": {
+    "next": "^12.0.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.6",
+    "@types/react": "^17.0.33",
+    "eslint": "^7.32.0",
+    "eslint-config-next": "^12.0.1",
+    "typescript": "^4.4.4"
   }
 }
