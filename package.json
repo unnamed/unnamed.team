@@ -1,0 +1,22 @@
+{
+  "name": "unnamed.team",
+  "description": "Site at https://unnamed.team/ built using Next.js",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": {
+    "name": "yusshu",
+    "email": "yushu@unnamed.team"
+  },
+  "homepage": "https://unnamed.team/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unnamed/unnamed.team.git"
+  },
+  "main": "index.js",
+  "scripts": {
+  },
+  "keywords": ["unnamed", "team"],
+  "bugs": {
+    "url": "https://github.com/unnamed/unnamed.team/issues"
+  }
+}
