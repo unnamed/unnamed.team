@@ -1,9 +1,10 @@
 type ButtonProps = {
     value: string;
+    style?: 'solid' | 'ghost';
 };
 
-const Button = ({ value }: ButtonProps): JSX.Element => {
-    return <button className="py-2 px-4 bg-pink-light text-black font-rubik font-light rounded-lg shadow-md hover:bg-pink-dark">
+const Button = ({ value, style = 'solid' }: ButtonProps): JSX.Element => {
+    return <button className={`py-2 px-4 font-rubik font-light rounded-lg shadow-md ${style === 'solid' ? 'bg-pink-light text-black hover:bg-pink-dark' : 'bg-night-300 text-white hover:bg-night-200'}`}>
         {value}
     </button>;
 };

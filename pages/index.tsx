@@ -1,23 +1,18 @@
-import type { NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import Button from '../components/button';
 
-const Home: NextPage = () => {
+export default function Home() {
   return (
       <>
           <Head>
               <title>Unnamed Team</title>
-              <meta name="viewport" content="initial-scale=1.0, width=device-width" />
               <meta property="og:title" content="Unnamed Team" />
               <meta property="og:type" content="website" />
               <meta property="og:url" content="https://unnamed.team/" />
               <meta property="og:description" content="Homepage of Unnamed Team, a group of entusiast developers" />
-              <meta name="theme-color" content="#FF8DF5" />
-
-              <link rel="preconnect" href="https://fonts.googleapis.com" />
-              <link rel="preconnect" href="https://fonts.gstatic.com" />
-              <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;500;700&display=swap" rel="stylesheet" />
+              <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+              <meta name="theme-color" content="#ff8df8" />
           </Head>
 
           <div className="bg-gradient-to-r from-night-100 to-night-200 min-h-screen">
@@ -27,6 +22,7 @@ const Home: NextPage = () => {
                   {/* Header */}
                   <header className="flex flex-row justify-between">
                       <Image src="/logo.svg" width="65" height="65" />
+
                       <div className="flex gap-10 text-white">
                           <a>Home</a>
                           <a>Team</a>
@@ -51,5 +47,3 @@ const Home: NextPage = () => {
       </>
   );
 };
-
-export default Home;
