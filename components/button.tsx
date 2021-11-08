@@ -1,11 +1,16 @@
 type ButtonProps = {
-    value: string;
     style?: 'solid' | 'ghost';
+    children?: any;
 };
 
-const Button = ({ value, style = 'solid' }: ButtonProps): JSX.Element => {
-    return <button className={`py-2 px-4 font-rubik font-light rounded-lg shadow-md ${style === 'solid' ? 'bg-pink-light text-black hover:bg-pink-dark' : 'bg-night-300 text-white hover:bg-night-200'}`}>
-        {value}
+const styles = {
+    solid: 'bg-pink-light text-white hover:bg-pink-dark',
+    ghost: 'bg-none text-pink-light'
+};
+
+const Button = ({ style = 'solid', children }: ButtonProps): JSX.Element => {
+    return <button className={`py-4 px-8 font-normal rounded-full text-lg gap-2 inline-flex flex-row items-center ${styles[style]}`}>
+        {children}
     </button>;
 };
 

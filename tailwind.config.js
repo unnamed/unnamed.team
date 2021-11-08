@@ -17,7 +17,7 @@ module.exports = {
       }
     },
     fontFamily: {
-      rubik: ['Rubik']
+      sans: ['Rubik']
     }
   },
   variants: {
