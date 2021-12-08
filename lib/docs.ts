@@ -58,14 +58,16 @@ async function fetchContents(name: string, path: string): Promise<any[] | undefi
   const contentsResponse = await fetch(ENDPOINTS.contents(name, path));
   const contentsJson: any = await contentsResponse.json();
 
-  if (contentsJson.message === 'Not Found') {
-    // no documentation in this repository
-    return undefined;
-  } else if (contentsJson.message.startsWith('API rate limit')) {
-    // we are being rate-limited
-    // TODO: Authenticate so we have a higher rate limit
-    console.log('Rate limit!');
-    return undefined;
+  if (contentsJson.message !== undefined) {
+    if (contentsJson.message === 'Not Found') {
+      // no documentation in this repository
+      return undefined;
+    } else if (contentsJson.message.startsWith('API rate limit')) {
+      // we are being rate-limited
+      // TODO: Authenticate so we have a higher rate limit
+      console.log('Rate limit!');
+      return undefined;
+    }
   } else {
     return contentsJson;
   }
