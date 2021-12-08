@@ -17,12 +17,12 @@ export default function Error404() {
               Sorry, the page you were looking for does not exist. Try
               going to
               <span className="text-pink-light hover:text-pink-dark">
-                                <Link href="/"> unnamed.team</Link>
-                            </span>
+                <Link href="/"> unnamed.team</Link>
+              </span>
               , or join our
               <span className="text-pink-light hover:text-pink-dark">
-                                <Link href="https://discord.gg/xbba2fy"> Discord Server</Link>
-                            </span>
+                <Link href="https://discord.gg/xbba2fy"> Discord Server</Link>
+              </span>
             </p>
           </div>
         </div>
