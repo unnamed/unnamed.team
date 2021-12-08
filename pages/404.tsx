@@ -10,7 +10,7 @@ export default function Error404() {
       </Head>
       <main className="bg-gradient-to-r from-night-100 to-night-200 h-screen flex flex-row items-center">
         <div className="w-max mx-auto flex items-center">
-          <Image src="/logo.svg" width="150" height="100"/>
+          <Image src="/logo.svg" width="150" height="100" alt="logo"/>
           <div className="flex flex-col gap-2 w-96">
             <h1 className="font-rubik text-white text-2xl">Error 404</h1>
             <p className="font-rubik font-light text-white text-lg">

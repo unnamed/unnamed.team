@@ -22,7 +22,7 @@ export default function Home() {
         <div className="min-h-screen flex flex-col px-40 py-10">
           {/* Header */}
           <header className="flex flex-row justify-between">
-            <Image src="/logo.svg" width="65" height="65"/>
+            <Image src="/logo.svg" width="65" height="65" alt="logo"/>
 
             <div className="flex gap-10 text-white">
               <a>Home</a>
