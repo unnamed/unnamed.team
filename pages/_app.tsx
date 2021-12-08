@@ -1,7 +1,7 @@
 import 'tailwindcss/tailwind.css';
 import type { AppProps } from 'next/app';
 
-function App({ Component, pageProps }: AppProps) {
+function App({Component, pageProps}: AppProps) {
   return <Component {...pageProps} />;
 }
 
