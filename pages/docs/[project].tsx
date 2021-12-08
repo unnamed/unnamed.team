@@ -8,7 +8,7 @@ export default function Documentation(repository: DocumentedRepository) {
     return (
       <ul>
         {Array.from(entries).map(([name, entry]) => (
-          <li>
+          <li key={name}>
             <h4>{name}</h4>
             { entry.children ? convert(entry.children) : <></> }
           </li>
@@ -31,4 +31,4 @@ Documentation.getInitialProps = async function(ctx: NextPageContext) {
     return { name, entries: new Map() };
   }
   return (await fetchRepository(name)) || { name, entries: new Map() };
-}
+};
