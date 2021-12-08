@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import Button from '../components/button';
-import { FaChevronRight } from "react-icons/all";
+import { FaChevronRight } from "@react-icons/all-files/fa/FaChevronRight";
 
 export default function Home() {
   return (
