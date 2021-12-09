@@ -9,6 +9,14 @@ const ENDPOINTS = {
     `${API_BASE_PATH}/repos/${ORGANIZATION_NAME}/${repository}/contents/${path}`
 };
 
+function fetchAuthorized(url: string): Promise<Response> {
+  return fetch(url, {
+    /*headers: {
+      'Authorization': `token ghp_ññññññññññññññññññññññññññññññññññññ`
+    }*/
+  });
+}
+
 /**
  * Represents a documentation entry, it may
  * be a directory (may contain more entries
@@ -32,9 +40,11 @@ export interface DocumentationEntry {
    * The children documentation entries stored using
    * its filenames as keys, only defined if type is 'dir'
    */
-  children?: Map<string, DocumentationEntry>;
+  children: ChildrenEntries | null;
 
 }
+
+export type ChildrenEntries = { [name: string]: DocumentationEntry };
 
 /**
  * Represents a Git repository that has documentation
@@ -50,12 +60,12 @@ export interface DocumentedRepository {
    * The documentation entries at 'docs' folder
    * using its filename as key
    */
-  entries: Map<string, DocumentationEntry>;
+  entries: ChildrenEntries;
 
 }
 
 async function fetchContents(name: string, path: string): Promise<any[] | undefined> {
-  const contentsResponse = await fetch(ENDPOINTS.contents(name, path));
+  const contentsResponse = await fetchAuthorized(ENDPOINTS.contents(name, path));
   const contentsJson: any = await contentsResponse.json();
 
   if (contentsJson.message !== undefined) {
@@ -73,12 +83,12 @@ async function fetchContents(name: string, path: string): Promise<any[] | undefi
   }
 }
 
-async function fetchDocumentationTree(name: string, contents: any[]): Promise<Map<string, DocumentationEntry>> {
-  const entries = new Map<string, DocumentationEntry>();
+async function fetchDocumentationTree(name: string, contents: any[]): Promise<ChildrenEntries> {
+  const entries: ChildrenEntries = {};
   for (const content of contents) {
     const entryName = content.name;
     const {type} = content;
-    let children = undefined;
+    let children = null;
 
     if (type === 'dir') {
       const rawChildren = (await fetchContents(name, content.path)) as any[];
@@ -86,11 +96,11 @@ async function fetchDocumentationTree(name: string, contents: any[]): Promise<Ma
     }
 
     // add entry
-    entries.set(entryName, {
+    entries[entryName] = {
       type,
       children,
       downloadUrl: content.download_url
-    });
+    };
   }
   return entries;
 }
@@ -111,7 +121,7 @@ export async function fetchRepository(name: string): Promise<DocumentedRepositor
 
 export async function fetchRepositories(): Promise<DocumentedRepository[]> {
   // fetch organization repositories
-  const repositoriesResponse = await fetch(ENDPOINTS.repositories());
+  const repositoriesResponse = await fetchAuthorized(ENDPOINTS.repositories());
   const repositoriesJson: any[] = (await repositoriesResponse.json()) as any[];
 
   const repositories: DocumentedRepository[] = [];
