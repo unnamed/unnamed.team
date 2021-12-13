@@ -1,5 +1,6 @@
 type ButtonProps = {
   style?: 'solid' | 'ghost';
+  size?: 'lg' | 'md';
   children?: any;
 };
 
@@ -8,9 +9,14 @@ const styles = {
   ghost: 'bg-none text-pink-light'
 };
 
-const Button = ({style = 'solid', children}: ButtonProps): JSX.Element => {
+const sizes = {
+  lg: 'py-4 px-8 text-lg',
+  md: 'py-2 px-4 text-md'
+};
+
+const Button = ({style = 'solid', size = 'lg', children}: ButtonProps): JSX.Element => {
   return <button
-    className={`py-4 px-8 font-normal rounded-full text-lg gap-2 inline-flex flex-row items-center ${styles[style]}`}>
+    className={`${sizes[size]} font-normal rounded-full gap-2 inline-flex flex-row items-center ${styles[style]}`}>
     {children}
   </button>;
 };
