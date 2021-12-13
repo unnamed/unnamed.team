@@ -27,7 +27,7 @@ export async function getStaticProps(ctx: GetStaticPropsContext) {
   if (!GITHUB_REPO_NAME_PATTERN.test(name)) {
     return { props: { name, entries: {} } };
   }
-  return { props: (await fetchRepository(name)) || { name, entries: {} } }
+  return { props: (await fetchRepository(name)) || { name, entries: {} } };
 }
 
 export async function getStaticPaths() {
