@@ -1,5 +1,8 @@
 module.exports = {
   reactStrictMode: true,
+  images: {
+    domains: ['avatars.githubusercontent.com'],
+  },
   async redirects() {
     return [
       {
