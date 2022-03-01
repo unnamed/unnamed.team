@@ -22,7 +22,7 @@ function Header() {
 
 function MainSection() {
   return (
-    <main className="h-screen flex flex-col gap-4" id="home">
+    <main className="min-h-screen flex flex-col py-6 gap-4" id="home">
       <div className="flex flex-col gap-4">
         <h1 className="text-white font-medium text-6xl opacity-90">Everything is<br/>possible</h1>
         <h3 className="text-white font-light text-xl opacity-90">And we will show you</h3>
@@ -52,7 +52,7 @@ function MemberCard({ member }) {
 
 function TeamSection({ members }) {
   return (
-    <div className="h-screen flex flex-col gap-8" id="team">
+    <div className="min-h-screen flex flex-col py-6 gap-8" id="team">
       <div className="flex flex-col gap-4">
         <h2 className="text-white font-medium text-5xl opacity-90">Meet our team</h2>
         <h3 className="text-white font-light text-lg opacity-90">The people behind the Unnamed Team who make this
@@ -67,7 +67,7 @@ function TeamSection({ members }) {
 
 function AboutSection({ starCount }) {
   return (
-    <div className="h-screen flex flex-col gap-8" id="about">
+    <div className="min-h-screen flex flex-col py-6 gap-8" id="about">
 
       <div className="flex flex-col gap-4">
         <h2 className="text-white font-medium text-5xl opacity-90">About Us</h2>
@@ -117,11 +117,9 @@ export default function Home({ starCount, members }) {
       <div className="bg-gradient-to-r from-night-100 to-night-200 min-h-screen flex flex-col">
         <Container>
           <Header />
-          <div className="py-12">
-            <MainSection />
-            <TeamSection members={members} />
-            <AboutSection starCount={starCount} />
-          </div>
+          <MainSection />
+          <TeamSection members={members} />
+          <AboutSection starCount={starCount} />
         </Container>
       </div>
     </>
