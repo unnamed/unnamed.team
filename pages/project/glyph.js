@@ -313,11 +313,10 @@ function _import(map, cb) {
         emoji.img = imageData;
 
         // if name is taken, use another name
-        while (map.byName.has(emoji.name)) {
-          emoji.name = emoji.name + Math.floor(Math.random() * 1E5).toString(36);
-        }
+        emoji.name = map.ensureUniqueName(emoji.name);
         if (map.byChar.has(emoji.character)) {
           emoji.character = map.generateChar();
+          // todo: warn or skip this emoji
         }
 
         cb(emoji);
