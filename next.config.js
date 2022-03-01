@@ -5,7 +5,7 @@ module.exports = {
   },
   env: {
     // invite for our Discord server
-    discordInvite: 'https://discord.gg/QebDnyWGtz',
+    discordInvite: 'https://discord.gg/9hS9DKY9vg',
 
     // our GitHub organization slug
     // https://github.com/unnamed/
