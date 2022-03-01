@@ -3,12 +3,19 @@
   flex-direction: column;
 
   gap: 4px;
-  width: 15%;
+  width: 400px;
 
   right: 10px;
   bottom: 10px;
 
   position: absolute;
+
+  @media (max-width: 600px) {
+    top: 10px;
+    width: 90%;
+    right: 5%;
+    left: 5%;
+  }
 }
 
 .toast {
