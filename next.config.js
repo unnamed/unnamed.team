@@ -4,7 +4,12 @@ module.exports = {
     domains: ['avatars.githubusercontent.com'],
   },
   env: {
-    discordInvite: 'https://discord.gg/QebDnyWGtz'
+    // invite for our Discord server
+    discordInvite: 'https://discord.gg/QebDnyWGtz',
+
+    // our GitHub organization slug
+    // https://github.com/unnamed/
+    githubSlug: 'unnamed'
   },
   async redirects() {
     return [

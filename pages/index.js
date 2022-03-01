@@ -27,7 +27,7 @@ function MainSection() {
         <h3 className="text-white font-light text-xl opacity-90">And we will show you</h3>
       </div>
       <div className="flex flex-row text-lg gap-4">
-        <Button label="Show me" onClick={() => window.open('https://github.com/unnamed')}/>
+        <Button label="Show me" onClick={() => window.open(`https://github.com/${process.env.githubSlug}`)}/>
         <Button label="Join Us" onClick={() => window.open(process.env.discordInvite)} color="secondary"/>
       </div>
     </main>
@@ -76,7 +76,7 @@ function AboutSection({ starCount }) {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Card onClick={() => window.open('https://github.com/unnamed/')}>
+        <Card onClick={() => window.open(`https://github.com/${process.env.githubSlug}/`)}>
           <div>
             <h4 className="text-white font-normal opacity-90">GitHub Organization</h4>
             <p className="text-white font-light opacity-90">With currently {starCount} stars in total</p>
@@ -130,8 +130,7 @@ export default function Home({ starCount, members }) {
  */
 export async function getStaticProps() {
 
-  // name of the organization on GitHub
-  const organization = "unnamed";
+  const organization = process.env.githubSlug;
 
   // fetches and counts total star count on our repositories
   const starCount = await fetch(`https://api.github.com/orgs/${organization}/repos`)
