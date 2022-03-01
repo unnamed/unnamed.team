@@ -191,6 +191,13 @@ function Input({
 function EmojiComponent({ emoji }) {
   const [ map, setMap ] = useContext(GlyphContext);
   const name = emoji.name;
+
+  function remove() {
+    const newMap = map.copy();
+    newMap.removeByName(emoji.name);
+    setMap(newMap);
+  }
+
   return (
     <Card>
       <img src={emoji.img} alt={name} className="flex w-24"/>
@@ -200,12 +207,9 @@ function EmojiComponent({ emoji }) {
         <Input emoji={emoji} property="height" validate={regex(PATTERNS.number)}/>
         <Input emoji={emoji} property="permission" validate={regex(PATTERNS.permission)}/>
         <Input emoji={emoji} property="character" serialize={String.fromCodePoint} validate={value => value.length === 1}/>
-        <button onClick={() => {
-          const newMap = map.copy();
-          newMap.removeByName(emoji.name);
-          setMap(newMap);
-        }}>Remove
-        </button>
+      </div>
+      <div className="h-full">
+        <button className="text-white opacity-80" onClick={remove}>&#x2715;</button>
       </div>
     </Card>
   );
