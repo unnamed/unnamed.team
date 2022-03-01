@@ -2,6 +2,9 @@
 import { createContext, useContext, useState } from 'react';
 import styles from './toast.module.scss';
 
+// 5 seconds
+const TOAST_TIMEOUT = 5000;
+
 const ToastContext = createContext([]);
 
 const types = {
@@ -12,10 +15,11 @@ const types = {
 
 function Toast({ value }) {
   const [ toasts, setToasts ] = useContext(ToastContext);
-  const { type, message } = value;
+  const { id, type, message } = value;
 
   function remove() {
-    setToasts(toasts.filter(toast => toast !== value));
+    setToasts(toasts.filter(toast => toast.id !== id));
+    clearTimeout(id);
   }
 
   return (
@@ -45,6 +49,10 @@ export function ToastContainer({ children }) {
 export function useToasts() {
   const [ toasts, setToasts ] = useContext(ToastContext);
 
+  function remove(id) {
+    setToasts(toasts.filter(toast => toast.id !== id));
+  }
+
   /**
    * Adds a toast to the client screen
    *
@@ -52,10 +60,10 @@ export function useToasts() {
    * @param {string} message The toast message
    */
   function add(type, message) {
-    const index = toasts.length;
+    const id = setTimeout(() => remove(id), TOAST_TIMEOUT);
     setToasts([
       ...toasts,
-      { index, type, message }
+      { id, type, message }
     ]);
   }
 
