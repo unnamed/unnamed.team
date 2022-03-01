@@ -1,0 +1,28 @@
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.card {
+  display: flex;
+  padding: 1rem 2rem;
+  gap: 1rem;
+  flex-basis: 30%;
+  align-items: center;
+
+  background-color: #0000004C;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #00000066;
+  }
+
+  &Horizontal {
+    flex-direction: row;
+  }
+
+  &Vertical {
+    flex-direction: column;
+  }
+}

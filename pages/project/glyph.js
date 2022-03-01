@@ -2,7 +2,9 @@ import Head from 'next/head';
 import { createContext, useContext, useState } from 'react';
 import { processImage, readEmojis, writeEmojis } from '../../lib/glyphio';
 import { promptFilesAndReadAsBuffer, saveFile, stripExtension } from '../../lib/files';
-import { ToastContainer, useToasts } from '../../lib/toast';
+import { ToastContainer, useToasts } from '../../components/toast';
+import { Card, CardContainer } from '../../components/card';
+import { Button } from '../../components/button';
 
 const ALLOWED_MIME_TYPES = new Set([ 'image/webp', 'image/png' ]);
 const PATTERNS = {
@@ -188,8 +190,7 @@ function EmojiComponent({ emoji }) {
   const [ map, setMap ] = useContext(GlyphContext);
   const name = emoji.name;
   return (
-    <div
-      className="flex flex-row bg-black bg-opacity-30 hover:bg-opacity-40 cursor-pointer px-8 py-4 gap-4 basis-[30%] items-center">
+    <Card>
       <img src={emoji.img} alt={name} className="flex w-24"/>
       <div className="flex flex-col">
         <Input emoji={emoji} property="name" validate={regex(PATTERNS.name)}/>
@@ -204,7 +205,7 @@ function EmojiComponent({ emoji }) {
         }}>Remove
         </button>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -368,16 +369,6 @@ function _export(toasts, map) {
     });
 }
 
-function Control({ label, onClick }) {
-  return (
-    <button
-      className="bg-pink-light font-light py-2 px-3 rounded-md hover:bg-pink-dark"
-      onClick={onClick}>
-      {label}
-    </button>
-  );
-}
-
 function Editor() {
   const toasts = useToasts();
   const [ map, setMap ] = useContext(GlyphContext);
@@ -392,18 +383,18 @@ function Editor() {
       <DropRegion/>
 
       <div className="flex flex-row w-max mx-auto gap-2">
-        <Control label="Save" onClick={() => save(toasts, map)}/>
-        <Control label="Import" onClick={() => _import(map, setMap)}/>
-        <Control label="Export" onClick={() => _export(toasts, map)}/>
+        <Button label="Save" onClick={() => save(toasts, map)}/>
+        <Button label="Import" onClick={() => _import(map, setMap)}/>
+        <Button label="Export" onClick={() => _export(toasts, map)}/>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <CardContainer>
         {map.values().sort(compareEmoji).map(emoji => (
           <EmojiComponent
             key={emoji.name}
             emoji={emoji}/>
         ))}
-      </div>
+      </CardContainer>
     </div>
   );
 }
