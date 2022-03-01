@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { createContext, useContext, useRef, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { processImage, readEmojis, writeEmojis } from '../../lib/glyphio';
 import { promptFilesAndReadAsBuffer, saveFile, stripExtension } from '../../lib/files';
 import { ToastContainer, useToasts } from '../../lib/toast';
@@ -11,54 +11,171 @@ const PATTERNS = {
   permission: /^[A-Za-z0-9_.]+$/g,
 };
 
-const GlyphContext = createContext([]);
-
 /**
  * Represents an emoji for the emoji editor
  * @typedef {object} Emoji
  * @property {string} name The emoji name
- * @property {string} character The emoji character
+ * @property {number} character The emoji character codepoint
  * @property {string} img The emoji data in Base64
  * @property {string} permission The emoji permission
  * @property {number} height The emoji height
  * @property {number} ascent The emoji ascent
  */
 
+function compareEmoji(a, b) {
+  if (a.name < b.name) return -1;
+  if (a.name > b.name)return 1;
+  return 0;
+}
+
+/**
+ * Represents a map for Emoji objects
+ */
+class GlyphMap {
+
+  /**
+   * @param {Map<string, Emoji>} byName
+   * @param {Map<number, Emoji>} byChar
+   */
+  constructor(
+    byName = new Map(),
+    byChar = new Map(),
+  ) {
+    this.byName = byName;
+    this.byChar = byChar;
+  }
+
+  /**
+   * @param {string} name
+   * @returns {Emoji}
+   */
+  getByName(name) {
+    return this.byName.get(name);
+  }
+
+  /**
+   * @param {number} char
+   * @returns {Emoji}
+   */
+  getByChar(char) {
+    return this.byChar.get(char);
+  }
+
+  /**
+   * @returns {Emoji[]}
+   */
+  values() {
+    return Array.from(this.byName.values());
+  }
+
+  /**
+   * @param {Emoji} glyph
+   */
+  add(glyph) {
+    this.byName.set(glyph.name, glyph);
+    this.byChar.set(glyph.character, glyph);
+  }
+
+  removeByName(name) {
+    const glyph = this.byName.get(name);
+    if (this.byName.delete(name)) {
+      this.byChar.delete(glyph.character);
+    }
+  }
+
+  removeByChar(char) {
+    const glyph = this.byChar.get(char);
+    if (this.byChar.delete(char)) {
+      this.byName.delete(glyph.name);
+    }
+  }
+
+  /**
+   * @returns {GlyphMap}
+   */
+  copy() {
+    return new GlyphMap(
+      new Map(this.byName),
+      new Map(this.byChar),
+    );
+  }
+
+  /**
+   * @param {Emoji} glyph
+   * @returns {GlyphMap}
+   */
+  with(glyph) {
+    const newMap = this.copy();
+    newMap.add(glyph);
+    return newMap;
+  }
+
+  ensureUniqueName(name) {
+    if (!this.byName.has(name)) {
+      return name;
+    } else {
+      while (this.byName.has(name)) {
+        name = name + Math.floor(Math.random() * 1E5).toString(36);
+      }
+      return name;
+    }
+  }
+
+  generateChar() {
+    let character = (1 << 15) - this.byChar.size;
+    while (this.byChar.has(character)) {
+      character--;
+    }
+    return character;
+  }
+
+}
+
+const GlyphContext = createContext([]);
+
 function regex(pattern) {
   return value => value.match(pattern);
 }
 
-function Input({ emoji, property, validate, parse }) {
-  const [ [ emojis, setEmojis ] ] = useContext(GlyphContext);
-  parse = parse || (v => v);
-  const current = emoji[property];
-  const inputRef = useRef();
+function Input({
+  emoji,
+  property,
+  validate,
+  serialize,
+  deserialize
+}) {
+  serialize = serialize || (v => v);
+  deserialize = deserialize || (v => v);
+
+  const [ valid, setValid ] = useState(true);
+  const [ value, setValue ] = useState(serialize(emoji[property]));
+  const [ map ] = useContext(GlyphContext);
 
   return (
     <label className="flex flex-row gap-4 items-center">
       <span className="text-white opacity-80 text-sm font-light capitalize">{property}</span>
       <input
-        className="bg-white/0 text-white font-light border-b-white border-opacity-80 border-b opacity-80"
-        ref={inputRef}
+        className={`bg-white/0 text-white font-light border-b-white border-opacity-80 border-b opacity-80 ${valid ? '' : ''}`}
         type="text"
         spellCheck="false"
-        value={current}
+        value={value}
         onInput={event => {
-          /** @type HTMLElement */
-          const element = inputRef.current;
-          const value = event.target.value;
+          const newValue = event.target.value;
+          setValue(newValue);
 
-          if (!validate(value)) {
-            element.classList.add('error');
-          } else {
-            element.classList.remove('error');
-            const newEmojis = new Map(emojis);
-            newEmojis.delete(emoji.name);
-            const newEmoji = { ...emoji };
-            newEmoji[property] = parse(value);
-            newEmojis.set(emoji.name, emoji);
-            setEmojis(newEmojis);
+          if (!validate(newValue)) {
+            setValid(false);
+            return;
           }
+
+          setValid(true);
+
+          // mutates map without calling setMap to avoid
+          // updating
+          map.removeByName(emoji.name);
+
+          emoji[property] = deserialize(newValue);
+          map.add(emoji);
         }}/>
     </label>
   );
@@ -68,7 +185,7 @@ function Input({ emoji, property, validate, parse }) {
  * @param {Emoji} emoji
  */
 function EmojiComponent({ emoji }) {
-  const [ [ emojis, emojisByChar ], [ setEmojis, setEmojisByChar ] ] = useContext(GlyphContext);
+  const [ map, setMap ] = useContext(GlyphContext);
   const name = emoji.name;
   return (
     <div
@@ -79,21 +196,11 @@ function EmojiComponent({ emoji }) {
         <Input emoji={emoji} property="ascent" validate={regex(PATTERNS.number)}/>
         <Input emoji={emoji} property="height" validate={regex(PATTERNS.number)}/>
         <Input emoji={emoji} property="permission" validate={regex(PATTERNS.permission)}/>
-        <Input emoji={emoji} property="character" validate={value => {
-          const valid = value.length === 1;
-          if (valid) {
-            // update
-            emojisByChar.delete(emoji.character);
-            emojisByChar.set(value, emoji);
-            setEmojisByChar(emojisByChar);
-          }
-          return valid;
-        }}/>
+        <Input emoji={emoji} property="character" serialize={String.fromCodePoint} validate={value => value.length === 1}/>
         <button onClick={() => {
-          emojis.delete(name);
-          emojisByChar.delete(emoji.character);
-          setEmojis(emojis);
-          setEmojisByChar(emojisByChar);
+          const newMap = map.copy();
+          newMap.removeByName(emoji.name);
+          setMap(newMap);
         }}>Remove
         </button>
       </div>
@@ -103,7 +210,7 @@ function EmojiComponent({ emoji }) {
 
 function DropRegion() {
   const [ dragOver, setDragOver ] = useState(false);
-  const [ [ emojis, setEmojis ], [ emojisByChar, setEmojisByChar ] ] = useContext(GlyphContext);
+  const [ map, setMap ] = useContext(GlyphContext);
   const toasts = useToasts();
 
   function onDragOver(event) {
@@ -118,12 +225,14 @@ function DropRegion() {
     setDragOver(false);
   }
 
-  function onDrop(event) {
+  async function onDrop(event) {
     event.preventDefault();
     event.stopPropagation();
 
     /** @type FileList */
     const files = event.dataTransfer.files;
+    const toAdd = [];
+
     for (let i = 0; i < files.length; i++) {
 
       const file = files[i];
@@ -133,36 +242,36 @@ function DropRegion() {
           'error',
           `Cannot load ${file.name}. Invalid file type`,
         );
-        return;
+        continue;
       }
 
       const reader = new FileReader();
-
-      reader.addEventListener('load', ({ target }) => processImage(target.result, file.type, data => {
-
-        const emoji = {
-          name: stripExtension(file.name), // remove extension
-          character: generateCharacter(emojisByChar),
-          img: data,
-          ascent: 8,
-          height: 9,
-          permission: '',
-        };
-
-        // if name is taken, use another name
-        while (emojis.has(emoji.name)) {
-          emoji.name = emoji.name + Math.floor(Math.random() * 1E5).toString(36);
-        }
-
-        const newEmojis = new Map(emojis);
-        newEmojis.set(emoji.name, emoji);
-        setEmojis(newEmojis);
-        const newEmojisByChar = new Map(emojisByChar);
-        newEmojisByChar.set(emoji.character, emoji);
-        setEmojisByChar(newEmojisByChar);
-      }));
+      const loadPromise = new Promise((resolve, reject) => {
+        reader.addEventListener('load', ({ target }) =>
+          processImage(target.result, file.type, data =>
+            resolve({
+              name: map.ensureUniqueName(stripExtension(file.name)),
+              character: map.generateChar(),
+              img: data,
+              ascent: 8,
+              height: 9,
+              permission: '',
+            })
+          )
+        );
+        reader.addEventListener('error', reject);
+        reader.addEventListener('abort', reject);
+      });
       reader.readAsDataURL(file);
+
+      toAdd.push(await loadPromise);
     }
+
+    const newMap = map.copy();
+    for (const glyph of toAdd) {
+      newMap.add(glyph);
+    }
+    setMap(newMap);
   }
 
   const styles = {
@@ -183,16 +292,8 @@ function DropRegion() {
   );
 }
 
-function generateCharacter(emojisByChar) {
-  let character = (1 << 15) - emojisByChar.size;
-  while (emojisByChar.has(character)) {
-    character--;
-  }
-  return String.fromCodePoint(character);
-}
-
-function save(toasts, emojis) {
-  if (emojis.size < 1) {
+function save(toasts, map) {
+  if (map.byName.size < 1) {
     // no emojis, return
     toasts.add(
       'error',
@@ -200,11 +301,11 @@ function save(toasts, emojis) {
     );
     return;
   }
-  writeEmojis(emojis)
+  writeEmojis(map.byName)
     .then(blob => saveFile(blob, 'emojis.mcemoji'));
 }
 
-function _import(emojis, emojisByChar, cb) {
+function _import(map, cb) {
   promptFilesAndReadAsBuffer(
     (file, buffer) => readEmojis(buffer)
       .then(result => result.forEach(emoji => processImage(emoji.img, file.type, imageData => {
@@ -212,11 +313,11 @@ function _import(emojis, emojisByChar, cb) {
         emoji.img = imageData;
 
         // if name is taken, use another name
-        while (emojis.has(emoji.name)) {
+        while (map.byName.has(emoji.name)) {
           emoji.name = emoji.name + Math.floor(Math.random() * 1E5).toString(36);
         }
-        if (emojisByChar.has(emoji.character)) {
-          emoji.character = generateCharacter(emojisByChar);
+        if (map.byChar.has(emoji.character)) {
+          emoji.character = map.generateChar();
         }
 
         cb(emoji);
@@ -225,15 +326,15 @@ function _import(emojis, emojisByChar, cb) {
   );
 }
 
-function _export(toasts, emojis) {
-  if (emojis.size < 1) {
+function _export(toasts, map) {
+  if (map.byName.size < 1) {
     toasts.add(
       'error',
       'No emojis to upload, add some emojis first!',
     );
     return;
   }
-  writeEmojis(emojis)
+  writeEmojis(map.byName)
     .then(blob => {
       const formData = new FormData();
       formData.set('file', blob);
@@ -253,7 +354,7 @@ function _export(toasts, emojis) {
           toasts.add(
             'success',
             'Successfully uploaded emojis, execute the'
-            + `command (${command}) in your Minecraft server to load them.`,
+            + ` command (${command}) in your Minecraft server to load them.`,
           );
         });
       } else {
@@ -280,14 +381,7 @@ function Control({ label, onClick }) {
 
 function Editor() {
   const toasts = useToasts();
-  const [ [ emojis, setEmojis ], [ emojisByChar, setEmojisByChar ] ] = useContext(GlyphContext);
-
-  function addEmoji(emoji) {
-    emojis.set(emoji.name, emoji);
-    emojisByChar.set(emoji.character, emoji);
-    setEmojis(emojis);
-    setEmojisByChar(emojisByChar);
-  }
+  const [ map, setMap ] = useContext(GlyphContext);
 
   return (
     <div className="flex flex-col gap-8">
@@ -299,13 +393,13 @@ function Editor() {
       <DropRegion/>
 
       <div className="flex flex-row w-max mx-auto gap-2">
-        <Control label="Save" onClick={() => save(toasts, emojis)} />
-        <Control label="Import" onClick={() => _import(emojis, emojisByChar, addEmoji)} />
-        <Control label="Export" onClick={() => _export(toasts, emojis)} />
+        <Control label="Save" onClick={() => save(toasts, map)}/>
+        <Control label="Import" onClick={() => _import(map, setMap)}/>
+        <Control label="Export" onClick={() => _export(toasts, map)}/>
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {[ ...emojis.values() ].map(emoji => (
+        {map.values().sort(compareEmoji).map(emoji => (
           <EmojiComponent
             key={emoji.name}
             emoji={emoji}/>
@@ -316,19 +410,18 @@ function Editor() {
 }
 
 export default function EditorPage() {
-  const emojis = useState(new Map());
-  const emojisByChar = useState(new Map());
+  const [ map, setMap ] = useState(new GlyphMap());
 
   return (
     <ToastContainer>
-      <GlyphContext.Provider value={[ emojis, emojisByChar ]}>
+      <GlyphContext.Provider value={[ map, setMap ]}>
         <Head>
           <meta property="og:title" content="Unnamed Team | Emojis"/>
           <meta property="og:description" content="Web-editor for emojis, a Minecraft plugin by Unnamed Team"/>
           <meta property="theme-color" content="#ff8df8"/>
           <title>Unnamed | Emoji Editor</title>
         </Head>
-        <div className="bg-gradient-to-r from-night-100 to-night-200 h-screen flex flex-col px-48 py-8">
+        <div className="bg-gradient-to-r from-night-100 to-night-200 min-h-screen flex flex-col px-48 py-8">
           <Editor/>
         </div>
       </GlyphContext.Provider>
