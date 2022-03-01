@@ -5,6 +5,8 @@ import { promptFilesAndReadAsBuffer, saveFile, stripExtension } from '../../lib/
 import { ToastContainer, useToasts } from '../../components/toast';
 import { Card, CardContainer } from '../../components/card';
 import { Button } from '../../components/button';
+import styles from './glyphs.module.scss';
+import { Container } from '../../components/container';
 
 const ALLOWED_MIME_TYPES = new Set([ 'image/webp', 'image/png' ]);
 const PATTERNS = {
@@ -229,6 +231,7 @@ function DropRegion() {
   async function onDrop(event) {
     event.preventDefault();
     event.stopPropagation();
+    setDragOver(false);
 
     /** @type FileList */
     const files = event.dataTransfer.files;
@@ -249,16 +252,23 @@ function DropRegion() {
       const reader = new FileReader();
       const loadPromise = new Promise((resolve, reject) => {
         reader.addEventListener('load', ({ target }) =>
-          processImage(target.result, file.type, data =>
+          processImage(target.result, file.type, data => {
+            const name = stripExtension(file.name);
+            const uniqueName = map.ensureUniqueName(name);
+
+            if (name !== uniqueName) {
+              toasts.add('warning', `Emoji with name '${name}' already exists, name updated to '${uniqueName}'`);
+            }
+
             resolve({
-              name: map.ensureUniqueName(stripExtension(file.name)),
+              name: uniqueName,
               character: map.generateChar(),
               img: data,
               ascent: 8,
               height: 9,
               permission: '',
-            })
-          )
+            });
+          })
         );
         reader.addEventListener('error', reject);
         reader.addEventListener('abort', reject);
@@ -275,14 +285,9 @@ function DropRegion() {
     setMap(newMap);
   }
 
-  const styles = {
-    def: "flex justify-center items-center mx-auto w-1/3 h-36 bg-black bg-opacity-30 text-white opacity-80 text-lg",
-    dragOver: "bg-opacity-40 opacity-90",
-  };
-
   return (
     <div
-      className={`${styles.def} ${dragOver ? styles.dragOver : ''}`}
+      className={`${styles.drops} ${dragOver ? styles.dropsOver : ''}`}
       onDragOver={onDragOver}
       onDragEnter={onDragOver}
       onDragLeave={onDragEnd}
@@ -306,7 +311,7 @@ function save(toasts, map) {
     .then(blob => saveFile(blob, 'emojis.mcemoji'));
 }
 
-function _import(map, cb) {
+function _import(toasts, map, cb) {
   promptFilesAndReadAsBuffer(
     (file, buffer) => readEmojis(buffer)
       .then(result => result.forEach(emoji => processImage(emoji.img, file.type, imageData => {
@@ -314,10 +319,14 @@ function _import(map, cb) {
         emoji.img = imageData;
 
         // if name is taken, use another name
-        emoji.name = map.ensureUniqueName(emoji.name);
+        const newName = map.ensureUniqueName(emoji.name);
+        if (emoji.name !== newName) {
+          toasts.add('warning', `Emoji with name '${emoji.name}' already exists, name updated to '${newName}'`);
+          emoji.name = newName;
+        }
+
         if (map.byChar.has(emoji.character)) {
           emoji.character = map.generateChar();
-          // todo: warn or skip this emoji
         }
 
         cb(emoji);
@@ -374,7 +383,7 @@ function Editor() {
   const [ map, setMap ] = useContext(GlyphContext);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 py-8">
       <div className="flex flex-col gap-2">
         <h2 className="text-white text-center font-medium text-5xl opacity-90">Editor</h2>
         <h3 className="text-white text-center font-light text-lg opacity-90">Web-editor for µŋglyphs</h3>
@@ -384,7 +393,7 @@ function Editor() {
 
       <div className="flex flex-row w-max mx-auto gap-2">
         <Button label="Save" onClick={() => save(toasts, map)}/>
-        <Button label="Import" onClick={() => _import(map, setMap)}/>
+        <Button label="Import" onClick={() => _import(toasts, map, setMap)}/>
         <Button label="Export" onClick={() => _export(toasts, map)}/>
       </div>
 
@@ -411,8 +420,10 @@ export default function EditorPage() {
           <meta property="theme-color" content="#ff8df8"/>
           <title>Unnamed | Emoji Editor</title>
         </Head>
-        <div className="bg-gradient-to-r from-night-100 to-night-200 min-h-screen flex flex-col px-48 py-8">
-          <Editor/>
+        <div className="bg-gradient-to-r from-night-100 to-night-200 min-h-screen flex flex-col">
+          <Container>
+            <Editor/>
+          </Container>
         </div>
       </GlyphContext.Provider>
     </ToastContainer>

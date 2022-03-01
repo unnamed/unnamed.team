@@ -2,10 +2,11 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { Button } from '../components/button';
 import { Card, CardContainer } from '../components/card';
+import { Container } from '../components/container';
 
 function Header() {
   return (
-    <header className="w-full flex flex-row items-center px-32 py-8 gap-8 justify-between">
+    <header className="w-full flex flex-row items-center py-8 gap-8 justify-between">
       <div className="w-max">
         <Image id="header__logo" src="/logo.svg" alt="logo" width={64} height={64}/>
       </div>
@@ -113,13 +114,15 @@ export default function Home({ starCount, members }) {
         <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
         <meta name="theme-color" content="#ff8df8"/>
       </Head>
-      <div className="bg-gradient-to-r from-night-100 to-night-200 h-screen flex flex-col">
-        <Header />
-        <div className="overflow-y-scroll px-48 py-8 h-full">
-          <MainSection />
-          <TeamSection members={members} />
-          <AboutSection starCount={starCount} />
-        </div>
+      <div className="bg-gradient-to-r from-night-100 to-night-200 min-h-screen flex flex-col">
+        <Container>
+          <Header />
+          <div className="py-12">
+            <MainSection />
+            <TeamSection members={members} />
+            <AboutSection starCount={starCount} />
+          </div>
+        </Container>
       </div>
     </>
   );

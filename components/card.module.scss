@@ -25,4 +25,12 @@
   &Vertical {
     flex-direction: column;
   }
+
+  @media (max-width: 1500px) {
+    flex-basis: 48%;
+  }
+
+  @media (max-width: 1000px) {
+    flex-basis: 100%;
+  }
 }

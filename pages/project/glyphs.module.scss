@@ -1,0 +1,18 @@
+.drops {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  width: 18rem;
+  height: 9rem;
+
+  background-color: #0000004C;
+  color: #FFFFFFCC;
+
+  font-size: 1.125rem;
+
+  &Over {
+    background-color: #000000CC;
+    color: #FFFFFFE5;
+  }
+}

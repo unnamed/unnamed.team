@@ -21,7 +21,7 @@ module.exports = {
       },
       {
         source: '/emojis',
-        destination: '/project/glyph',
+        destination: '/project/glyphs',
         permanent: true
       }
     ];
