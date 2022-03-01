@@ -1,0 +1,58 @@
+.container {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+  width: 15%;
+
+  right: 10px;
+  bottom: 10px;
+
+  position: absolute;
+}
+
+.toast {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  color: white;
+
+  background-color: var(--toast-color);
+  border-left: 10px solid var(--toast-dark-color);
+  padding: 0.8em 1.2em;
+
+  font-family: 'Rubik', sans-serif;
+
+  &Success {
+    --toast-color: #28a745;
+    --toast-dark-color: #1f8838;
+  }
+
+  &Warning {
+    --toast-color: #eab000;
+    --toast-dark-color: #ce9c09;
+  }
+
+  &Error {
+    --toast-color: #dc3545;
+    --toast-dark-color: #bd1120;
+  }
+
+  &Header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    &Title {
+      font-size: 1em;
+      font-weight: normal;
+      text-transform: capitalize;
+    }
+  }
+
+  &Message {
+    font-size: 1em;
+    font-weight: lighter;
+  }
+}
