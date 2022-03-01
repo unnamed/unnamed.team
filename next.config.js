@@ -11,6 +11,11 @@ module.exports = {
         permanent: true,
         basePath: false
       },
+      {
+        source: '/emojis',
+        destination: '/project/glyph',
+        permanent: true
+      }
     ];
   }
 };
