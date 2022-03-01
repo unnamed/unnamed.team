@@ -21,7 +21,7 @@ export default function Error404() {
               </span>
               , or join our
               <span className="text-pink-light hover:text-pink-dark">
-                <Link href="https://discord.gg/xbba2fy"> Discord Server</Link>
+                <Link href={process.env.discordInvite}> Discord Server</Link>
               </span>
             </p>
           </div>

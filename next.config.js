@@ -3,6 +3,9 @@ module.exports = {
   images: {
     domains: ['avatars.githubusercontent.com'],
   },
+  env: {
+    discordInvite: 'https://discord.gg/QebDnyWGtz'
+  },
   async redirects() {
     return [
       {

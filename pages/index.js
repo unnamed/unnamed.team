@@ -28,7 +28,7 @@ function MainSection() {
       </div>
       <div className="flex flex-row text-lg gap-4">
         <Button label="Show me" onClick={() => window.open('https://github.com/unnamed')}/>
-        <Button label="Join Us" onClick={() => window.open('https://discord.gg/xbba2fy')} color="secondary"/>
+        <Button label="Join Us" onClick={() => window.open(process.env.discordInvite)} color="secondary"/>
       </div>
     </main>
   );
@@ -90,7 +90,7 @@ function AboutSection({ starCount }) {
           </div>
         </Card>
 
-        <Card onClick={() => window.open('https://discord.gg/xbba2fy')}>
+        <Card onClick={() => window.open(process.env.discordInvite)}>
           <div>
             <h4 className="text-white font-normal opacity-90">Discord Server</h4>
             <p className="text-white font-light opacity-90">Join our Discord server</p>
