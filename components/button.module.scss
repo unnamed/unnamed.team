@@ -1,22 +1,24 @@
+@import '../lib/_variables.scss';
+
 .button {
   padding: 0.5rem 0.75rem;
   font-weight: 300;
 
   &Primary {
-    background-color: #ff8df8;
+    background-color: $accent-primary;
     color: #0a0b10;
 
     &:hover {
-      background-color: #c86bef;
+      background-color: $accent-secondary;
     }
   }
 
   &Secondary {
-    background-color: #0000004c;
+    background-color: $bg-primary;
     color: #ffffffe5;
 
     &:hover {
-      background-color: #00000066;
+      background-color: $bg-secondary;
     }
   }
 }

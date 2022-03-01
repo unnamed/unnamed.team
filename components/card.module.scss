@@ -1,3 +1,5 @@
+@import '../lib/_variables.scss';
+
 .container {
   display: flex;
   flex-wrap: wrap;
@@ -12,11 +14,11 @@
   align-items: center;
   justify-content: space-between;
 
-  background-color: #0000004C;
+  background-color: $bg-primary;
   cursor: pointer;
 
   &:hover {
-    background-color: #00000066;
+    background-color: $bg-secondary;
   }
 
   &Horizontal {

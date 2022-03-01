@@ -1,3 +1,5 @@
+@import '../../lib/_variables.scss';
+
 .drops {
   display: flex;
   justify-content: center;
@@ -6,13 +8,13 @@
   width: 18rem;
   height: 9rem;
 
-  background-color: #0000004C;
+  background-color: $bg-primary;
   color: #FFFFFFCC;
 
   font-size: 1.125rem;
 
   &Over {
-    background-color: #000000CC;
+    background-color: $bg-secondary;
     color: #FFFFFFE5;
   }
 }

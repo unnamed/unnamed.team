@@ -147,7 +147,7 @@ export async function getStaticProps() {
         .then(member => {
           let { name, login, bio, avatar_url, html_url } = member;
           bio = bio ? bio.replace(/\r?\n/g, '') : "";
-          name = name ? name : login;
+          name = name !== undefined ? name : login;
 
           return {
             name,
