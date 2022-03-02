@@ -1,0 +1,26 @@
+/* Global Style Sheet */
+@import '../lib/_variables.scss';
+
+/* Scrollbar Customization */
+/* Firefox */
+* {
+  scrollbar-color: $accent-primary #171923;
+}
+
+/* Chrome, Edge, and Safari */
+::-webkit-scrollbar {
+  width: 6px;
+
+  &-track {
+    background-color: #171923;
+  }
+
+  &-thumb {
+    background-color: $accent-primary;
+    border-radius: 8px;
+
+    &:hover {
+      background-color: $accent-secondary;
+    }
+  }
+}
