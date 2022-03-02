@@ -70,7 +70,7 @@ export async function getStaticPaths() {
   return {
     paths: data.repos.map(repo => ({
       params: {
-        project: repo.name
+        repo
       }
     })),
     fallback: false
@@ -78,9 +78,7 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const project = params.project;
-  const data = await fetchGitHubData(process.env.githubSlug);
-  const repo = data.repos.find(repo => repo.name === project);
+  const { repo } = params;
   let content;
 
   if (!repo || (content = await fetchDocs(repo)) === null) {
