@@ -1,4 +1,4 @@
-import ErrorPage from 'next/error'
+import ErrorPage from 'next/error';
 import Head from 'next/head';
 import { Container } from '../../components/container';
 import { fetchDocs, fetchGitHubData } from '../../lib/github';
