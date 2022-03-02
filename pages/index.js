@@ -3,12 +3,13 @@ import Image from 'next/image';
 import { Button } from '../components/button';
 import { Card, CardContainer } from '../components/card';
 import { Container } from '../components/container';
+import { fetchGitHubData } from '../lib/github';
 
 function Header() {
   return (
     <header className="w-full flex flex-row items-center py-8 gap-8 justify-between">
       <div className="w-max">
-        <Image id="header__logo" src="/logo.svg" alt="logo" width={64} height={64}/>
+        <Image src="/logo.svg" alt="logo" width={64} height={64}/>
       </div>
       <div className="flex flex-row gap-32 text-white font-light text-lg">
         <span><a href="#home">Home</a></span>
@@ -131,33 +132,14 @@ export default function Home({ starCount, members }) {
  */
 export async function getStaticProps() {
 
-  const organization = process.env.githubSlug;
+  const data = await fetchGitHubData(process.env.githubSlug);
 
-  // fetches and counts total star count on our repositories
-  const starCount = await fetch(`https://api.github.com/orgs/${organization}/repos`)
-    .then(response => response.json())
-    .then(repositories => repositories.filter(repo => !repo.fork).reduce((count, repo) => count + repo.stargazers_count, 0));
-
-  // fetch team members
-  const members = await fetch(`https://api.github.com/orgs/${organization}/public_members`)
-    .then(response => response.json())
-    .then(members => Promise.all(members.map(({ url }) => {
-      return fetch(url)
-        .then(response => response.json())
-        .then(member => {
-          let { name, login, bio, avatar_url, html_url } = member;
-          bio = bio ? bio.replace(/\r?\n/g, '') : "";
-          name = name !== undefined ? name : login;
-
-          return {
-            name,
-            login,
-            bio,
-            avatar: avatar_url,
-            html: html_url,
-          };
-        });
-    })));
+  const starCount = data.repos.reduce((count, repo) => count + repo.stars, 0);
+  const members = data.members.map(member => ({
+    ...member,
+    bio: member.bio ? member.bio.replace(/\r?\n/g, '') : '',
+    name: member.name !== undefined ? member.name : member.login
+  }));
 
   return {
     props: {
