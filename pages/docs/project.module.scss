@@ -1,0 +1,75 @@
+@import '../../lib/_variables.scss';
+
+.root {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  background-color: $bg-primary;
+  padding: 1rem 2rem;
+
+  flex: 0.2;
+
+  &Element {
+    font-weight: 300;
+    cursor: pointer;
+
+    .sidebarElement {
+      padding-left: 1.5rem;
+    }
+  }
+
+  &Group {
+    display: flex;
+    flex-direction: column;
+
+    &Title {
+      text-transform: capitalize;
+      font-weight: 500;
+    }
+  }
+}
+
+.body {
+  flex: 0.8;
+  padding: 1.5rem 4rem;
+  max-height: 100vh;
+  overflow-y: scroll;
+
+  h2, h3 {
+    margin: 1.5rem 0 0.725rem;
+  }
+
+  pre code {
+    margin: 0.725rem 0 1.5rem;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+  }
+
+  p {
+    font-weight: 300;
+    margin: 0.5rem 0;
+  }
+
+  li {
+    list-style: square;
+    margin-left: 1.5rem;
+    font-weight: 300;
+  }
+
+  a {
+    color: $accent-primary;
+  }
+}

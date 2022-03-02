@@ -1,28 +1,75 @@
 import ErrorPage from 'next/error';
 import Head from 'next/head';
-import { Container } from '../../components/container';
-import { fetchDocs, fetchGitHubData } from '../../lib/github';
+import { fetchCache, fetchDocs, fetchGitHubData } from '../../lib/github'
+import { markdownToHtml } from '../../lib/markdown';;
 
-import { remark } from 'remark';
-import html from 'remark-html';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
+import styles from './project.module.scss';
+
+function firstSection(tree) {
+  const readme = tree['readme.md'];
+  if (readme) {
+    return [ 'readme.md', readme ];
+  }
+
+  for (const [ name, section ] of Object.entries(tree)) {
+    if (typeof section === 'string') {
+      return [ name, section ];
+    } else {
+      const found = firstSection(section);
+      if (found !== null) {
+        return found;
+      }
+    }
+  }
+  return null;
+}
+
+function titleOf(name, section) {
+  if (typeof section !== 'string') {
+    return name;
+  } else if (name === 'readme.md') {
+    return 'Main';
+  }
+
+  const open = '<h2>';
+  const close = '</h2>';
+  const start = section.indexOf(open) + open.length;
+  const end = section.indexOf(close, start);
+
+  if (start !== -1 && end !== -1) {
+    return section.substring(start, end);
+  }
+  return name;
+}
+
 
 export default function Docs({ data }) {
   const router = useRouter();
+
   if (!router.isFallback && !data) {
     return <ErrorPage statusCode={404} />;
   }
 
   const { repo, content } = data;
+  const [ [ sectionFileName, sectionContent ], setSection ] = useState(firstSection(content));
 
   function makeSidebar(tree) {
     return (
-      <ul>
+      <ul className={styles.sidebarGroup}>
         {
           Object.entries(tree)
             .map(([name, section]) => (
-              <li key={name}>
-                {name}
+              <li
+                className={`${styles.sidebarElement} ${typeof section === 'string' ? '' : styles.sidebarGroupTitle}`}
+                key={name}
+                onClick={() => {
+                  if (typeof section === 'string') {
+                    setSection([ name, section ]);
+                  }
+                }}>
+                <span>{titleOf(name, section)}</span>
                 { typeof section === 'string' || makeSidebar(section) }
               </li>
             ))
@@ -42,24 +89,16 @@ export default function Docs({ data }) {
         <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
         <meta name="theme-color" content="#ff8df8"/>
       </Head>
-      <div className="bg-gradient-to-r from-night-100 to-night-200 min-h-screen flex flex-col text-white">
-        <Container>
-          <h1 className="text-white font-medium text-5xl opacity-90">Documentation for {repo.name}</h1>
-
-          <div className="flex flex-row">
-            <div className="flex flex-col">
-              {makeSidebar(content)}
-            </div>
+      <div className="bg-gradient-to-r from-night-100 to-night-200 min-h-screen text-white">
+        <div className={styles.root}>
+          <div className={styles.sidebar}>
+            <h1>{repo.name} Documentation</h1>
+            {makeSidebar(content)}
           </div>
-          {
-            Object.entries(content)
-              .map(([name, html]) => (
-                <div key={name}>
-                  <div dangerouslySetInnerHTML={{ __html: html }} />
-                </div>
-              ))
-          }
-        </Container>
+          <div className={styles.body}>
+            <div dangerouslySetInnerHTML={{ __html: sectionContent }} />
+          </div>
+        </div>
       </div>
     </>
   );
@@ -67,6 +106,7 @@ export default function Docs({ data }) {
 
 export async function getStaticPaths() {
   const data = await fetchGitHubData(process.env.githubSlug);
+  const allData = {};
   const paths = [];
 
   for (const repo of data.repos) {
@@ -77,13 +117,17 @@ export async function getStaticPaths() {
       continue;
     }
 
+    allData[repo.name] = {
+      repo,
+      content
+    };
     paths.push({
       params: {
-        repo,
-        content
+        project: repo.name
       }
     });
   }
+  await fetchCache.setAll(allData);
 
   return {
     paths,
@@ -92,12 +136,13 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const { repo, content } = params;
+  const { project } = params;
+  const { repo, content } = await fetchCache.find(project);
 
   async function toHtml(obj) {
     for (const [key, value] of Object.entries(obj)) {
       if (typeof value === 'string') {
-        obj[key] = (await remark().use(html).process(value)).toString();
+        obj[key] = await markdownToHtml(value);
       } else {
         await toHtml(value);
       }
