@@ -77,7 +77,7 @@ export default function Docs({ data }) {
         <meta property="og:title" content={`${repo.name} | Documentation`} />
         <meta property="og:type" content="website"/>
         <meta property="og:url" content={`https://unnamed.team/docs/${repo.name}`}/>
-        <meta property="og:description" content="" />
+        <meta property="og:description" content={`${repo.description}`} />
         <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
         <meta name="theme-color" content="#ff8df8"/>
       </Head>
