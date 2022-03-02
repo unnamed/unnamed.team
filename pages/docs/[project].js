@@ -1,9 +1,7 @@
-import ErrorPage from 'next/error';
 import Head from 'next/head';
-import { fetchCache, fetchDocs, fetchGitHubData } from '../../lib/github'
-import { markdownToHtml } from '../../lib/markdown';;
+import { fetchCache, fetchDocs, fetchGitHubData } from '../../lib/github';
+import { markdownToHtml } from '../../lib/markdown';
 
-import { useRouter } from 'next/router';
 import { useState } from 'react';
 import styles from './project.module.scss';
 
@@ -46,12 +44,6 @@ function titleOf(name, section) {
 
 
 export default function Docs({ data }) {
-  const router = useRouter();
-
-  if (!router.isFallback && !data) {
-    return <ErrorPage statusCode={404} />;
-  }
-
   const { repo, content } = data;
   const [ [ sectionFileName, sectionContent ], setSection ] = useState(firstSection(content));
 
