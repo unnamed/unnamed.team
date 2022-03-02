@@ -67,27 +67,32 @@ export default function Docs({ data }) {
 
 export async function getStaticPaths() {
   const data = await fetchGitHubData(process.env.githubSlug);
-  return {
-    paths: data.repos.map(repo => ({
+  const paths = [];
+
+  for (const repo of data.repos) {
+    const content = await fetchDocs(repo);
+
+    if (content === null) {
+      // no docs for this repo
+      continue;
+    }
+
+    paths.push({
       params: {
-        repo
+        repo,
+        content
       }
-    })),
+    });
+  }
+
+  return {
+    paths,
     fallback: false
   };
 }
 
 export async function getStaticProps({ params }) {
-  const { repo } = params;
-  let content;
-
-  if (!repo || (content = await fetchDocs(repo)) === null) {
-    return {
-      props: {
-        data: null
-      }
-    };
-  }
+  const { repo, content } = params;
 
   async function toHtml(obj) {
     for (const [key, value] of Object.entries(obj)) {
