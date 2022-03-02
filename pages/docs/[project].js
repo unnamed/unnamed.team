@@ -81,8 +81,9 @@ export async function getStaticProps({ params }) {
   const project = params.project;
   const data = await fetchGitHubData(process.env.githubSlug);
   const repo = data.repos.find(repo => repo.name === project);
+  let content;
 
-  if (!repo) {
+  if (!repo || (content = await fetchDocs(repo)) === null) {
     return {
       props: {
         data: null
@@ -90,7 +91,6 @@ export async function getStaticProps({ params }) {
     };
   }
 
-  const content = await fetchDocs(repo);
   async function toHtml(obj) {
     for (const [key, value] of Object.entries(obj)) {
       if (typeof value === 'string') {
