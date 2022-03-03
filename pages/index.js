@@ -6,6 +6,7 @@ import { Container } from '../components/container';
 import { fetchGitHubData } from '../lib/github';
 import { Background } from '../components/background';
 import { createElement } from 'react';
+import { ElementAnchor } from '../components/element_anchor';
 
 function Section({ id, as, children }) {
   as = as || 'div';
@@ -24,9 +25,9 @@ function MainSection() {
           <Image src="/logo.svg" alt="logo" width={64} height={64}/>
         </div>
         <div className="flex flex-row gap-32 text-white font-light text-lg">
-          <span><a href="#home">Home</a></span>
-          <span><a href="#team">Team</a></span>
-          <span><a href="#about">About</a></span>
+          <span><ElementAnchor href="#home">Home</ElementAnchor></span>
+          <span><ElementAnchor href="#team">Team</ElementAnchor></span>
+          <span><ElementAnchor href="#about">About</ElementAnchor></span>
         </div>
         <div />
       </header>
