@@ -20,6 +20,12 @@ module.exports = {
         basePath: false
       },
       {
+        source: '/youtube',
+        destination: 'https://www.youtube.com/channel/UCPApMf-HqCk5JtjzlG9HvSQ',
+        permanent: true,
+        basePath: false
+      },
+      {
         source: '/emojis',
         destination: '/project/glyphs',
         permanent: true
