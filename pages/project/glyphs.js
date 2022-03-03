@@ -255,32 +255,29 @@ function DropRegion() {
       }
 
       const reader = new FileReader();
-      const loadPromise = new Promise((resolve, reject) => {
-        reader.addEventListener('load', ({ target }) =>
-          processImage(target.result, file.type, data => {
-            const name = stripExtension(file.name);
-            const uniqueName = map.ensureUniqueName(name);
-
-            if (name !== uniqueName) {
-              toasts.add('warning', `Emoji with name '${name}' already exists, name updated to '${uniqueName}'`);
-            }
-
-            resolve({
-              name: uniqueName,
-              character: map.generateChar(),
-              img: data,
-              ascent: 8,
-              height: 9,
-              permission: '',
-            });
-          })
-        );
+      const dataUrlPromise = new Promise((resolve, reject) => {
+        reader.addEventListener('load', ({ target }) => resolve(target.result));
         reader.addEventListener('error', reject);
         reader.addEventListener('abort', reject);
       });
       reader.readAsDataURL(file);
 
-      toAdd.push(await loadPromise);
+      const imageDataUrl = processImage(await dataUrlPromise, file.type);
+      const name = stripExtension(file.name);
+      const uniqueName = map.ensureUniqueName(name);
+
+      if (name !== uniqueName) {
+        toasts.add('warning', `Emoji with name '${name}' already exists, name updated to '${uniqueName}'`);
+      }
+
+      toAdd.push({
+        name: uniqueName,
+        character: map.generateChar(),
+        img: imageDataUrl,
+        ascent: 8,
+        height: 9,
+        permission: '',
+      });
     }
 
     const newMap = map.copy();
@@ -316,28 +313,35 @@ function save(toasts, map) {
     .then(blob => saveFile(blob, 'emojis.mcemoji'));
 }
 
-function _import(toasts, map, cb) {
-  promptFilesAndReadAsBuffer(
-    (file, buffer) => readEmojis(buffer)
-      .then(result => result.forEach(emoji => processImage(emoji.img, file.type, imageData => {
-        // set emoji data
-        emoji.img = imageData;
+async function _import(toasts, map, setMap) {
+  const toAdd = [];
+  for (const [ file, buffer ] of (await promptFilesAndReadAsBuffer({ multiple: true }))) {
+    const emojis = await readEmojis(buffer);
+    for (const emoji of emojis) {
+      // process current image data
+      emoji.img = await processImage(emoji.img, file.type);
 
-        // if name is taken, use another name
-        const newName = map.ensureUniqueName(emoji.name);
-        if (emoji.name !== newName) {
-          toasts.add('warning', `Emoji with name '${emoji.name}' already exists, name updated to '${newName}'`);
-          emoji.name = newName;
-        }
+      // if name is taken, use another name
+      const newName = map.ensureUniqueName(emoji.name);
+      if (emoji.name !== newName) {
+        toasts.add('warning', `Emoji with name '${emoji.name}' already exists, name updated to '${newName}'`);
+        emoji.name = newName;
+      }
 
-        if (map.byChar.has(emoji.character)) {
-          emoji.character = map.generateChar();
-        }
+      if (map.byChar.has(emoji.character)) {
+        emoji.character = map.generateChar();
+      }
 
-        cb(emoji);
-      }))),
-    { multiple: true },
-  );
+      toAdd.push(emoji);
+    }
+  }
+
+  // update state
+  const newMap = map.copy();
+  for (const emoji of toAdd) {
+    newMap.add(emoji);
+  }
+  setMap(newMap);
 }
 
 function _export(toasts, map) {
