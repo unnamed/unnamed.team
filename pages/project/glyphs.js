@@ -389,9 +389,13 @@ function Editor() {
 
   return (
     <div className="flex flex-col gap-8 py-8">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 items-center">
         <h2 className="text-white text-center font-medium text-5xl opacity-90">Editor</h2>
-        <h3 className="text-white text-center font-light text-lg opacity-90">Web-editor for µŋglyphs</h3>
+        <h3 className="text-white text-center font-light text-lg opacity-90 w-96">
+          Web-editor for µŋglyphs, if you have a problem, try
+          using <a className="text-pink-light underline" href="https://unnamed.github.io/emojis/v2">the old version of this editor</a> and
+          reporting this issue on our <a className="text-pink-light underline" href={process.env.discordInvite}>Discord server</a>
+        </h3>
       </div>
 
       <DropRegion/>
