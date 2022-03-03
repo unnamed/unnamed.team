@@ -45,7 +45,7 @@ function MainSection() {
 
 function MemberCard({ member }) {
   return (
-    <Card>
+    <Card onClick={() => window.open(member.html)}>
       <img src={member.avatar} alt={member.login} className="flex w-24 rounded-full"/>
       <div className="flex flex-col gap-1 items-start h-full basis-2/3">
         <div>
