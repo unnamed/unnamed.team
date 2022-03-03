@@ -40,7 +40,7 @@ export function ToastContainer({ children }) {
     <ToastContext.Provider value={[ toasts, setToasts ]}>
       {children}
       <div className={styles.container}>
-        {toasts.map(toast => (<Toast key={toast.index} value={toast}/>))}
+        {toasts.map(toast => (<Toast key={toast.id} value={toast}/>))}
       </div>
     </ToastContext.Provider>
   );
