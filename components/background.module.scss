@@ -1,0 +1,6 @@
+@import '../lib/_variables.scss';
+
+.background {
+  background-image: linear-gradient(to right, $color-night-100, $color-night-200);
+  min-height: 100vh;
+}

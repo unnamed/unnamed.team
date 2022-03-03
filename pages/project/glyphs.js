@@ -7,6 +7,7 @@ import { Card, CardContainer } from '../../components/card';
 import { Button } from '../../components/button';
 import styles from './glyphs.module.scss';
 import { Container } from '../../components/container';
+import { Background } from '../../components/background';
 
 const ALLOWED_MIME_TYPES = new Set([ 'image/webp', 'image/png' ]);
 const PATTERNS = {
@@ -424,11 +425,11 @@ export default function EditorPage() {
           <meta property="theme-color" content="#ff8df8"/>
           <title>Unnamed | Emoji Editor</title>
         </Head>
-        <div className="bg-gradient-to-r from-night-100 to-night-200 min-h-screen flex flex-col">
+        <Background>
           <Container>
             <Editor/>
           </Container>
-        </div>
+        </Background>
       </GlyphContext.Provider>
     </ToastContainer>
   );

@@ -1,71 +1,42 @@
 import Head from 'next/head';
-import { fetchCache, fetchDocs, fetchGitHubData } from '../../lib/github';
-import { markdownToHtml } from '../../lib/markdown';
+import * as GitHub from '../../lib/github';
+import * as Documentation from '../../lib/docs';
 
 import { useState } from 'react';
 import styles from './project.module.scss';
-
-function firstSection(tree) {
-  const readme = tree['readme.md'];
-  if (readme) {
-    return [ 'readme.md', readme ];
-  }
-
-  for (const [ name, section ] of Object.entries(tree)) {
-    if (typeof section === 'string') {
-      return [ name, section ];
-    } else {
-      const found = firstSection(section);
-      if (found !== null) {
-        return found;
-      }
-    }
-  }
-  return null;
-}
-
-function titleOf(name, section) {
-  if (typeof section !== 'string') {
-    return name;
-  } else if (name === 'readme.md') {
-    return 'Main';
-  }
-
-  const open = '<h2>';
-  const close = '</h2>';
-  const start = section.indexOf(open) + open.length;
-  const end = section.indexOf(close, start);
-
-  if (start !== -1 && end !== -1) {
-    return section.substring(start, end);
-  }
-  return name;
-}
-
+import { Background } from '../../components/background';
 
 export default function Docs({ data }) {
-  const { repo, content } = data;
-  const [ [ sectionFileName, sectionContent ], setSection ] = useState(firstSection(content));
+  const repo = data.repo;
+  const rootTree = data.content;
+  const [ content, setContent ] = useState(Documentation.findMainContentNode(rootTree));
 
-  function makeSidebar(tree) {
+  /**
+   * Creates the elements for the given tree
+   * node, will recurse to obtain a full element
+   * tree for every sub-tree
+   *
+   * @param {DocTree} tree The tree
+   * @returns {JSX.Element} The elements for the tree
+   */
+  function createNodeElement(tree) {
     return (
       <ul className={styles.sidebarGroup}>
-        {
-          Object.entries(tree)
-            .map(([name, section]) => (
-              <li
-                className={`${styles.sidebarElement} ${typeof section === 'string' ? '' : styles.sidebarGroupTitle}`}
-                key={name}
-                onClick={() => {
-                  if (typeof section === 'string') {
-                    setSection([ name, section ]);
-                  }
-                }}>
-                <span>{titleOf(name, section)}</span>
-                { typeof section === 'string' || makeSidebar(section) }
-              </li>
-            ))
-        }
+        {Object.entries(tree).map(([ filename, node ]) => (
+          <li
+            className={`${styles.sidebarElement} ${Documentation.isContent(node) ? '' : styles.sidebarGroupTitle}`}
+            key={filename}
+            onClick={() => {
+              if (Documentation.isContent(node)) {
+                setContent(node);
+              }
+            }}>
+
+            <span>{Documentation.titleOf(filename, node)}</span>
+
+            {Documentation.isContent(node) || createNodeElement(node)}
+          </li>
+        ))}
       </ul>
     );
   }
@@ -74,80 +45,69 @@ export default function Docs({ data }) {
     <>
       <Head>
         <title>{repo.name} | Docs</title>
-        <meta property="og:title" content={`${repo.name} | Documentation`} />
+        <meta property="og:title" content={`${repo.name} | Documentation`}/>
         <meta property="og:type" content="website"/>
         <meta property="og:url" content={`https://unnamed.team/docs/${repo.name}`}/>
-        <meta property="og:description" content={`${repo.description}`} />
+        <meta property="og:description" content={`${repo.description}`}/>
         <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
         <meta name="theme-color" content="#ff8df8"/>
       </Head>
-      <div className="bg-gradient-to-r from-night-100 to-night-200 min-h-screen text-white">
+      <Background>
         <div className={styles.root}>
           <div className={styles.sidebar}>
             <h1>{repo.name} Documentation</h1>
-            {makeSidebar(content)}
+            {createNodeElement(rootTree)}
           </div>
           <div className={styles.body}>
-            <div dangerouslySetInnerHTML={{ __html: sectionContent }} />
+            <div dangerouslySetInnerHTML={{ __html: content }}/>
           </div>
         </div>
-      </div>
+      </Background>
     </>
   );
 }
 
 export async function getStaticPaths() {
-  const data = await fetchGitHubData(process.env.githubSlug);
+  const data = await GitHub.fetchGitHubData(process.env.githubSlug);
   const allData = {};
   const paths = [];
 
   for (const repo of data.repos) {
-    const content = await fetchDocs(repo);
+    const content = await GitHub.fetchDocs(repo);
 
     if (content === null) {
       // no docs for this repo
       continue;
     }
 
-    allData[repo.name] = {
-      repo,
-      content
-    };
+    allData[repo.name] = { repo, content };
     paths.push({
       params: {
-        project: repo.name
-      }
+        project: repo.name,
+      },
     });
   }
-  await fetchCache.setAll(allData);
+  await GitHub.fetchCache.setAll(allData);
 
   return {
     paths,
-    fallback: false
+    fallback: false,
   };
 }
 
 export async function getStaticProps({ params }) {
   const { project } = params;
-  const { repo, content } = await fetchCache.find(project);
+  const { repo, content } = await GitHub.fetchCache.find(project);
 
-  async function toHtml(obj) {
-    for (const [key, value] of Object.entries(obj)) {
-      if (typeof value === 'string') {
-        obj[key] = await markdownToHtml(value);
-      } else {
-        await toHtml(value);
-      }
-    }
-  }
-  await toHtml(content);
+  // convert from markdown to HTML
+  await Documentation.toHtml(content);
 
   return {
     props: {
       data: {
         repo,
-        content
-      }
-    }
+        content,
+      },
+    },
   };
 }

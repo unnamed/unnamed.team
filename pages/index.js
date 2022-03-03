@@ -4,6 +4,7 @@ import { Button } from '../components/button';
 import { Card, CardContainer } from '../components/card';
 import { Container } from '../components/container';
 import { fetchGitHubData } from '../lib/github';
+import { Background } from '../components/background';
 
 function Header() {
   return (
@@ -115,14 +116,14 @@ export default function Home({ starCount, members }) {
         <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
         <meta name="theme-color" content="#ff8df8"/>
       </Head>
-      <div className="bg-gradient-to-r from-night-100 to-night-200 min-h-screen flex flex-col">
+      <Background>
         <Container>
           <Header />
           <MainSection />
           <TeamSection members={members} />
           <AboutSection starCount={starCount} />
         </Container>
-      </div>
+      </Background>
     </>
   );
 };
