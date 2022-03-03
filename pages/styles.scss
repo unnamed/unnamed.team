@@ -4,7 +4,7 @@
 /* Scrollbar Customization */
 /* Firefox */
 * {
-  scrollbar-color: $accent-primary #171923;
+  scrollbar-color: $accent-primary $color-night-200;
 }
 
 /* Chrome, Edge, and Safari */
@@ -12,7 +12,7 @@
   width: 6px;
 
   &-track {
-    background-color: #171923;
+    background-color: $color-night-200;
   }
 
   &-thumb {
