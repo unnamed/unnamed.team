@@ -5,26 +5,31 @@ import { Card, CardContainer } from '../components/card';
 import { Container } from '../components/container';
 import { fetchGitHubData } from '../lib/github';
 import { Background } from '../components/background';
+import { createElement } from 'react';
 
-function Header() {
-  return (
-    <header className="w-full flex flex-row items-center py-8 gap-8 justify-between">
-      <div className="w-max">
-        <Image src="/logo.svg" alt="logo" width={64} height={64}/>
-      </div>
-      <div className="flex flex-row gap-32 text-white font-light text-lg">
-        <span><a href="#home">Home</a></span>
-        <span><a href="#team">Team</a></span>
-        <span><a href="#about">About</a></span>
-      </div>
-      <div />
-    </header>
+function Section({ id, as, children }) {
+  as = as || 'div';
+  return createElement(
+    as,
+    { id, className: 'min-h-screen flex flex-col py-16 gap-12' },
+    children
   );
 }
 
 function MainSection() {
   return (
-    <main className="min-h-screen flex flex-col py-6 gap-4" id="home">
+    <Section id="home" as="main">
+      <header className="w-full flex flex-row items-center gap-8 justify-between">
+        <div className="w-max">
+          <Image src="/logo.svg" alt="logo" width={64} height={64}/>
+        </div>
+        <div className="flex flex-row gap-32 text-white font-light text-lg">
+          <span><a href="#home">Home</a></span>
+          <span><a href="#team">Team</a></span>
+          <span><a href="#about">About</a></span>
+        </div>
+        <div />
+      </header>
       <div className="flex flex-col gap-4">
         <h1 className="text-white font-medium text-6xl opacity-90">Everything is<br/>possible</h1>
         <h3 className="text-white font-light text-xl opacity-90">And we will show you</h3>
@@ -33,7 +38,7 @@ function MainSection() {
         <Button label="Show me" onClick={() => window.open(`https://github.com/${process.env.githubSlug}`)}/>
         <Button label="Join Us" onClick={() => window.open(process.env.discordInvite)} color="secondary"/>
       </div>
-    </main>
+    </Section>
   );
 }
 
@@ -54,7 +59,7 @@ function MemberCard({ member }) {
 
 function TeamSection({ members }) {
   return (
-    <div className="min-h-screen flex flex-col py-6 gap-8" id="team">
+    <Section id="team">
       <div className="flex flex-col gap-4">
         <h2 className="text-white font-medium text-5xl opacity-90">Meet our team</h2>
         <h3 className="text-white font-light text-lg opacity-90">The people behind the Unnamed Team who make this
@@ -63,13 +68,13 @@ function TeamSection({ members }) {
       <CardContainer>
         {members.map(member => (<MemberCard key={member.login} member={member}/>))}
       </CardContainer>
-    </div>
+    </Section>
   );
 }
 
 function AboutSection({ starCount }) {
   return (
-    <div className="min-h-screen flex flex-col py-6 gap-8" id="about">
+    <Section id="about">
 
       <div className="flex flex-col gap-4">
         <h2 className="text-white font-medium text-5xl opacity-90">About Us</h2>
@@ -100,7 +105,7 @@ function AboutSection({ starCount }) {
           </div>
         </Card>
       </div>
-    </div>
+    </Section>
   );
 }
 
@@ -118,7 +123,6 @@ export default function Home({ starCount, members }) {
       </Head>
       <Background>
         <Container>
-          <Header />
           <MainSection />
           <TeamSection members={members} />
           <AboutSection starCount={starCount} />
