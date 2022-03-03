@@ -16,6 +16,8 @@
 
   flex: 0.2;
 
+  color: #ffffffc4;
+
   &Element {
     font-weight: 300;
     cursor: pointer;
@@ -41,6 +43,8 @@
   padding: 1.5rem 4rem;
   max-height: 100vh;
   overflow-y: scroll;
+
+  color: #ffffffc4;
 
   h2, h3 {
     margin: 1.5rem 0 0.725rem;
