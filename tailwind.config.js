@@ -17,7 +17,9 @@ module.exports = {
         200: '#00000066',
       },
       lightghost: {
-        100: '#ffffffe5'
+        100: 'rgba(209,200,215,0.55)',
+        200: '#EFE4F5C6',
+        300: '#ffffffe5'
       },
       night: {
         100: '#171923',

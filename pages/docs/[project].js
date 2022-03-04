@@ -3,13 +3,14 @@ import * as GitHub from '../../lib/github';
 import * as Documentation from '../../lib/docs';
 
 import { useState } from 'react';
-import styles from './project.module.scss';
+import styles from './docs.module.scss';
 import { Background } from '../../components/Background';
 
 export default function Docs({ data }) {
   const repo = data.repo;
   const rootTree = data.content;
   const [ content, setContent ] = useState(Documentation.findMainContentNode(rootTree));
+  const [ sidebar, setSidebar ] = useState(false);
 
   /**
    * Creates the elements for the given tree
@@ -53,13 +54,26 @@ export default function Docs({ data }) {
         <meta name="theme-color" content="#ff8df8"/>
       </Head>
       <Background>
-        <div className={styles.root}>
-          <div className={styles.sidebar}>
+        <div className="flex flex-row min-h-screen text-lightghost-200">
+
+          <aside className={`flex-col gap-4 bg-ghost-100 py-4 px-8 w-full sm:w-max sm:flex ${sidebar ? '' : 'hidden'}`}>
             <h1>{repo.name} Documentation</h1>
             {createNodeElement(rootTree)}
-          </div>
-          <div className={styles.body}>
-            <div dangerouslySetInnerHTML={{ __html: content }}/>
+          </aside>
+
+          <button
+            className="absolute right-0 top-0 sm:hidden border"
+            onClick={() => setSidebar(!sidebar)}>
+            Open/Close Sidebar
+          </button>
+
+          <div className={`flex-col container mx-auto p-4 max-h-screen overflow-y-scroll ${sidebar ? 'hidden sm:flex' : 'flex'}`}>
+            <div className={styles.body} dangerouslySetInnerHTML={{ __html: content }}/>
+
+            <div className="flex md:flex-row justify-between font-light text-lightghost-100 border-t-[1px] border-lightghost-100/10 py-8 my-12">
+              <span>Copyright &copy; {new Date().getFullYear()} Unnamed Team</span>
+              <span className="hover:text-lightghost-200"><a href={`https://github.com/${repo.fullName}`}>Edit this page on GitHub</a></span>
+            </div>
           </div>
         </div>
       </Background>

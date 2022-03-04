@@ -1,6 +1,6 @@
 const types = {
   primary: 'bg-primary text-night-300 hover:bg-secondary',
-  secondary: 'bg-ghost-100 text-lightghost-100 hover:bg-ghost-200'
+  secondary: 'bg-ghost-100 text-lightghost-300 hover:bg-ghost-200'
 };
 
 export function Button({ label, color, onClick }) {
