@@ -25,7 +25,7 @@ function MainSection() {
 
         <div className="flex-row w-full justify-around hidden md:flex md:gap-36 md:justify-center">
           {['home', 'team', 'about'].map(id => (
-            <span className="capitalize font-light text-base text-lightghost-300">
+            <span key={id} className="capitalize font-light text-base text-lightghost-300">
               <ElementAnchor href={`#${id}`}>{id}</ElementAnchor>
             </span>
           ))}
@@ -99,8 +99,8 @@ function AboutSection({ starCount }) {
           [ `https://github.com/${process.env.githubSlug}`, 'GitHub Organization', `With currently ${starCount} stars in total` ],
           [ 'mailto:contact@unnamed.team', 'Mail Us', 'Send an e-mail to contact@unnamed.team' ],
           [ process.env.discordInvite, 'Discord Server', 'Join our Discord server' ]
-        ].map(([ link, title, description ]) => (
-          <Card onClick={() => window.open(link)}>
+        ].map(([ link, title, description ], index) => (
+          <Card key={index} onClick={() => window.open(link)}>
             <div>
               <h4 className="text-lightghost-200 font-normal">{title}</h4>
               <p className="text-lightghost-200 font-light">{description}</p>
