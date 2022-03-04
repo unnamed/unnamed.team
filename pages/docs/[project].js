@@ -4,7 +4,7 @@ import * as Documentation from '../../lib/docs';
 
 import { useState } from 'react';
 import styles from './project.module.scss';
-import { Background } from '../../components/background';
+import { Background } from '../../components/Background';
 
 export default function Docs({ data }) {
   const repo = data.repo;

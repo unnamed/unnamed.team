@@ -3,11 +3,11 @@ import { createContext, useContext, useState } from 'react';
 import { processImage, readEmojis, writeEmojis } from '../../lib/glyphio';
 import { promptFilesAndReadAsBuffer, saveFile, stripExtension } from '../../lib/files';
 import { ToastContainer, useToasts } from '../../components/toast';
-import { Card, CardContainer } from '../../components/card';
-import { Button } from '../../components/button';
+import { Card, CardContainer } from '../../components/Card';
+import { Button } from '../../components/Button';
 import styles from './glyphs.module.scss';
 import { Container } from '../../components/container';
-import { Background } from '../../components/background';
+import { Background } from '../../components/Background';
 
 const ALLOWED_MIME_TYPES = new Set([ 'image/webp', 'image/png' ]);
 const PATTERNS = {

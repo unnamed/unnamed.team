@@ -1,10 +1,10 @@
 import Head from 'next/head';
 import Image from 'next/image';
-import { Button } from '../components/button';
-import { Card, CardContainer } from '../components/card';
+import { Button } from '../components/Button';
+import { Card, CardContainer } from '../components/Card';
 import { Container } from '../components/container';
 import { fetchGitHubData } from '../lib/github';
-import { Background } from '../components/background';
+import { Background } from '../components/Background';
 import { createElement } from 'react';
 import { ElementAnchor } from '../components/element_anchor';
 

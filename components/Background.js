@@ -1,8 +1,6 @@
-import styles from './background.module.scss';
-
 export function Background({ children }) {
   return (
-    <div className={styles.background}>
+    <div className="bg-gradient-to-r from-night-100 to-night-200 min-h-screen">
       {children}
     </div>
   );
