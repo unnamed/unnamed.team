@@ -27,7 +27,7 @@ module.exports = {
       },
       {
         source: '/discord',
-        destination: process.env.discordInvite,
+        destination: this.env.discordInvite,
         permanent: false,
         basePath: false
       },
