@@ -11,7 +11,7 @@ function Section({ id, as, children }) {
   as = as || 'div';
   return createElement(
     as,
-    { id, className: 'min-h-screen flex flex-col py-16 gap-12' },
+    { id, className: 'min-h-screen flex flex-col py-8 md:py-16 gap-10 md:gap-12' },
     children
   );
 }
@@ -19,20 +19,23 @@ function Section({ id, as, children }) {
 function MainSection() {
   return (
     <Section id="home" as="main">
-      <header className="w-full flex flex-row items-center gap-8 justify-between">
-        <div className="w-max">
-          <Image src="/logo.svg" alt="logo" width={64} height={64}/>
+      <header className="w-full flex flex-row items-center justify-between">
+
+        <div className="w-8 h-8 sm:w-12 sm:h-12"><Image src="/logo.svg" alt="logo" width={64} height={64}/></div>
+
+        <div className="flex-row w-full justify-around hidden md:flex md:gap-36 md:justify-center">
+          {['home', 'team', 'about'].map(id => (
+            <span className="capitalize font-light text-base text-lightghost-300">
+              <ElementAnchor href={`#${id}`}>{id}</ElementAnchor>
+            </span>
+          ))}
         </div>
-        <div className="flex flex-row gap-32 text-white font-light text-lg">
-          <span><ElementAnchor href="#home">Home</ElementAnchor></span>
-          <span><ElementAnchor href="#team">Team</ElementAnchor></span>
-          <span><ElementAnchor href="#about">About</ElementAnchor></span>
-        </div>
-        <div />
+
+        <div className="hidden sm:flex" />
       </header>
       <div className="flex flex-col gap-4">
-        <h1 className="text-white font-medium text-6xl opacity-90">Everything is<br/>possible</h1>
-        <h3 className="text-white font-light text-xl opacity-90">And we will show you</h3>
+        <h1 className="text-lightghost-200 font-medium text-4xl sm:text-5xl md:text-6xl">Everything is<br/>possible</h1>
+        <h3 className="text-lightghost-200 font-light text-lg md:text-xl">And we will show you</h3>
       </div>
       <div className="flex flex-row text-lg gap-4">
         <Button label="Show me" onClick={() => window.open(`https://github.com/${process.env.githubSlug}`)}/>
@@ -45,13 +48,21 @@ function MainSection() {
 function MemberCard({ member }) {
   return (
     <Card onClick={() => window.open(member.html)}>
-      <img src={member.avatar} alt={member.login} className="flex w-24 rounded-full"/>
-      <div className="flex flex-col gap-1 items-start h-full basis-2/3">
+      <div className="w-16 md:w-20 lg:w-24">
+        <Image
+          className="rounded-full"
+          layout="responsive"
+          src={member.avatar}
+          alt={member.login}
+          width={1}
+          height={1} />
+      </div>
+      <div className="flex flex-col gap-1 w-full h-full">
         <div>
-          <h4 className="text-white font-normal opacity-90">{member.name}</h4>
-          <h5 className="text-white font-light opacity-80 text-sm">{member.login}</h5>
+          <h4 className="text-lightghost-200 font-normal text-base">{member.name}</h4>
+          <h5 className="text-lightghost-200 font-light text-sm">{member.login}</h5>
         </div>
-        <p className="text-white font-light opacity-90">{member.bio}</p>
+        <p className="text-lightghost-200 font-light text-base">{member.bio}</p>
       </div>
     </Card>
   );
@@ -61,8 +72,8 @@ function TeamSection({ members }) {
   return (
     <Section id="team">
       <div className="flex flex-col gap-4">
-        <h2 className="text-white font-medium text-5xl opacity-90">Meet our team</h2>
-        <h3 className="text-white font-light text-lg opacity-90">The people behind the Unnamed Team who make this
+        <h2 className="text-lightghost-200 font-medium text-3xl sm:text-4xl md:text-5xl">Meet our team</h2>
+        <h3 className="text-lightghost-200 font-light text-md md:text-lg">The people behind the Unnamed Team who make this
           work</h3>
       </div>
       <Card.Container>
@@ -77,33 +88,25 @@ function AboutSection({ starCount }) {
     <Section id="about">
 
       <div className="flex flex-col gap-4">
-        <h2 className="text-white font-medium text-5xl opacity-90">About Us</h2>
-        <h3 className="text-white font-light text-lg opacity-90">This is Unnamed Team, a software development
+        <h2 className="text-lightghost-200 font-medium text-3xl sm:text-4xl md:text-5xl">About Us</h2>
+        <h3 className="text-lightghost-200 font-light text-md md:text-lg">This is Unnamed Team, a software development
           team.
           We make awesome open source software for everyone</h3>
       </div>
 
       <Card.Container>
-        <Card onClick={() => window.open(`https://github.com/${process.env.githubSlug}/`)}>
-          <div>
-            <h4 className="text-white font-normal opacity-90">GitHub Organization</h4>
-            <p className="text-white font-light opacity-90">With currently {starCount} stars in total</p>
-          </div>
-        </Card>
-
-        <Card onClick={() => window.open('mailto:contact@unnamed.team')}>
-          <div>
-            <h4 className="text-white font-normal opacity-90">Mail Us</h4>
-            <p className="text-white font-light opacity-90">Send an e-mail to contact@unnamed.team</p>
-          </div>
-        </Card>
-
-        <Card onClick={() => window.open(process.env.discordInvite)}>
-          <div>
-            <h4 className="text-white font-normal opacity-90">Discord Server</h4>
-            <p className="text-white font-light opacity-90">Join our Discord server</p>
-          </div>
-        </Card>
+        {[
+          [ `https://github.com/${process.env.githubSlug}`, 'GitHub Organization', `With currently ${starCount} stars in total` ],
+          [ 'mailto:contact@unnamed.team', 'Mail Us', 'Send an e-mail to contact@unnamed.team' ],
+          [ process.env.discordInvite, 'Discord Server', 'Join our Discord server' ]
+        ].map(([ link, title, description ]) => (
+          <Card onClick={() => window.open(link)}>
+            <div>
+              <h4 className="text-lightghost-200 font-normal">{title}</h4>
+              <p className="text-lightghost-200 font-light">{description}</p>
+            </div>
+          </Card>
+        ))}
       </Card.Container>
     </Section>
   );
