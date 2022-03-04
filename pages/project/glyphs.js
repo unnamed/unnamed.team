@@ -4,9 +4,9 @@ import { processImage, readEmojis, writeEmojis } from '../../lib/glyphio';
 import { promptFilesAndReadAsBuffer, saveFile, stripExtension } from '../../lib/files';
 import { ToastContainer, useToasts } from '../../components/toast';
 import Card from '../../components/Card';
-import { Button } from '../../components/Button';
+import Button  from '../../components/Button';
 import styles from './glyphs.module.scss';
-import { Background } from '../../components/Background';
+import Background  from '../../components/Background';
 
 const ALLOWED_MIME_TYPES = new Set([ 'image/webp', 'image/png' ]);
 const PATTERNS = {

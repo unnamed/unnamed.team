@@ -3,7 +3,7 @@ const types = {
   secondary: 'bg-ghost-100 text-lightghost-200 hover:bg-ghost-200'
 };
 
-export function Button({ label, color, onClick }) {
+export default function Button({ label, color, onClick }) {
   color = color || 'primary';
   return (
     <button

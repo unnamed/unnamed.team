@@ -1,4 +1,4 @@
-export function ElementAnchor({ href, parentRef, children }) {
+export default function ElementAnchor({ href, parentRef, children }) {
   function follow(event) {
     event.preventDefault();
     event.stopPropagation();

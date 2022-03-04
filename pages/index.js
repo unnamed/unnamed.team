@@ -1,11 +1,11 @@
 import Head from 'next/head';
 import Image from 'next/image';
-import { Button } from '../components/Button';
+import Button  from '../components/Button';
 import Card from '../components/Card';
 import { fetchGitHubData } from '../lib/github';
-import { Background } from '../components/Background';
+import Background  from '../components/Background';
 import { createElement } from 'react';
-import { ElementAnchor } from '../components/element_anchor';
+import ElementAnchor  from '../components/ElementAnchor';
 
 function Section({ id, as, children }) {
   as = as || 'div';
