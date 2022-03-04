@@ -16,19 +16,25 @@ module.exports = {
       {
         source: '/donate',
         destination: 'https://paypal.me/yushu7u7',
-        permanent: true,
+        permanent: false,
         basePath: false
       },
       {
         source: '/youtube',
         destination: 'https://www.youtube.com/channel/UCPApMf-HqCk5JtjzlG9HvSQ',
-        permanent: true,
+        permanent: false,
+        basePath: false
+      },
+      {
+        source: '/discord',
+        destination: process.env.discordInvite,
+        permanent: false,
         basePath: false
       },
       {
         source: '/emojis',
         destination: '/project/glyphs',
-        permanent: true
+        permanent: false
       }
     ];
   }
