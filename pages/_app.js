@@ -1,6 +1,6 @@
 import 'tailwindcss/tailwind.css';
-import '../lib/highlight.scss';
-import './global.scss';
+import '../styles/global.scss';
+import '../styles/highlight.scss';
 
 export default function App({ Component, pageProps }) {
   return <Component {...pageProps} />;
