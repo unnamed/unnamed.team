@@ -26,10 +26,10 @@ export default function Docs({ data }) {
    */
   function createNodeElement(tree, path = []) {
     return (
-      <ul className={styles.sidebarGroup}>
+      <ul className={`flex flex-col gap-1 ${path.length === 0 ? 'gap-4' : 'pl-4'}`}>
         {Object.entries(tree).map(([ filename, node ]) => (
           <li
-            className={`${styles.sidebarElement} ${Documentation.isContent(node) ? '' : styles.sidebarGroupTitle}`}
+            className="flex flex-col gap-1"
             key={filename}
             onClick={() => {
               if (Documentation.isContent(node)) {
@@ -38,7 +38,10 @@ export default function Docs({ data }) {
               }
             }}>
 
-            <span>{Documentation.titleOf(filename, node)}</span>
+            <span
+              className={`cursor-pointer ${Documentation.isContent(node) ? 'font-light' : 'font-normal'} ${node == content ? 'text-primary font-normal' : ''}`}>
+              {Documentation.titleOf(filename, node)}
+            </span>
 
             {Documentation.isContent(node) || createNodeElement(node, [ ...path ,filename ])}
           </li>
@@ -72,7 +75,7 @@ export default function Docs({ data }) {
             Open/Close Sidebar
           </button>
 
-          <div className={`w-full max-h-screen overflow-y-scroll ${sidebar ? 'hidden sm:flex' : 'flex'}`}>
+          <div className={`flex-1 max-h-screen overflow-y-scroll ${sidebar ? 'hidden sm:flex' : 'flex'}`}>
             <div className="flex-col container mx-auto p-4">
               <div className={styles.body} dangerouslySetInnerHTML={{ __html: content }}/>
 
