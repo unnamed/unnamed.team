@@ -72,12 +72,14 @@ export default function Docs({ data }) {
             Open/Close Sidebar
           </button>
 
-          <div className={`flex-col container mx-auto p-4 max-h-screen overflow-y-scroll ${sidebar ? 'hidden sm:flex' : 'flex'}`}>
-            <div className={styles.body} dangerouslySetInnerHTML={{ __html: content }}/>
+          <div className={`w-full max-h-screen overflow-y-scroll ${sidebar ? 'hidden sm:flex' : 'flex'}`}>
+            <div className="flex-col container mx-auto p-4">
+              <div className={styles.body} dangerouslySetInnerHTML={{ __html: content }}/>
 
-            <div className="flex md:flex-row justify-between font-light text-lightghost-100 border-t-[1px] border-lightghost-100/10 py-8 my-12">
-              <span>Copyright &copy; {new Date().getFullYear()} Unnamed Team</span>
-              <span className="hover:text-lightghost-200"><a href={`https://github.com/${repo.fullName}/tree/${repo.defaultBranch}/docs/${path.join('/')}`}>Edit this page on GitHub</a></span>
+              <div className="flex md:flex-row justify-between font-light text-lightghost-100 border-t-[1px] border-lightghost-100/10 py-8 my-12">
+                <span>Copyright &copy; {new Date().getFullYear()} Unnamed Team</span>
+                <span className="hover:text-lightghost-200"><a href={`https://github.com/${repo.fullName}/tree/${repo.defaultBranch}/docs/${path.join('/')}`}>Edit this page on GitHub</a></span>
+              </div>
             </div>
           </div>
         </div>
