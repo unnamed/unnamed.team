@@ -2,7 +2,6 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { Button } from '../components/Button';
 import { Card, CardContainer } from '../components/Card';
-import { Container } from '../components/container';
 import { fetchGitHubData } from '../lib/github';
 import { Background } from '../components/Background';
 import { createElement } from 'react';
@@ -123,11 +122,11 @@ export default function Home({ starCount, members }) {
         <meta name="theme-color" content="#ff8df8"/>
       </Head>
       <Background>
-        <Container>
+        <div className="container mx-auto px-8">
           <MainSection />
           <TeamSection members={members} />
           <AboutSection starCount={starCount} />
-        </Container>
+        </div>
       </Background>
     </>
   );

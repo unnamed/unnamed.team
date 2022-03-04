@@ -6,7 +6,6 @@ import { ToastContainer, useToasts } from '../../components/toast';
 import { Card, CardContainer } from '../../components/Card';
 import { Button } from '../../components/Button';
 import styles from './glyphs.module.scss';
-import { Container } from '../../components/container';
 import { Background } from '../../components/Background';
 
 const ALLOWED_MIME_TYPES = new Set([ 'image/webp', 'image/png' ]);
@@ -434,9 +433,9 @@ export default function EditorPage() {
           <title>Unnamed | Emoji Editor</title>
         </Head>
         <Background>
-          <Container>
+          <div className="container mx-auto px-8">
             <Editor/>
-          </Container>
+          </div>
         </Background>
       </GlyphContext.Provider>
     </ToastContainer>
