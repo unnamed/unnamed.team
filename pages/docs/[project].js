@@ -9,7 +9,10 @@ import Background  from '../../components/Background';
 export default function Docs({ data }) {
   const repo = data.repo;
   const rootTree = data.content;
-  const [ content, setContent ] = useState(Documentation.findMainContentNode(rootTree));
+
+  const [ initialPath, initialNode ] = Documentation.findMainContentNode(rootTree);
+  const [ content, setContent ] = useState(initialNode);
+  const [ path, setPath ] = useState(initialPath);
   const [ sidebar, setSidebar ] = useState(false);
 
   /**
@@ -18,9 +21,10 @@ export default function Docs({ data }) {
    * tree for every sub-tree
    *
    * @param {DocTree} tree The tree
+   * @param {string[]} path The filename folder path
    * @returns {JSX.Element} The elements for the tree
    */
-  function createNodeElement(tree) {
+  function createNodeElement(tree, path = []) {
     return (
       <ul className={styles.sidebarGroup}>
         {Object.entries(tree).map(([ filename, node ]) => (
@@ -30,12 +34,13 @@ export default function Docs({ data }) {
             onClick={() => {
               if (Documentation.isContent(node)) {
                 setContent(node);
+                setPath([ ...path, filename ]);
               }
             }}>
 
             <span>{Documentation.titleOf(filename, node)}</span>
 
-            {Documentation.isContent(node) || createNodeElement(node)}
+            {Documentation.isContent(node) || createNodeElement(node, [ ...path ,filename ])}
           </li>
         ))}
       </ul>
@@ -72,7 +77,7 @@ export default function Docs({ data }) {
 
             <div className="flex md:flex-row justify-between font-light text-lightghost-100 border-t-[1px] border-lightghost-100/10 py-8 my-12">
               <span>Copyright &copy; {new Date().getFullYear()} Unnamed Team</span>
-              <span className="hover:text-lightghost-200"><a href={`https://github.com/${repo.fullName}`}>Edit this page on GitHub</a></span>
+              <span className="hover:text-lightghost-200"><a href={`https://github.com/${repo.fullName}/tree/${repo.defaultBranch}/docs/${path.join('/')}`}>Edit this page on GitHub</a></span>
             </div>
           </div>
         </div>
