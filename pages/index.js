@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import { Button } from '../components/Button';
-import { Card, CardContainer } from '../components/Card';
+import Card from '../components/Card';
 import { fetchGitHubData } from '../lib/github';
 import { Background } from '../components/Background';
 import { createElement } from 'react';
@@ -65,9 +65,9 @@ function TeamSection({ members }) {
         <h3 className="text-white font-light text-lg opacity-90">The people behind the Unnamed Team who make this
           work</h3>
       </div>
-      <CardContainer>
+      <Card.Container>
         {members.map(member => (<MemberCard key={member.login} member={member}/>))}
-      </CardContainer>
+      </Card.Container>
     </Section>
   );
 }
@@ -83,7 +83,7 @@ function AboutSection({ starCount }) {
           We make awesome open source software for everyone</h3>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <Card.Container>
         <Card onClick={() => window.open(`https://github.com/${process.env.githubSlug}/`)}>
           <div>
             <h4 className="text-white font-normal opacity-90">GitHub Organization</h4>
@@ -104,7 +104,7 @@ function AboutSection({ starCount }) {
             <p className="text-white font-light opacity-90">Join our Discord server</p>
           </div>
         </Card>
-      </div>
+      </Card.Container>
     </Section>
   );
 }

@@ -3,7 +3,7 @@ import { createContext, useContext, useState } from 'react';
 import { processImage, readEmojis, writeEmojis } from '../../lib/glyphio';
 import { promptFilesAndReadAsBuffer, saveFile, stripExtension } from '../../lib/files';
 import { ToastContainer, useToasts } from '../../components/toast';
-import { Card, CardContainer } from '../../components/Card';
+import Card from '../../components/Card';
 import { Button } from '../../components/Button';
 import styles from './glyphs.module.scss';
 import { Background } from '../../components/Background';
@@ -409,13 +409,13 @@ function Editor() {
         <Button label="Export" onClick={() => _export(toasts, map)}/>
       </div>
 
-      <CardContainer>
+      <Card.Container>
         {map.values().sort(compareEmoji).map(emoji => (
           <EmojiComponent
             key={emoji.name}
             emoji={emoji}/>
         ))}
-      </CardContainer>
+      </Card.Container>
     </div>
   );
 }
