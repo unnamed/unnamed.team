@@ -261,7 +261,7 @@ function DropRegion() {
       });
       reader.readAsDataURL(file);
 
-      const imageDataUrl = processImage(await dataUrlPromise, file.type);
+      const imageDataUrl = await processImage(await dataUrlPromise, file.type);
       const name = stripExtension(file.name);
       const uniqueName = map.ensureUniqueName(name);
 
