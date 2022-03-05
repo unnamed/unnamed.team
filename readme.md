@@ -10,3 +10,16 @@ on [Next.js](https://nextjs.org/). Contains our home page, the
 documentation page for all our projects
 
 Check it out [here](https://unnamed.team)
+
+## How to run
+```shell
+# Clone the repository
+git clone https://github.com/unnamed/unnamed.team
+cd unnamed.team
+
+# Install dependencies
+yarn
+
+# Start development server
+yarn dev
+```
