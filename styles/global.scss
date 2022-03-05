@@ -1,26 +1,24 @@
 /* Global Style Sheet */
-@import './variables';
 
 /* Scrollbar Customization */
 /* Firefox */
 * {
-  scrollbar-color: $accent-primary $color-night-200;
+  scrollbar-color: theme('colors.primary') theme('colors.night.200');
 }
 
 /* Chrome, Edge, and Safari */
 ::-webkit-scrollbar {
-  width: 6px;
+  @apply w-1.5;
 
   &-track {
-    background-color: $color-night-200;
+    @apply bg-night-200;
   }
 
   &-thumb {
-    background-color: $accent-primary;
-    border-radius: 8px;
+    @apply bg-primary rounded-lg;
 
     &:hover {
-      background-color: $accent-secondary;
+      @apply bg-secondary;
     }
   }
 }
