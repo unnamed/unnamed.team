@@ -200,7 +200,7 @@ function EmojiComponent({ emoji }) {
 
   return (
     <Card>
-      <img src={emoji.img} alt={name} className="flex w-24"/>
+      <img src={emoji.img} alt={name} className="flex w-24 rendering-pixelated"/>
       <div className="flex flex-col">
         <Input emoji={emoji} property="name" validate={regex(PATTERNS.name)}/>
         <Input emoji={emoji} property="ascent" validate={regex(PATTERNS.number)}/>
