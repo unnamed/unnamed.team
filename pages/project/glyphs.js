@@ -5,7 +5,6 @@ import { promptFilesAndReadAsBuffer, saveFile, stripExtension } from '../../lib/
 import { ToastContainer, useToasts } from '../../components/toast';
 import Card from '../../components/Card';
 import Button  from '../../components/Button';
-import styles from './glyphs.module.scss';
 import Background  from '../../components/Background';
 
 const ALLOWED_MIME_TYPES = new Set([ 'image/webp', 'image/png' ]);
@@ -288,7 +287,7 @@ function DropRegion() {
 
   return (
     <div
-      className={`${styles.drops} ${dragOver ? styles.dropsOver : ''}`}
+      className={`flex justify-center items-center w-72 h-36 my-0 mx-auto text-lg ${dragOver ? 'bg-ghost-200 text-lightghost-200' : 'bg-ghost-100 text-lightghost-100'}`}
       onDragOver={onDragOver}
       onDragEnter={onDragOver}
       onDragLeave={onDragEnd}
