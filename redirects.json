@@ -1,0 +1,25 @@
+[
+  {
+    "source": "/donate",
+    "destination": "https://paypal.me/yushu7u7",
+    "permanent": false,
+    "basePath": false
+  },
+  {
+    "source": "/youtube",
+    "destination": "https://www.youtube.com/channel/UCPApMf-HqCk5JtjzlG9HvSQ",
+    "permanent": false,
+    "basePath": false
+  },
+  {
+    "source": "/discord",
+    "destination": "https://discord.gg/9hS9DKY9vg",
+    "permanent": false,
+    "basePath": false
+  },
+  {
+    "source": "/emojis",
+    "destination": "/project/glyphs",
+    "permanent": false
+  }
+]

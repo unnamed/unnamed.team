@@ -12,16 +12,16 @@ export default function Error404() {
         <div className="w-max mx-auto flex items-center">
           <Image src="/logo.svg" width="150" height="100" alt="logo"/>
           <div className="flex flex-col gap-2 w-96">
-            <h1 className="font-rubik text-white text-2xl">Error 404</h1>
-            <p className="font-rubik font-light text-white text-lg">
+            <h1 className="text-lightghost-200 text-2xl">Error 404</h1>
+            <p className="font-light text-lightghost-200 text-lg">
               Sorry, the page you were looking for does not exist. Try
               going to
-              <span className="text-pink-light hover:text-pink-dark">
+              <span className="text-primary hover:text-secondary">
                 <Link href="/"> unnamed.team</Link>
               </span>
               , or join our
-              <span className="text-pink-light hover:text-pink-dark">
-                <Link href={process.env.discordInvite}> Discord Server</Link>
+              <span className="text-primary hover:text-secondary">
+                <Link href="/discord"> Discord Server</Link>
               </span>
             </p>
           </div>

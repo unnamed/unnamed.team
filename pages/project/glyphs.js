@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Link from 'next/link';
 import { createContext, useContext, useState } from 'react';
 import { processImage, readEmojis, writeEmojis } from '../../lib/glyphio';
 import { promptFilesAndReadAsBuffer, saveFile, stripExtension } from '../../lib/files';
@@ -395,8 +396,8 @@ function Editor() {
         <h2 className="text-white text-center font-medium text-5xl opacity-90">Editor</h2>
         <h3 className="text-white text-center font-light text-lg opacity-90 w-96">
           Web-editor for µŋglyphs, if you have a problem, try
-          using <a className="text-pink-light underline" href="https://unnamed.github.io/emojis/v2">the old version of this editor</a> and
-          reporting this issue on our <a className="text-pink-light underline" href={process.env.discordInvite}>Discord server</a>
+          using <a className="text-primary underline" href="https://unnamed.github.io/emojis/v2">the old version of this editor</a> and
+          reporting this issue on our <Link href="/discord"><span className="text-primary underline">Discord server</span></Link>
         </h3>
       </div>
 

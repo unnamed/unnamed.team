@@ -39,7 +39,7 @@ function MainSection() {
       </div>
       <div className="flex flex-row text-lg gap-4">
         <Button label="Show me" onClick={() => window.open(`https://github.com/${process.env.githubSlug}`)}/>
-        <Button label="Join Us" onClick={() => window.open(process.env.discordInvite)} color="secondary"/>
+        <Button label="Join Us" onClick={() => window.open('/discord')} color="secondary"/>
       </div>
     </Section>
   );
@@ -98,7 +98,7 @@ function AboutSection({ starCount }) {
         {[
           [ `https://github.com/${process.env.githubSlug}`, 'GitHub Organization', `With currently ${starCount} stars in total` ],
           [ 'mailto:contact@unnamed.team', 'Mail Us', 'Send an e-mail to contact@unnamed.team' ],
-          [ process.env.discordInvite, 'Discord Server', 'Join our Discord server' ]
+          [ '/discord', 'Discord Server', 'Join our Discord server' ]
         ].map(([ link, title, description ], index) => (
           <Card key={index} onClick={() => window.open(link)}>
             <div>
