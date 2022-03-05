@@ -1,19 +1,14 @@
-@import './variables';
-
 pre code.hljs {
-  display: block;
-  overflow-x: auto;
-  padding: 1em;
+  @apply block overflow-x-auto px-4 py-2;
 }
 
 code {
-  padding: 3px 5px;
-  background: $bg-primary;
+  @apply bg-ghost-100 p-1;
 }
 
 .hljs {
+  @apply bg-ghost-100;
   color: #c9d1d9;
-  background: $bg-primary;
 }
 
 .hljs-doctag, .hljs-keyword, .hljs-meta .hljs-keyword, .hljs-template-tag, .hljs-template-variable, .hljs-type, .hljs-variable.language_ {
