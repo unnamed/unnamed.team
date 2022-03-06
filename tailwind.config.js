@@ -5,7 +5,6 @@ module.exports = {
     './pages/**/*.{js,ts,jsx,tsx}',
     './components/**/*.{js,ts,jsx,tsx}',
   ],
-  darkMode: 'media',
   theme: {
     colors: {
       white: colors.white,
@@ -30,9 +29,6 @@ module.exports = {
     fontFamily: {
       sans: [ 'Rubik' ],
     },
-  },
-  variants: {
-    extend: {},
   },
   plugins: [
     require('./plugins/image-rendering')()
