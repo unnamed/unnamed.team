@@ -397,7 +397,7 @@ function Editor() {
         <h3 className="text-white text-center font-light text-lg opacity-90 w-96">
           Web-editor for µŋglyphs, if you have a problem, try
           using <a className="text-primary underline" href="https://unnamed.github.io/emojis/v2">the old version of this editor</a> and
-          reporting this issue on our <Link href="/discord"><span className="text-primary underline">Discord server</span></Link>
+          reporting this issue on our <Link passHref={true} href="/discord"><span className="text-primary underline">Discord server</span></Link>
         </h3>
       </div>
 
