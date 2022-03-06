@@ -1,16 +1,13 @@
 import Head from 'next/head';
+import { useState } from 'react';
+import Background from '../../components/Background';
 import * as GitHub from '../../lib/github';
 import * as Documentation from '../../lib/docs';
 
-import { useState } from 'react';
 import styles from './docs.module.scss';
-import Background  from '../../components/Background';
 
-export default function Docs({ data }) {
-  const repo = data.repo;
-  const rootTree = data.content;
-
-  const [ initialPath, initialNode ] = Documentation.findMainContentNode(rootTree);
+export default function Docs({ repo }) {
+  const [ initialPath, initialNode ] = Documentation.findMainContentNode(repo.docs);
   const [ content, setContent ] = useState(initialNode);
   const [ path, setPath ] = useState(initialPath);
   const [ sidebar, setSidebar ] = useState(false);
@@ -39,11 +36,11 @@ export default function Docs({ data }) {
             }}>
 
             <span
-              className={`cursor-pointer ${Documentation.isContent(node) ? 'font-light' : 'font-normal'} ${node == content ? 'text-primary font-normal' : ''}`}>
+              className={`cursor-pointer ${Documentation.isContent(node) ? 'font-light' : 'font-normal'} ${node === content ? 'text-primary font-normal' : ''}`}>
               {Documentation.titleOf(filename, node)}
             </span>
 
-            {Documentation.isContent(node) || createNodeElement(node, [ ...path ,filename ])}
+            {Documentation.isContent(node) || createNodeElement(node, [ ...path, filename ])}
           </li>
         ))}
       </ul>
@@ -66,7 +63,7 @@ export default function Docs({ data }) {
 
           <aside className={`flex-col gap-4 bg-ghost-100 py-4 px-8 w-full sm:w-max sm:flex ${sidebar ? '' : 'hidden'}`}>
             <h1>{repo.name} Documentation</h1>
-            {createNodeElement(rootTree)}
+            {createNodeElement(repo.docs)}
           </aside>
 
           <button
@@ -79,9 +76,11 @@ export default function Docs({ data }) {
             <div className="flex-col container mx-auto p-4">
               <div className={styles.body} dangerouslySetInnerHTML={{ __html: content }}/>
 
-              <div className="flex md:flex-row justify-between font-light text-lightghost-100 border-t-[1px] border-lightghost-100/10 py-8 my-12">
+              <div
+                className="flex md:flex-row justify-between font-light text-lightghost-100 border-t-[1px] border-lightghost-100/10 py-8 my-12">
                 <span>Copyright &copy; {new Date().getFullYear()} Unnamed Team</span>
-                <span className="hover:text-lightghost-200"><a href={`https://github.com/${repo.fullName}/tree/${repo.defaultBranch}/docs/${path.join('/')}`}>Edit this page on GitHub</a></span>
+                <span className="hover:text-lightghost-200"><a
+                  href={`https://github.com/${repo.fullName}/tree/${repo.defaultBranch}/docs/${path.join('/')}`}>Edit this page on GitHub</a></span>
               </div>
             </div>
           </div>
@@ -92,26 +91,22 @@ export default function Docs({ data }) {
 }
 
 export async function getStaticPaths() {
-  const data = await GitHub.fetchGitHubData(process.env.githubSlug);
-  const allData = {};
+  const data = await GitHub.cache.get();
   const paths = [];
 
   for (const repo of data.repos) {
-    const content = await GitHub.fetchDocs(repo);
 
-    if (content === null) {
+    if (repo.docs === null) {
       // no docs for this repo
       continue;
     }
 
-    allData[repo.name] = { repo, content };
     paths.push({
       params: {
         project: repo.name,
       },
     });
   }
-  await GitHub.fetchCache.setAll(allData);
 
   return {
     paths,
@@ -120,18 +115,17 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
+
+  const data = await GitHub.cache.get();
   const { project } = params;
-  const { repo, content } = await GitHub.fetchCache.find(project);
+  const repo = data.repos.find(r => r.name === project);
 
   // convert from markdown to HTML
-  await Documentation.toHtml(content);
+  const htmlDocs = await Documentation.toHtml(repo.docs);
 
   return {
     props: {
-      data: {
-        repo,
-        content,
-      },
+      repo: { ...repo, docs: htmlDocs },
     },
   };
 }

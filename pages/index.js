@@ -1,11 +1,11 @@
 import Head from 'next/head';
 import Image from 'next/image';
+import { createElement } from 'react';
 import Button  from '../components/Button';
 import Card from '../components/Card';
-import { fetchGitHubData } from '../lib/github';
-import Background  from '../components/Background';
-import { createElement } from 'react';
 import ElementAnchor  from '../components/ElementAnchor';
+import Background  from '../components/Background';
+import * as GitHub from '../lib/github';
 
 function Section({ id, as, children }) {
   as = as || 'div';
@@ -140,7 +140,7 @@ export default function Home({ starCount, members }) {
  */
 export async function getStaticProps() {
 
-  const data = await fetchGitHubData(process.env.githubSlug);
+  const data = await GitHub.cache.get();
 
   const starCount = data.repos.reduce((count, repo) => count + repo.stars, 0);
   const members = data.members.map(member => ({
@@ -153,8 +153,6 @@ export async function getStaticProps() {
     props: {
       starCount,
       members,
-    },
-    // Revalidates every 24 hours
-    revalidate: 60 * 60 * 24,
+    }
   };
 }
