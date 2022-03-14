@@ -1,10 +1,15 @@
 .body {
-  h2, h3 {
+  pre code {
+    margin: 0.725rem 0 1.5rem;
+  }
+
+  h1, h2, h3, h4 {
+    @apply text-wine-900;
     margin: 1.5rem 0 0.725rem;
   }
 
-  pre code {
-    margin: 0.725rem 0 1.5rem;
+  .dark & h1, h2, h3, h4 {
+    @apply text-lightghost-200;
   }
 
   h1 {
@@ -12,16 +17,19 @@
   }
 
   h2 {
-    @apply text-2xl;
+    @apply text-3xl font-bold;
   }
 
   h3 {
-    @apply text-xl;
+    @apply text-xl font-normal;
+  }
+
+  h4 {
+    @apply text-lg font-normal;
   }
 
   p {
-    font-weight: 300;
-    margin: 0.5rem 0;
+    @apply my-1;
   }
 
   li {
@@ -31,6 +39,6 @@
   }
 
   a {
-    @apply text-primary;
+    @apply text-pink-200;
   }
 }

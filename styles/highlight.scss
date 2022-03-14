@@ -1,14 +1,23 @@
 pre code.hljs {
-  @apply block overflow-x-auto p-4;
+  @apply block overflow-x-auto p-5;
 }
 
 code {
-  @apply bg-ghost-100 p-1;
+  @apply text-sm;
+}
+
+code:not(pre code) {
+  @apply p-1;
+  &::before {
+    content: '`';
+  }
+  &::after {
+    content: '`';
+  }
 }
 
 .hljs {
-  @apply bg-ghost-100;
-  color: #c9d1d9;
+  @apply bg-wine-800 rounded-xl text-gray-200 relative;
 }
 
 .hljs-doctag, .hljs-keyword, .hljs-meta .hljs-keyword, .hljs-template-tag, .hljs-template-variable, .hljs-type, .hljs-variable.language_ {

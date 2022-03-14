@@ -5,6 +5,7 @@ import * as GitHub from '../../lib/github';
 import * as Documentation from '../../lib/docs';
 
 import styles from './docs.module.scss';
+import Header from '../../components/Header';
 
 export default function Docs({ repo }) {
   const [ initialPath, initialNode ] = Documentation.findMainContentNode(repo.docs);
@@ -22,27 +23,34 @@ export default function Docs({ repo }) {
    * @returns {JSX.Element} The elements for the tree
    */
   function createNodeElement(tree, path = []) {
+    const indent = path.length > 0;
+
     return (
-      <ul className={`flex flex-col gap-1 ${path.length === 0 ? 'gap-4' : 'pl-4'}`}>
-        {Object.entries(tree).map(([ filename, node ]) => (
-          <li
-            className="flex flex-col gap-1"
-            key={filename}
-            onClick={() => {
-              if (Documentation.isContent(node)) {
-                setContent(node);
-                setPath([ ...path, filename ]);
-              }
-            }}>
+      <ul className={`flex flex-col gap-1 ${indent ? 'gap-4' : ''}`}>
+        {Object.entries(tree).map(([ filename, node ]) => {
+          const isContent = Documentation.isContent(node);
+          const isSelected = node === content;
+
+          return (
+            <li
+              className={`flex flex-col gap-1 ${indent ? 'pl-4' : ''} ${(isContent && indent) ? 'border-l border-gray-100 hover:border-gray-300' : ''} ${(isSelected && indent) ? 'border-pink-200 hover:border-pink-200' : ''}`}
+              key={filename}
+              onClick={() => {
+                if (isContent) {
+                  setContent(node);
+                  setPath([ ...path, filename ]);
+                }
+              }}>
 
             <span
-              className={`cursor-pointer ${Documentation.isContent(node) ? 'font-light' : 'font-normal'} ${node === content ? 'text-primary font-normal' : ''}`}>
+              className={`${isContent ? 'font-light cursor-pointer' : 'font-normal text-wine-900 dark:text-lightghost-200'} ${isSelected ? 'text-pink-200 font-normal' : (isContent ? 'text-gray-700 dark:text-lightghost-100' : '')}`}>
               {Documentation.titleOf(filename, node)}
             </span>
 
-            {Documentation.isContent(node) || createNodeElement(node, [ ...path, filename ])}
-          </li>
-        ))}
+              {isContent || createNodeElement(node, [ ...path, filename ])}
+            </li>
+          );
+        })}
       </ul>
     );
   }
@@ -58,34 +66,36 @@ export default function Docs({ repo }) {
         <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
         <meta name="theme-color" content="#ff8df8"/>
       </Head>
-      <Background>
-        <div className="flex flex-row min-h-screen text-lightghost-200">
+      <div className="h-screen bg-white dark:bg-wine-900 overflow-y-hidden">
+        <Header className="border-b border-gray-200 dark:border-lightghost-100" />
 
-          <aside className={`flex-col gap-4 bg-ghost-100 py-4 px-8 w-full sm:w-max sm:flex ${sidebar ? '' : 'hidden'}`}>
-            <h1>{repo.name} Documentation</h1>
+        <div className="flex flex-row justify-between max-w-8xl mx-auto h-full">
+          <aside className={`w-72 flex flex-col gap-4 py-9 px-6`}>
+            <h1 className="text-wine-900 dark:text-lightghost-200">{repo.name} Documentation</h1>
             {createNodeElement(repo.docs)}
           </aside>
 
-          <button
-            className="absolute right-0 top-0 sm:hidden border"
-            onClick={() => setSidebar(!sidebar)}>
-            Open/Close Sidebar
-          </button>
-
-          <div className={`flex-1 max-h-screen overflow-y-scroll ${sidebar ? 'hidden sm:flex' : 'flex'}`}>
-            <div className="flex-col container mx-auto p-4">
-              <div className={styles.body} dangerouslySetInnerHTML={{ __html: content }}/>
-
+          <div className={`flex-1 ${sidebar ? 'hidden sm:flex' : 'flex'} h-full`}>
+            <div className="flex flex-col container mx-auto px-4 py-8 h-full overflow-y-scroll">
               <div
-                className="flex md:flex-row justify-between font-light text-lightghost-100 border-t-[1px] border-lightghost-100/10 py-8 my-12">
+                className={`text-gray-800 font-light dark:text-lightghost-200 ${styles.body}`}
+                dangerouslySetInnerHTML={{ __html: content }}
+              />
+
+              <footer
+                className="flex flex-row justify-between font-light text-gray-400 dark:text-lightghost-100 border-t border-gray-200 dark:border-lightghost-100 py-8 my-12">
                 <span>Copyright &copy; {new Date().getFullYear()} Unnamed Team</span>
-                <span className="hover:text-lightghost-200"><a
-                  href={`https://github.com/${repo.fullName}/tree/${repo.defaultBranch}/docs/${path.join('/')}`}>Edit this page on GitHub</a></span>
-              </div>
+                <span className="hover:text-lightghost-200">
+                  <a href={`https://github.com/${repo.fullName}/tree/${repo.defaultBranch}/docs/${path.join('/')}`}>Edit this page on GitHub</a>
+                </span>
+              </footer>
             </div>
           </div>
+
+          <aside className="w-72">
+          </aside>
         </div>
-      </Background>
+      </div>
     </>
   );
 }
