@@ -2,13 +2,12 @@ import Head from 'next/head';
 import Button  from '../components/Button';
 import Header from '../components/Header';
 import Background  from '../components/Background';
-import * as GitHub from '../lib/github';
 
 function MainSection() {
   return (
     <main className="flex flex-col p-8 gap-8">
       <div className="flex flex-col gap-4">
-        <h1 className="text-wine-900 dark:text-lightghost-200 font-bold text-4xl sm:text-5xl md:text-6xl">Everything is<br/>possible</h1>
+        <h1 className="text-wine-900 dark:text-lightghost-200 font-medium text-4xl sm:text-5xl md:text-6xl">Everything is<br/>possible</h1>
         <h3 className="text-gray-800 dark:text-lightghost-100 font-light text-lg md:text-xl">And we will show you</h3>
       </div>
       <div className="flex flex-row text-lg gap-4">
@@ -19,7 +18,7 @@ function MainSection() {
   );
 }
 
-export default function Home({ starCount, members }) {
+export default function Home() {
   return (
     <>
       <Head>
@@ -40,25 +39,3 @@ export default function Home({ starCount, members }) {
     </>
   );
 };
-
-/**
- * Fetches the team members and the GitHub star count
- */
-export async function getStaticProps() {
-
-  const data = await GitHub.cache.get();
-
-  const starCount = data.repos.reduce((count, repo) => count + repo.stars, 0);
-  const members = data.members.map(member => ({
-    ...member,
-    bio: member.bio ? member.bio.replace(/\r?\n/g, '') : '',
-    name: member.name !== undefined ? member.name : member.login
-  }));
-
-  return {
-    props: {
-      starCount,
-      members,
-    }
-  };
-}
