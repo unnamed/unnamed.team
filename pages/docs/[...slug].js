@@ -60,9 +60,8 @@ export default function Docs(props) {
               onClick={() => {
                 if (isContent) {
                   setNode(_node);
-                  router.push({
-                      pathname: `/${newRoute.join('/')}`,
-                    },
+                  router.push(
+                    '/' + newRoute.join('/'),
                     undefined,
                     { shallow: true }
                   );
