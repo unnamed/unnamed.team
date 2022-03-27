@@ -1,6 +1,8 @@
-export default function Background({ children }) {
+import clsx from 'clsx';
+
+export default function Background({ children, className }) {
   return (
-    <div className="min-h-screen bg-white dark:bg-wine-900">
+    <div className={clsx('min-h-screen bg-wine-900', className)}>
       {children}
     </div>
   );

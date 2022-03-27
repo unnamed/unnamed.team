@@ -17,7 +17,7 @@ code:not(pre code) {
 }
 
 .hljs {
-  @apply bg-wine-800 rounded-xl text-gray-200 relative;
+  @apply bg-white/10 border border-white/[.15] rounded-xl text-white/60 relative;
 }
 
 .hljs-doctag, .hljs-keyword, .hljs-meta .hljs-keyword, .hljs-template-tag, .hljs-template-variable, .hljs-type, .hljs-variable.language_ {

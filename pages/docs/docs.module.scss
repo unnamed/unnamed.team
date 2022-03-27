@@ -4,12 +4,8 @@
   }
 
   h1, h2, h3, h4 {
-    @apply text-wine-900;
+    @apply text-white/80;
     margin: 1.5rem 0 0.725rem;
-  }
-
-  .dark & h1, h2, h3, h4 {
-    @apply text-lightghost-200;
   }
 
   h1 {
@@ -17,7 +13,7 @@
   }
 
   h2 {
-    @apply text-3xl font-bold;
+    @apply text-3xl font-medium;
   }
 
   h3 {
