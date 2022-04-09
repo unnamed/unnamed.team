@@ -7,17 +7,26 @@ import Header from '../../components/Header';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 
-function find(root, path) {
-  if (path.length === 0) {
-    return root['readme'] ?? root['getting-started'] ?? Object.values(root)[0];
-  } else if (path.length === 1) {
-    return root[path[0]];
+const MAIN_KEYS = [ 'readme', 'getting-started' ];
+
+function find(root, path, off = 0) {
+  const remaining = path.length - off;
+  if (remaining === 0) {
+    for (const key of MAIN_KEYS) {
+      const node = root[key];
+      if (node) {
+        return node;
+      }
+    }
+    return Object.values(root)[0];
+  } else if (remaining === 1) {
+    return root[path[off]];
   } else {
-    const sub = root[path.shift()];
+    const sub = root[path[off]];
     if (sub.type === 'dir') {
-      return find(sub.content, path);
+      return find(sub.content, path, off + 1);
     } else {
-      return null;
+      return sub;
     }
   }
 }
@@ -30,66 +39,91 @@ function Sidebar({ children }) {
   );
 }
 
-export default function Docs(props) {
-  const repo = props.repo;
-  const initialPath = props.path;
-  const initialNode = find(repo.docs, initialPath);
-
+/**
+ * Creates the elements for the given tree
+ * node, will recurse to obtain a full element
+ * tree for every sub-tree
+ *
+ * @returns {JSX.Element} The elements for the tree
+ */
+function NodeElement({ repo, tree, currentRoute, selected, onSelect }) {
   const router = useRouter();
-  const [ node, setNode ] = useState(initialNode);
-  const [ sidebar, setSidebar ] = useState(false);
+  const indent = tree !== repo.docs;
 
-  /**
-   * Creates the elements for the given tree
-   * node, will recurse to obtain a full element
-   * tree for every sub-tree
-   *
-   * @returns {JSX.Element} The elements for the tree
-   */
-  function createNodeElement(holder, currentRoute) {
-    const indent = holder !== repo.docs;
-    return (
-      <ul className={clsx('flex flex-col gap-1', indent && 'gap-4')}>
-        {Object.entries(holder).map(([ key, _node ]) => {
-          const isContent = _node.type === 'file';
-          const isSelected = _node === node;
-          const newRoute = [ ...currentRoute, key ];
+  function compareNodeEntry(a, b) {
+    const [ aKey, aNode ] = a;
+    const [ bKey, bNode ] = b;
+    if (aNode.type === 'dir') {
+      if (bNode.type === 'file') {
+        return 1;
+      }
+    }
+    if (MAIN_KEYS.includes(bKey)) return 1;
+    if (aKey < bKey) return -1;
+    if (aKey > bKey) return 1;
+    return 0;
+  }
 
+  return (
+    <ul className={clsx('flex flex-col gap-1', indent && 'gap-4')}>
+      {Object.entries(tree).sort(compareNodeEntry).map(([ key, node ]) => {
+        const newRoute = [ ...currentRoute, key ];
+
+        if (node.type === 'file') {
+          const isSelected = node === selected;
           return (
             <li
-              className={clsx(
-                'flex flex-col gap-1',
-                indent && 'pl-4',
-                isContent && indent && 'border-l border-gray-100 hover:border-gray-300',
-                isSelected && indent && 'border-pink-200 hover:border-pink-200'
-              )}
               key={key}
+              className={clsx('flex flex-col gap-1', indent && 'pl-4')}
               onClick={() => {
-                if (isContent) {
-                  setNode(_node);
-                  router.push(
-                    '/' + newRoute.join('/'),
-                    undefined,
-                    { shallow: true }
-                  );
-                }
+                onSelect(node);
+                router.push(
+                  '/' + newRoute.join('/'),
+                  undefined,
+                  { shallow: true },
+                );
               }}>
-
-            <span
-              className={clsx(
-                'text-base',
-                isContent ? 'font-light cursor-pointer' : 'font-normal text-wine-900 dark:text-lightghost-200',
-                isSelected ? 'text-pink-200 font-normal' : (isContent && 'text-gray-700 dark:text-lightghost-100')
-              )}>
-              {_node.name}
-            </span>
-              {isContent || createNodeElement(_node.content, newRoute)}
+                <span
+                  className={clsx(
+                    'text-base cursor-pointer',
+                    isSelected ? 'font-normal text-pink-200' : 'font-light text-white/60'
+                  )}>
+                  {node.name}
+                </span>
             </li>
           );
-        })}
-      </ul>
-    );
-  }
+        }
+
+        return (
+          <li
+            key={key}
+            className={clsx(
+              'flex flex-col gap-1 mt-4',
+              indent && 'pl-4',
+            )}>
+
+            <span className="text-base font-normal text-white/80">{node.name}</span>
+
+            <NodeElement
+              repo={repo}
+              tree={node.content}
+              selected={selected}
+              currentRoute={newRoute}
+              onSelect={onSelect}
+            />
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+export default function Docs(props) {
+  const repo = props.repo;
+  const initialNode = find(repo.docs, [...props.path]);
+
+  const [ node, setNode ] = useState(initialNode);
+  const [ sidebar, setSidebar ] = useState(false);
 
   return (
     <>
@@ -103,13 +137,19 @@ export default function Docs(props) {
         <meta name="theme-color" content="#ff8df8"/>
       </Head>
       <div className="h-screen overflow-y-hidden">
-        <Header />
+        <Header/>
 
         <div className="flex flex-row justify-between max-w-8xl mx-auto h-full">
           {/* Navigation */}
           <Sidebar>
             <div className="p-2.5">
-              {createNodeElement(repo.docs, [ 'docs', repo.name ])}
+              <NodeElement
+                repo={repo}
+                tree={repo.docs}
+                currentRoute={[ 'docs', repo.name ]}
+                selected={node}
+                onSelect={setNode}
+              />
             </div>
           </Sidebar>
 
@@ -117,7 +157,7 @@ export default function Docs(props) {
           <div className={clsx('flex-1 h-full', sidebar ? 'hidden sm:flex' : 'flex')}>
             <div className="flex flex-col container mx-auto px-4 py-8 h-full overflow-y-scroll">
               <div
-                className={clsx('text-gray-800 font-light dark:text-lightghost-200', styles.body)}
+                className={clsx('text-white/60 font-light', styles.body)}
                 dangerouslySetInnerHTML={{ __html: node.content }}
               />
 
@@ -130,11 +170,6 @@ export default function Docs(props) {
               </footer>
             </div>
           </div>
-
-          {/* Table of Contents */}
-          <Sidebar>
-            <h4 className="text-white/70">Contents</h4>
-          </Sidebar>
         </div>
       </div>
     </>
@@ -190,11 +225,10 @@ export async function getStaticProps({ params }) {
   const data = await GitHub.cache.get();
   const [ project, ...path ] = params.slug;
   const repo = data.repos.find(r => r.name === project);
-
   return {
     props: {
       repo,
-      path
+      path,
     },
   };
 }
