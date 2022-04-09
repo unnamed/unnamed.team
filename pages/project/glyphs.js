@@ -203,7 +203,7 @@ function GlyphCard({ emoji }) {
           }}/>
           <Input property="height" validate={regex(PATTERNS.number)}/>
           <Input property="permission" validate={regex(PATTERNS.permission)}/>
-          <Input property="character" serialize={String.fromCodePoint} validate={value => value.length === 1}/>
+          <Input property="character" serialize={String.fromCodePoint} deserialize={n => n.codePointAt(0)} validate={value => value.length === 1}/>
         </div>
         <div className="h-full">
           <button className="text-white/70" onClick={remove}>&#10006;</button>
