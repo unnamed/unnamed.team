@@ -248,7 +248,6 @@ function EditorDropRegion() {
     try {
       const emojis = await readEmojis(buffer);
       for (const emoji of emojis) {
-        console.log(emoji.name);
         // process current image data
         emoji.img = await processImage(emoji.img, file.type);
 
