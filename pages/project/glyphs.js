@@ -348,7 +348,7 @@ function EditorHeader() {
   function download() {
     if (map.byName.size < 1) {
       // no emojis, return
-      toasts.add('error', 'No emojis to save, add some emojis first!',);
+      toasts.add('error', 'No emojis to save, add some glyphs first!');
       return;
     }
     writeEmojis(map.byName)
@@ -357,7 +357,7 @@ function EditorHeader() {
 
   return (
     <Header banner={(<span>
-        Hey! This is the new web-editor for µŋglyphs, if you have a problem, try
+        Hey! This is the new web-editor for µŋglyphs (formerly µŋemojis), if you have a problem, try
         using <a className="underline cursor-pointer" href="https://unnamed.github.io/emojis/v2">the old version of this editor</a> and
         reporting this issue on our <Link href="/discord"><span className="underline cursor-pointer">Discord server</span></Link>
       </span>)}>
@@ -387,7 +387,7 @@ export default function EditorPage() {
   return (
     <>
       <Head>
-        <title>Unnamed | Emoji Editor</title>
+        <title>Unnamed | Glyph Editor</title>
         <meta property="og:title" content="Unnamed | Glyphs"/>
         <meta property="og:description" content="A user interface helper for µŋglyphs, a Minecraft plugin by Unnamed"/>
       </Head>
