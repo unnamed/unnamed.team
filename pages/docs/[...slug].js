@@ -83,13 +83,13 @@ function NodeElement({ repo, tree, currentRoute, selected, onSelect }) {
                   { shallow: true },
                 );
               }}>
-                <span
-                  className={clsx(
-                    'text-base cursor-pointer',
-                    isSelected ? 'font-normal text-pink-200' : 'font-light text-white/60'
-                  )}>
-                  {node.name}
-                </span>
+              <span
+                className={clsx(
+                  'text-base cursor-pointer',
+                  isSelected ? 'font-normal text-pink-200' : 'font-light text-white/60',
+                )}>
+                {node.name}
+              </span>
             </li>
           );
         }
@@ -120,7 +120,7 @@ function NodeElement({ repo, tree, currentRoute, selected, onSelect }) {
 
 export default function Docs(props) {
   const repo = props.repo;
-  const initialNode = find(repo.docs, [...props.path]);
+  const initialNode = find(repo.docs, [ ...props.path ]);
 
   const [ node, setNode ] = useState(initialNode);
   const [ sidebar, setSidebar ] = useState(false);

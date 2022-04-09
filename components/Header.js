@@ -37,11 +37,11 @@ export default function Header({ children, className, banner }) {
         <div className="flex-row items-center justify-between gap-12 hidden md:flex">
           {[
             [ '/', 'Home' ],
-            [ '/projects', 'Projects' ]
+            [ '/projects', 'Projects' ],
           ].map(([ path, id ]) => (
             <span key={id} className="capitalize font-normal text-base text-white/80 hover:text-pink-200">
-            <Link href={path}>{id}</Link>
-          </span>
+              <Link href={path}>{id}</Link>
+            </span>
           ))}
         </div>
       </div>

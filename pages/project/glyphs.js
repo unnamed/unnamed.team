@@ -359,7 +359,7 @@ function EditorHeader() {
         Hey! This is the new web-editor for µŋglyphs (formerly µŋemojis), if you have a problem, try
         using <a className="underline cursor-pointer" href="https://unnamed.github.io/emojis/v2">the old version of this editor</a> and
         reporting this issue on our <Link href="/discord"><span className="underline cursor-pointer">Discord server</span></Link>
-      </span>)}>
+    </span>)}>
       <div className="flex flex-row md:w-full md:px-16 justify-start gap-2">
         <Button
           label="Download"
