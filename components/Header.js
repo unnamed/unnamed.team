@@ -34,7 +34,7 @@ export default function Header({ children, className, banner }) {
         {children}
 
         {/* Links */}
-        <div className="flex flex-row items-center justify-between gap-12">
+        <div className="flex-row items-center justify-between gap-12 hidden md:flex">
           {[
             [ '/', 'Home' ],
             [ '/projects', 'Projects' ]

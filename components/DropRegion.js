@@ -26,7 +26,7 @@ export default function DropRegion({ onDrop, onClick, children, ...props }) {
   return (
     <div
       className={clsx(
-        'flex justify-center items-center w-96 h-48 my-0 mx-auto text-lg text-white/50 border-white/[.15] rounded-2xl text-center',
+        'flex justify-center items-center w-full lg:w-1/3 h-48 my-0 mx-auto text-lg text-white/50 border-white/[.15] rounded-2xl text-center',
         dragOver ? 'bg-white/[.15]' : 'bg-white/10 border',
         onClick && 'cursor-pointer hover:bg-white/[.15]'
       )}

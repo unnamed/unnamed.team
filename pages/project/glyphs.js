@@ -191,9 +191,9 @@ function GlyphCard({ emoji }) {
   }
 
   return (
-    <div className="flex basis-full p-3 md:basis-1/2 lg:basis-1/3">
+    <div className="flex basis-full p-2 md:p-3 md:basis-1/2 xl:basis-1/3">
       <div className="flex flex-row py-2 md:py-4 px-4 md:px-8 gap-4 w-full items-center justify-between rounded-2xl border bg-white/10 border-white/[.15]">
-        <img src={emoji.img} alt={name} className="flex w-24 rendering-pixelated"/>
+        <img src={emoji.img} alt={name} className="flex w-16 sm:w-24 rendering-pixelated"/>
         <div className="flex flex-col gap-1">
           <Input property="name" validate={regex(PATTERNS.name)}/>
           <Input property="ascent" validate={input => {
@@ -360,7 +360,7 @@ function EditorHeader() {
         using <a className="underline cursor-pointer" href="https://unnamed.github.io/emojis/v2">the old version of this editor</a> and
         reporting this issue on our <Link href="/discord"><span className="underline cursor-pointer">Discord server</span></Link>
       </span>)}>
-      <div className="flex flex-row w-full px-16 justify-start gap-2">
+      <div className="flex flex-row md:w-full md:px-16 justify-start gap-2">
         <Button
           label="Download"
           title="Download the glyphs as am MCEMOJI file"
@@ -393,7 +393,7 @@ export default function EditorPage() {
       <ToastContainer>
         <GlyphContext.Provider value={[ map, setMap ]}>
           <EditorHeader/>
-          <div className="container mx-auto px-8">
+          <div className="container mx-auto px-4 md:px-8">
             <div className="flex flex-col gap-8 py-8">
               <EditorDropRegion />
               <div className="flex flex-wrap -mx-1">
