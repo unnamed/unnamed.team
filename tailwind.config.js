@@ -12,9 +12,12 @@ module.exports = {
       white: colors.white,
       black: colors.black,
       gray: colors.gray,
+      red: colors.red,
+      green: colors.green,
       primary: '#ff8df8',
       secondary: '#c86bef',
       pink: {
+        100: '#ffa8f9',
         200: '#ff8df8',
         500: '#ef64e5'
       },

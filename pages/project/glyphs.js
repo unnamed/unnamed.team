@@ -2,17 +2,25 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { createContext, useContext, useState } from 'react';
 import { processImage, readEmojis, writeEmojis } from '../../lib/glyphio';
-import { promptFilesAndReadAsBuffer, saveFile, stripExtension } from '../../lib/files';
+import {
+  promptFiles,
+  readAsArrayBuffer,
+  readAsDataURL,
+  saveFile,
+  stripExtension,
+} from '../../lib/files';
 import { ToastContainer, useToasts } from '../../components/toast';
-import Card from '../../components/Card';
 import Button  from '../../components/Button';
-import Background  from '../../components/Background';
+import Header from '../../components/Header';
+import DropRegion from '../../components/DropRegion';
+import clsx from 'clsx';
+import { uploadTemporaryFile } from '../../lib/artemis';
 
-const ALLOWED_MIME_TYPES = new Set([ 'image/webp', 'image/png' ]);
+const ALLOWED_IMAGE_MIME_TYPES = new Set([ 'image/webp', 'image/png' ]);
 const PATTERNS = {
-  name: /^[A-Za-z0-9_]{1,14}/g,
-  number: /^-?\d*$/g,
-  permission: /^[A-Za-z0-9_.]+$/g,
+  name: /^[a-z0-9_]{1,14}$/g,
+  number: /^-?\d+$/g,
+  permission: /^[A-Za-z0-9_.]*$/g,
 };
 
 /**
@@ -25,12 +33,6 @@ const PATTERNS = {
  * @property {number} height The emoji height
  * @property {number} ascent The emoji ascent
  */
-
-function compareEmoji(a, b) {
-  if (a.name < b.name) return -1;
-  if (a.name > b.name)return 1;
-  return 0;
-}
 
 /**
  * Represents a map for Emoji objects
@@ -47,22 +49,6 @@ class GlyphMap {
   ) {
     this.byName = byName;
     this.byChar = byChar;
-  }
-
-  /**
-   * @param {string} name
-   * @returns {Emoji}
-   */
-  getByName(name) {
-    return this.byName.get(name);
-  }
-
-  /**
-   * @param {number} char
-   * @returns {Emoji}
-   */
-  getByChar(char) {
-    return this.byChar.get(char);
   }
 
   /**
@@ -137,60 +123,59 @@ class GlyphMap {
 
 const GlyphContext = createContext([]);
 
-function regex(pattern) {
-  return value => value.match(pattern);
-}
-
-function Input({
-  emoji,
-  property,
-  validate,
-  serialize,
-  deserialize
-}) {
-  serialize = serialize || (v => v);
-  deserialize = deserialize || (v => v);
-
-  const [ valid, setValid ] = useState(true);
-  const [ value, setValue ] = useState(serialize(emoji[property]));
-  const [ map ] = useContext(GlyphContext);
-
-  return (
-    <label className="flex flex-row gap-4 items-center">
-      <span className="text-white opacity-80 text-sm font-light capitalize">{property}</span>
-      <input
-        className={`bg-white/0 text-white font-light border-b-white border-opacity-80 border-b opacity-80 ${valid ? '' : ''}`}
-        type="text"
-        spellCheck="false"
-        value={value}
-        onInput={event => {
-          const newValue = event.target.value;
-          setValue(newValue);
-
-          if (!validate(newValue)) {
-            setValid(false);
-            return;
-          }
-
-          setValid(true);
-
-          // mutates map without calling setMap to avoid
-          // updating
-          map.removeByName(emoji.name);
-
-          emoji[property] = deserialize(newValue);
-          map.add(emoji);
-        }}/>
-    </label>
-  );
-}
-
 /**
  * @param {Emoji} emoji
  */
-function EmojiComponent({ emoji }) {
+function GlyphCard({ emoji }) {
   const [ map, setMap ] = useContext(GlyphContext);
   const name = emoji.name;
+
+  function Input({
+    property,
+    validate,
+    serialize,
+    deserialize
+  }) {
+    serialize = serialize || (v => v);
+    deserialize = deserialize || (v => v);
+
+    const [ valid, setValid ] = useState(true);
+    const [ value, setValue ] = useState(serialize(emoji[property]));
+    const [ map ] = useContext(GlyphContext);
+
+    return (
+      <label className="flex flex-row gap-4 items-center text-white/80">
+        <span className="text-sm font-light capitalize w-28 text-right">{property}</span>
+        <input
+          className={clsx(
+            'rounded-lg font-light w-full py-1 px-2 border focus:outline-none focus:ring',
+            valid ? 'bg-black/30 border-black/10 focus:ring-pink-200' : 'bg-red-500/30 border-red-500/50 focus:ring-red-400'
+          )}
+          type="text"
+          spellCheck="false"
+          value={value}
+          onInput={event => {
+            const newValue = event.target.value;
+            setValue(newValue);
+
+            if (!validate(newValue)) {
+              setValid(false);
+              return;
+            }
+
+            setValid(true);
+
+            // mutates map without calling setMap to avoid
+            // updating
+            map.removeByName(emoji.name);
+
+            emoji[property] = deserialize(newValue);
+            map.add(emoji);
+          }}/>
+      </label>
+    );
+  }
+
 
   function remove() {
     const newMap = map.copy();
@@ -198,70 +183,44 @@ function EmojiComponent({ emoji }) {
     setMap(newMap);
   }
 
+  function regex(pattern) {
+    return value => value.match(pattern);
+  }
+
   return (
-    <Card>
-      <img src={emoji.img} alt={name} className="flex w-24 rendering-pixelated"/>
-      <div className="flex flex-col">
-        <Input emoji={emoji} property="name" validate={regex(PATTERNS.name)}/>
-        <Input emoji={emoji} property="ascent" validate={regex(PATTERNS.number)}/>
-        <Input emoji={emoji} property="height" validate={regex(PATTERNS.number)}/>
-        <Input emoji={emoji} property="permission" validate={regex(PATTERNS.permission)}/>
-        <Input emoji={emoji} property="character" serialize={String.fromCodePoint} validate={value => value.length === 1}/>
+    <div className="flex basis-full p-3 md:basis-1/2 lg:basis-1/3">
+      <div className="flex flex-row py-2 md:py-4 px-4 md:px-8 gap-4 w-full items-center justify-between rounded-2xl border bg-white/10 border-white/[.15]">
+        <img src={emoji.img} alt={name} className="flex w-24 rendering-pixelated"/>
+        <div className="flex flex-col gap-1">
+          <Input property="name" validate={regex(PATTERNS.name)}/>
+          <Input property="ascent" validate={input => {
+            if (!input.match(PATTERNS.number)) {
+              // not a number, it is invalid
+              return false;
+            }
+            const ascent = parseInt(input);
+            return ascent <= emoji.height;
+          }}/>
+          <Input property="height" validate={regex(PATTERNS.number)}/>
+          <Input property="permission" validate={regex(PATTERNS.permission)}/>
+          <Input property="character" serialize={String.fromCodePoint} validate={value => value.length === 1}/>
+        </div>
+        <div className="h-full">
+          <button className="text-white/70" onClick={remove}>&#10006;</button>
+        </div>
       </div>
-      <div className="h-full">
-        <button className="text-white opacity-80" onClick={remove}>&#x2715;</button>
-      </div>
-    </Card>
+    </div>
   );
 }
 
-function DropRegion() {
-  const [ dragOver, setDragOver ] = useState(false);
+function EditorDropRegion() {
   const [ map, setMap ] = useContext(GlyphContext);
   const toasts = useToasts();
 
-  function onDragOver(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    setDragOver(true);
-  }
-
-  function onDragEnd(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    setDragOver(false);
-  }
-
-  async function onDrop(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    setDragOver(false);
-
-    /** @type FileList */
-    const files = event.dataTransfer.files;
-    const toAdd = [];
-
-    for (let i = 0; i < files.length; i++) {
-
-      const file = files[i];
-
-      if (!ALLOWED_MIME_TYPES.has(file.type)) {
-        toasts.add(
-          'error',
-          `Cannot load ${file.name}. Invalid file type`,
-        );
-        continue;
-      }
-
-      const reader = new FileReader();
-      const dataUrlPromise = new Promise((resolve, reject) => {
-        reader.addEventListener('load', ({ target }) => resolve(target.result));
-        reader.addEventListener('error', reject);
-        reader.addEventListener('abort', reject);
-      });
-      reader.readAsDataURL(file);
-
-      const imageDataUrl = await processImage(await dataUrlPromise, file.type);
+  async function loadGlyphsFromFile(file, into) {
+    if (ALLOWED_IMAGE_MIME_TYPES.has(file.type)) {
+      // image detected
+      const imageDataUrl = await processImage(await readAsDataURL(file), file.type);
       const name = stripExtension(file.name);
       const uniqueName = map.ensureUniqueName(name);
 
@@ -269,7 +228,7 @@ function DropRegion() {
         toasts.add('warning', `Emoji with name '${name}' already exists, name updated to '${uniqueName}'`);
       }
 
-      toAdd.push({
+      into.push({
         name: uniqueName,
         character: map.generateChar(),
         img: imageDataUrl,
@@ -277,6 +236,42 @@ function DropRegion() {
         height: 9,
         permission: '',
       });
+      return;
+    }
+
+    // try reading as an MCEmoji file
+    const buffer = await readAsArrayBuffer(file);
+
+    try {
+      const emojis = await readEmojis(buffer);
+      for (const emoji of emojis) {
+        console.log(emoji.name);
+        // process current image data
+        emoji.img = await processImage(emoji.img, file.type);
+
+        // if name is taken, use another name
+        const newName = map.ensureUniqueName(emoji.name);
+        if (emoji.name !== newName) {
+          toasts.add('warning', `Emoji with name '${emoji.name}' already exists, name updated to '${newName}'`);
+          emoji.name = newName;
+        }
+
+        if (map.byChar.has(emoji.character)) {
+          emoji.character = map.generateChar();
+        }
+
+        into.push(emoji);
+      }
+    } catch (e) {
+      toasts.add('error', `Cannot load ${file.name}. Invalid file type`);
+    }
+  }
+
+  async function onDrop(files) {
+    const toAdd = [];
+
+    for (let i = 0; i < files.length; i++) {
+      await loadGlyphsFromFile(files[i], toAdd);
     }
 
     const newMap = map.copy();
@@ -286,137 +281,100 @@ function DropRegion() {
     setMap(newMap);
   }
 
+  async function _import() {
+    const toAdd = [];
+    for (const file of (await promptFiles({ multiple: true, accept: ['.mcemoji', ...ALLOWED_IMAGE_MIME_TYPES] }))) {
+      await loadGlyphsFromFile(file, toAdd);
+    }
+
+    // update state
+    const newMap = map.copy();
+    for (const emoji of toAdd) {
+      newMap.add(emoji);
+    }
+    setMap(newMap);
+  }
+
   return (
-    <div
-      className={`flex justify-center items-center w-72 h-36 my-0 mx-auto text-lg ${dragOver ? 'bg-ghost-200 text-lightghost-200' : 'bg-ghost-100 text-lightghost-100'}`}
-      onDragOver={onDragOver}
-      onDragEnter={onDragOver}
-      onDragLeave={onDragEnd}
-      onDragEnd={onDragEnd}
-      onDrop={onDrop}>
-      <h2>Drop your emojis here</h2>
-    </div>
+    <DropRegion onDrop={onDrop} onClick={_import}>
+      <h2>
+        Click to select your glyphs<br/>
+        or drop them here...
+      </h2>
+    </DropRegion>
   );
 }
 
-function save(toasts, map) {
-  if (map.byName.size < 1) {
-    // no emojis, return
-    toasts.add(
-      'error',
-      'No emojis to save, add some emojis first!',
-    );
-    return;
-  }
-  writeEmojis(map.byName)
-    .then(blob => saveFile(blob, 'emojis.mcemoji'));
-}
-
-async function _import(toasts, map, setMap) {
-  const toAdd = [];
-  for (const [ file, buffer ] of (await promptFilesAndReadAsBuffer({ multiple: true }))) {
-    const emojis = await readEmojis(buffer);
-    for (const emoji of emojis) {
-      // process current image data
-      emoji.img = await processImage(emoji.img, file.type);
-
-      // if name is taken, use another name
-      const newName = map.ensureUniqueName(emoji.name);
-      if (emoji.name !== newName) {
-        toasts.add('warning', `Emoji with name '${emoji.name}' already exists, name updated to '${newName}'`);
-        emoji.name = newName;
-      }
-
-      if (map.byChar.has(emoji.character)) {
-        emoji.character = map.generateChar();
-      }
-
-      toAdd.push(emoji);
-    }
-  }
-
-  // update state
-  const newMap = map.copy();
-  for (const emoji of toAdd) {
-    newMap.add(emoji);
-  }
-  setMap(newMap);
-}
-
-function _export(toasts, map) {
-  if (map.byName.size < 1) {
-    toasts.add(
-      'error',
-      'No emojis to upload, add some emojis first!',
-    );
-    return;
-  }
-  writeEmojis(map.byName)
-    .then(blob => {
-      const formData = new FormData();
-      formData.set('file', blob);
-      return fetch(
-        'https://artemis.unnamed.team/tempfiles/upload/',
-        { method: 'POST', body: formData },
-      );
-    })
-    .then(response => {
-      if (response.ok) {
-        response.json().then(json => {
-          const { id } = json;
-          const command = `/emojis update ${id}`;
-
-          navigator.clipboard.writeText(command).catch(console.error);
-
-          toasts.add(
-            'success',
-            'Successfully uploaded emojis, execute the'
-            + ` command (${command}) in your Minecraft server to load them.`,
-          );
-        });
-      } else {
-        const errorMessages = {
-          413: 'Your emoji pack is too large to be received by our backend,'
-            + ' try reducing its size or manually downloading it and uploading to'
-            + ' your Minecraft server (plugins/unemojis/emojis.mcemoji)',
-        };
-
-        toasts.add('error', errorMessages[response.status] || `HTTP Status ${response.status}`);
-      }
-    });
-}
-
-function Editor() {
+function EditorHeader() {
+  const [ map ] = useContext(GlyphContext);
   const toasts = useToasts();
-  const [ map, setMap ] = useContext(GlyphContext);
+
+  function upload() {
+    if (map.byName.size < 1) {
+      toasts.add('error', 'No emojis to upload, add some emojis first!',);
+      return;
+    }
+    writeEmojis(map.byName)
+      .then(uploadTemporaryFile)
+      .then(response => {
+        if (response.ok) {
+          response.json().then(json => {
+            const { id } = json;
+            const command = `/emojis update ${id}`;
+
+            navigator.clipboard.writeText(command).catch(console.error);
+
+            toasts.add(
+              'success',
+              'Successfully uploaded emojis, execute the'
+              + ` command (${command}) in your Minecraft server to load them.`,
+            );
+          });
+        } else {
+          const errorMessages = {
+            413: 'Your emoji pack is too large to be received by our backend,'
+              + ' try reducing its size or manually downloading it and uploading to'
+              + ' your Minecraft server (plugins/unemojis/emojis.mcemoji)',
+          };
+
+          toasts.add('error', errorMessages[response.status] || `HTTP Status ${response.status}`);
+        }
+      });
+  }
+
+  function download() {
+    if (map.byName.size < 1) {
+      // no emojis, return
+      toasts.add('error', 'No emojis to save, add some emojis first!',);
+      return;
+    }
+    writeEmojis(map.byName)
+      .then(blob => saveFile(blob, 'emojis.mcemoji'));
+  }
 
   return (
-    <div className="flex flex-col gap-8 py-8">
-      <div className="flex flex-col gap-2 items-center">
-        <h2 className="text-white text-center font-medium text-5xl opacity-90">Editor</h2>
-        <h3 className="text-white text-center font-light text-lg opacity-90 w-96">
-          Web-editor for µŋglyphs, if you have a problem, try
-          using <a className="text-primary underline" href="https://unnamed.github.io/emojis/v2">the old version of this editor</a> and
-          reporting this issue on our <Link passHref={true} href="/discord"><span className="text-primary underline">Discord server</span></Link>
-        </h3>
+    <Header banner={(<span>
+        Hey! This is the new web-editor for µŋglyphs, if you have a problem, try
+        using <a className="underline cursor-pointer" href="https://unnamed.github.io/emojis/v2">the old version of this editor</a> and
+        reporting this issue on our <Link href="/discord"><span className="underline cursor-pointer">Discord server</span></Link>
+      </span>)}>
+      <div className="flex flex-row w-full px-16 justify-start gap-2">
+        <Button
+          label="Download"
+          title="Download the glyphs as am MCEMOJI file"
+          color="primaryGhost"
+          size="small"
+          onClick={download}
+        />
+        <Button
+          label="Upload"
+          title="Upload the glyphs to then load them on your Minecraft server"
+          color="primaryGhost"
+          size="small"
+          onClick={upload}
+        />
       </div>
-
-      <DropRegion/>
-
-      <div className="flex flex-row w-max mx-auto gap-2">
-        <Button label="Save" onClick={() => save(toasts, map)}/>
-        <Button label="Import" onClick={() => _import(toasts, map, setMap)}/>
-        <Button label="Export" onClick={() => _export(toasts, map)}/>
-      </div>
-
-      <Card.Container>
-        {map.values().sort(compareEmoji).map(emoji => (
-          <EmojiComponent
-            key={emoji.name}
-            emoji={emoji}/>
-        ))}
-      </Card.Container>
-    </div>
+    </Header>
   );
 }
 
@@ -424,20 +382,33 @@ export default function EditorPage() {
   const [ map, setMap ] = useState(new GlyphMap());
 
   return (
-    <ToastContainer>
-      <GlyphContext.Provider value={[ map, setMap ]}>
-        <Head>
-          <meta property="og:title" content="Unnamed Team | Emojis"/>
-          <meta property="og:description" content="Web-editor for emojis, a Minecraft plugin by Unnamed Team"/>
-          <meta property="theme-color" content="#ff8df8"/>
-          <title>Unnamed | Emoji Editor</title>
-        </Head>
-        <Background>
+    <>
+      <Head>
+        <title>Unnamed | Emoji Editor</title>
+        <meta property="og:title" content="Unnamed | Glyphs"/>
+        <meta property="og:description" content="A user interface helper for µŋglyphs, a Minecraft plugin by Unnamed"/>
+      </Head>
+      <ToastContainer>
+        <GlyphContext.Provider value={[ map, setMap ]}>
+          <EditorHeader/>
           <div className="container mx-auto px-8">
-            <Editor/>
+            <div className="flex flex-col gap-8 py-8">
+              <EditorDropRegion />
+              <div className="flex flex-wrap -mx-1">
+                {map.values().sort((a, b) => {
+                  if (a.name < b.name) return -1;
+                  if (a.name > b.name) return 1;
+                  return 0;
+                }).map(emoji => (
+                  <GlyphCard
+                    key={emoji.name}
+                    emoji={emoji}/>
+                ))}
+              </div>
+            </div>
           </div>
-        </Background>
-      </GlyphContext.Provider>
-    </ToastContainer>
+        </GlyphContext.Provider>
+      </ToastContainer>
+    </>
   );
 }

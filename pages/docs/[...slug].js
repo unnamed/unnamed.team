@@ -1,6 +1,5 @@
 import Head from 'next/head';
 import { useState } from 'react';
-import Background from '../../components/Background';
 import * as GitHub from '../../lib/github';
 
 import styles from './docs.module.scss';
@@ -21,6 +20,14 @@ function find(root, path) {
       return null;
     }
   }
+}
+
+function Sidebar({ children }) {
+  return (
+    <aside className="w-72 flex flex-col gap-4 py-9 px-6">
+      {children}
+    </aside>
+  );
 }
 
 export default function Docs(props) {
@@ -70,6 +77,7 @@ export default function Docs(props) {
 
             <span
               className={clsx(
+                'text-base',
                 isContent ? 'font-light cursor-pointer' : 'font-normal text-wine-900 dark:text-lightghost-200',
                 isSelected ? 'text-pink-200 font-normal' : (isContent && 'text-gray-700 dark:text-lightghost-100')
               )}>
@@ -94,15 +102,18 @@ export default function Docs(props) {
         <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
         <meta name="theme-color" content="#ff8df8"/>
       </Head>
-      <Background className="h-screen overflow-y-hidden">
+      <div className="h-screen overflow-y-hidden">
         <Header />
 
         <div className="flex flex-row justify-between max-w-8xl mx-auto h-full">
-          <aside className={`w-72 flex flex-col gap-4 py-9 px-6`}>
-            <h1 className="text-wine-900 dark:text-lightghost-200">{repo.name} Documentation</h1>
-            {createNodeElement(repo.docs, [ 'docs', repo.name ])}
-          </aside>
+          {/* Navigation */}
+          <Sidebar>
+            <div className="p-2.5">
+              {createNodeElement(repo.docs, [ 'docs', repo.name ])}
+            </div>
+          </Sidebar>
 
+          {/* Content */}
           <div className={clsx('flex-1 h-full', sidebar ? 'hidden sm:flex' : 'flex')}>
             <div className="flex flex-col container mx-auto px-4 py-8 h-full overflow-y-scroll">
               <div
@@ -111,19 +122,21 @@ export default function Docs(props) {
               />
 
               <footer
-                className="flex flex-row justify-between font-light text-gray-400 dark:text-lightghost-100 border-t border-gray-200 dark:border-lightghost-100 py-8 my-12">
+                className="flex flex-row justify-between font-light text-white/50 py-8 my-12">
                 <span>Copyright &copy; {new Date().getFullYear()} Unnamed Team</span>
-                <span className="hover:text-lightghost-200">
+                <span className="hover:text-white/70">
                   <a href={node.htmlUrl}>Edit this page on GitHub</a>
                 </span>
               </footer>
             </div>
           </div>
 
-          <aside className="w-72">
-          </aside>
+          {/* Table of Contents */}
+          <Sidebar>
+            <h4 className="text-white/70">Contents</h4>
+          </Sidebar>
         </div>
-      </Background>
+      </div>
     </>
   );
 }

@@ -1,6 +1,6 @@
 // UI module to show toasts/notifications on the screen
 import { createContext, useContext, useState } from 'react';
-import styles from './toast.module.scss';
+import clsx from 'clsx';
 
 // 5 seconds
 const TOAST_TIMEOUT = 5000;
@@ -8,9 +8,9 @@ const TOAST_TIMEOUT = 5000;
 const ToastContext = createContext([]);
 
 const types = {
-  success: styles.toastSuccess,
-  error: styles.toastError,
-  warning: styles.toastWarning
+  success: 'bg-green-500/40 border-green-500/50 text-green-200/80',
+  error: 'bg-red-500/30 border-red-500/50 text-red-200/90',
+  warning: 'bg-[#eab000]'
 };
 
 function Toast({ value }) {
@@ -23,12 +23,12 @@ function Toast({ value }) {
   }
 
   return (
-    <div className={`${styles.toast} ${types[type]}`}>
-      <div className={styles.toastHeader}>
-        <p className={styles.toastHeaderTitle}>{type}</p>
+    <div className={clsx('flex flex-col gap-1 text-white/80 py-2 px-4 border rounded-2xl', types[type])}>
+      <div className="flex flex-row justify-between">
+        <p className="text-normal capitalize">{type}</p>
         <button onClick={remove}>&#x2715;</button>
       </div>
-      <p className={styles.toastMessage}>{message}</p>
+      <p className="text-light">{message}</p>
     </div>
   );
 }
@@ -39,7 +39,7 @@ export function ToastContainer({ children }) {
   return (
     <ToastContext.Provider value={[ toasts, setToasts ]}>
       {children}
-      <div className={styles.container}>
+      <div className="flex flex-col gap-1 w-96 right-2 bottom-2 fixed">
         {toasts.map(toast => (<Toast key={toast.id} value={toast}/>))}
       </div>
     </ToastContext.Provider>

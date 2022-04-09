@@ -1,16 +1,23 @@
 import clsx from 'clsx';
 
 const types = {
-  primary: 'bg-wine-900 dark:bg-pink-200 text-white dark:text-wine-900 hover:bg-wine-700 dark:hover:bg-pink-500',
-  secondary: 'dark:bg-gray-700 dark:bg-opacity-30 text-wine-900 dark:text-lightghost-200 hover:bg-gray-100 hover:text-pink-200 dark:hover:bg-opacity-50'
+  primary: 'bg-pink-200 border border-white/30 text-black/80 hover:bg-pink-100',
+  primaryGhost: 'bg-pink-200/10 border border-pink-200/[.15] text-pink-200/80 hover:bg-pink-200/20',
+  secondary: 'bg-white/10 border border-white/[.15] text-white/70 hover:bg-white/[.15]'
 };
 
-export default function Button({ label, color, onClick }) {
+const sizes = {
+  normal: 'rounded-3xl py-3 px-5 text-base',
+  small: 'rounded-lg px-2 py-1 text-sm'
+};
+
+export default function Button({ label, color, size, ...props }) {
   color = color || 'primary';
+  size = size || 'normal';
   return (
     <button
-      className={clsx('rounded-lg font-semibold py-4 px-6 text-sm', types[color])}
-      onClick={onClick}>
+      className={clsx('font-normal', types[color], sizes[size])}
+      {...props}>
       {label}
     </button>
   );

@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Background from '../components/Background';
 import Header from '../components/Header';
 
 const descriptions = {
@@ -21,14 +20,12 @@ function ErrorPage({ statusCode }) {
       <Head>
         <title>{statusCode} | {description.name}</title>
       </Head>
-      <Background>
-        <Header />
-        <div className="flex flex-col items-center gap-4 my-10">
-          <h1 className="text-white/80 font-medium text-6xl text-center">{statusCode}</h1>
-          <p className="text-white/70 font-light text-lg text-center">{description.message}</p>
-          <img src={`https://http.cat/${statusCode}`} alt="http cat" width={350} />
-        </div>
-      </Background>
+      <Header />
+      <div className="flex flex-col items-center gap-4 my-10">
+        <h1 className="text-white/80 font-medium text-6xl text-center">{statusCode}</h1>
+        <p className="text-white/70 font-light text-lg text-center">{description.message}</p>
+        <img src={`https://http.cat/${statusCode}`} alt="http cat" width={350} />
+      </div>
     </>
   );
 }
