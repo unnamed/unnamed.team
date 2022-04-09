@@ -7,6 +7,9 @@ export default function HomePage() {
     <>
       <Head>
         <title>Unnamed | Home</title>
+        <meta property="og:title" content="Unnamed | Home"/>
+        <meta property="og:description" content="Welcome to Unnamed. Let's imagine, let's create"/>
+        <meta property="og:url" content="https://unnamed.team/"/>
       </Head>
       <Header />
       <div className="max-w-8xl mx-auto py-12">

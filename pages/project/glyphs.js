@@ -389,6 +389,7 @@ export default function EditorPage() {
         <title>Unnamed | Glyph Editor</title>
         <meta property="og:title" content="Unnamed | Glyphs"/>
         <meta property="og:description" content="A user interface helper for µŋglyphs, a Minecraft plugin by Unnamed"/>
+        <meta property="og:url" content="https://unnamed.team/project/glyphs"/>
       </Head>
       <ToastContainer>
         <GlyphContext.Provider value={[ map, setMap ]}>
