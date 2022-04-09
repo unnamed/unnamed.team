@@ -136,11 +136,14 @@ function GlyphCard({ emoji }) {
     serialize,
     deserialize
   }) {
-    serialize = serialize || (v => v);
+    serialize = serialize || (v => v.toString());
     deserialize = deserialize || (v => v);
 
-    const [ valid, setValid ] = useState(true);
-    const [ value, setValue ] = useState(serialize(emoji[property]));
+    const initialValue = emoji[property];
+    const initialStringValue = serialize(initialValue);
+
+    const [ valid, setValid ] = useState(validate(initialStringValue));
+    const [ value, setValue ] = useState(initialStringValue);
     const [ map ] = useContext(GlyphContext);
 
     return (
