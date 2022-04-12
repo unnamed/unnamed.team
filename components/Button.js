@@ -11,14 +11,17 @@ const sizes = {
   small: 'rounded-lg px-2 py-1 text-sm'
 };
 
-export default function Button({ label, color, size, ...props }) {
+export default function Button({ label, color, size, href, ...props }) {
   color = color || 'primary';
   size = size || 'normal';
-  return (
+
+  const btn = (
     <button
       className={clsx('font-normal', types[color], sizes[size])}
       {...props}>
       {label}
     </button>
   );
+
+  return href ? (<a href={href}>{btn}</a>) : btn;
 }
