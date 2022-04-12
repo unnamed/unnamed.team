@@ -21,7 +21,7 @@ function ErrorPage({ statusCode }) {
         <title>{statusCode} | {description.name}</title>
       </Head>
       <Header />
-      <div className="flex flex-col items-center gap-4 my-10">
+      <div className="flex flex-col items-center gap-4 my-10 p-8">
         <h1 className="text-white/80 font-medium text-6xl text-center">{statusCode}</h1>
         <p className="text-white/70 font-light text-lg text-center">{description.message}</p>
         <img src={`https://http.cat/${statusCode}`} alt="http cat" width={350} />
