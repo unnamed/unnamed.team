@@ -133,7 +133,7 @@ async function loadGlyphsFromFile(file, map, toasts) {
       toasts.add('warning', `Emoji with name '${name}' already exists, name updated to '${uniqueName}'`);
     }
 
-    const img = await processImage(await Files.readAsDataURL(file), file.type)
+    const img = await processImage(await Files.readAsDataURL(file), file.type);
 
     map.add({
       name: uniqueName,
