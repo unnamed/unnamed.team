@@ -7,13 +7,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { createContext, useContext, useState } from 'react';
 import { processImage, readEmojis, writeEmojis } from '../../lib/glyphio';
-import {
-  promptFiles,
-  readAsArrayBuffer,
-  readAsDataURL,
-  saveFile,
-  stripExtension,
-} from '../../lib/files';
+import * as Files from '../../lib/files';
 import { ToastContainer, useToasts } from '../../components/toast';
 import Button  from '../../components/Button';
 import Header from '../../components/Header';
@@ -27,6 +21,10 @@ const PATTERNS = {
   number: /^-?\d+$/g,
   permission: /^[A-Za-z0-9_.]*$/g,
 };
+
+const DEFAULT_ASCENT = 8;
+const DEFAULT_HEIGHT = 9;
+const DEFAULT_PERMISSION = '';
 
 /**
  * Represents an emoji for the emoji editor
@@ -78,13 +76,6 @@ class GlyphMap {
     }
   }
 
-  removeByChar(char) {
-    const glyph = this.byChar.get(char);
-    if (this.byChar.delete(char)) {
-      this.byName.delete(glyph.name);
-    }
-  }
-
   /**
    * @returns {GlyphMap}
    */
@@ -93,16 +84,6 @@ class GlyphMap {
       new Map(this.byName),
       new Map(this.byChar),
     );
-  }
-
-  /**
-   * @param {Emoji} glyph
-   * @returns {GlyphMap}
-   */
-  with(glyph) {
-    const newMap = this.copy();
-    newMap.add(glyph);
-    return newMap;
   }
 
   ensureUniqueName(name) {
@@ -126,7 +107,174 @@ class GlyphMap {
 
 }
 
+/**
+ * Loads glyphs from the given file, the file may be
+ * an image (some data will be generated) or an MCEMOJI
+ * file containing multiple complete glyphs that must
+ * be fixed if broken (collisions, etc)
+ *
+ * The loaded glyphs are added to the provided map
+ * instance, errors are reported using the provided
+ * toast manager
+ *
+ * @param {File} file The file to read
+ * @param {GlyphMap} map The glyph map to update
+ * @param toasts The toast manager
+ */
+async function loadGlyphsFromFile(file, map, toasts) {
+
+  if (ALLOWED_IMAGE_MIME_TYPES.has(file.type)) {
+
+    // file is an image, import it and generate missing data
+    const name = Files.stripExtension(file.name);
+    const uniqueName = map.ensureUniqueName(name);
+
+    if (name !== uniqueName) {
+      toasts.add('warning', `Emoji with name '${name}' already exists, name updated to '${uniqueName}'`);
+    }
+
+    const img = await processImage(await Files.readAsDataURL(file), file.type)
+
+    map.add({
+      name: uniqueName,
+      character: map.generateChar(),
+      img,
+      ascent: DEFAULT_ASCENT,
+      height: DEFAULT_HEIGHT,
+      permission: DEFAULT_PERMISSION,
+    });
+    return;
+  }
+
+  // try reading as an MCEMOJI file that may contain
+  // multiple glyphs
+  try {
+    for (const emoji of await readEmojis(await Files.readAsArrayBuffer(file))) {
+      // process current image data
+      emoji.img = await processImage(emoji.img, file.type);
+
+      const uniqueName = map.ensureUniqueName(emoji.name);
+      if (emoji.name !== uniqueName) {
+        toasts.add('warning', `Emoji with name '${emoji.name}' already exists, name updated to '${uniqueName}'`);
+        emoji.name = uniqueName;
+      }
+
+      if (map.byChar.has(emoji.character)) {
+        emoji.character = map.generateChar();
+      }
+
+      map.add(emoji);
+    }
+  } catch (e) {
+    // not an MCEMOJI file?
+    toasts.add('error', `Cannot load ${file.name}. Invalid file type`);
+  }
+}
+
 const GlyphContext = createContext([]);
+
+function EditorHeader() {
+  const [ map ] = useContext(GlyphContext);
+  const toasts = useToasts();
+
+  function upload() {
+    if (map.byName.size < 1) {
+      toasts.add('error', 'No emojis to upload, add some emojis first!',);
+      return;
+    }
+    writeEmojis(map.byName)
+      .then(uploadTemporaryFile)
+      .then(response => {
+        if (response.ok) {
+          response.json().then(json => {
+            const { id } = json;
+            const command = `/emojis update ${id}`;
+
+            navigator.clipboard.writeText(command).catch(console.error);
+
+            toasts.add(
+              'success',
+              'Successfully uploaded emojis, execute the'
+              + ` command (${command}) in your Minecraft server to load them.`,
+            );
+          });
+        } else {
+          const errorMessages = {
+            413: 'Your emoji pack is too large to be received by our backend,'
+              + ' try reducing its size or manually downloading it and uploading to'
+              + ' your Minecraft server (plugins/unemojis/emojis.mcemoji)',
+          };
+
+          toasts.add('error', errorMessages[response.status] || `HTTP Status ${response.status}`);
+        }
+      });
+  }
+
+  function download() {
+    if (map.byName.size < 1) {
+      // no emojis, return
+      toasts.add('error', 'No emojis to save, add some glyphs first!');
+      return;
+    }
+    writeEmojis(map.byName)
+      .then(blob => Files.saveFile(blob, 'emojis.mcemoji'));
+  }
+
+  return (
+    <Header banner={(<span>
+        Hey! This is the new web-editor for µŋglyphs (formerly µŋemojis), if you have a problem, try
+        using <a className="underline cursor-pointer" href="https://unnamed.github.io/emojis/v2">the old version of this editor</a> and
+        reporting this issue on our <Link href="/discord"><span className="underline cursor-pointer">Discord server</span></Link>
+    </span>)}>
+      <div className="flex flex-row md:w-full md:px-16 justify-start gap-2">
+        <Button
+          label="Download"
+          title="Download the glyphs as am MCEMOJI file"
+          color="primaryGhost"
+          size="small"
+          onClick={download}
+        />
+        <Button
+          label="Upload"
+          title="Upload the glyphs to then load them on your Minecraft server"
+          color="primaryGhost"
+          size="small"
+          onClick={upload}
+        />
+      </div>
+    </Header>
+  );
+}
+
+function EditorDropRegion() {
+  const [ map, setMap ] = useContext(GlyphContext);
+  const toasts = useToasts();
+
+  async function onDrop(files) {
+    const newMap = map.copy();
+    for (let i = 0; i < files.length; i++) {
+      await loadGlyphsFromFile(files[i], newMap, toasts);
+    }
+    setMap(newMap);
+  }
+
+  async function _import() {
+    const newMap = map.copy();
+    for (const file of await Files.promptFiles({ multiple: true, accept: ['.mcemoji', ...ALLOWED_IMAGE_MIME_TYPES] })) {
+      await loadGlyphsFromFile(file, newMap, toasts);
+    }
+    setMap(newMap);
+  }
+
+  return (
+    <DropRegion onDrop={onDrop} onClick={_import}>
+      <h2>
+        Click to select your glyphs<br/>
+        or drop them here...
+      </h2>
+    </DropRegion>
+  );
+}
 
 /**
  * @param {Emoji} emoji
@@ -218,158 +366,6 @@ function GlyphCard({ emoji }) {
         </div>
       </div>
     </div>
-  );
-}
-
-function EditorDropRegion() {
-  const [ map, setMap ] = useContext(GlyphContext);
-  const toasts = useToasts();
-
-  async function loadGlyphsFromFile(file, newMap) {
-    if (ALLOWED_IMAGE_MIME_TYPES.has(file.type)) {
-      // image detected
-      const imageDataUrl = await processImage(await readAsDataURL(file), file.type);
-      const name = stripExtension(file.name);
-      const uniqueName = newMap.ensureUniqueName(name);
-
-      if (name !== uniqueName) {
-        toasts.add('warning', `Emoji with name '${name}' already exists, name updated to '${uniqueName}'`);
-      }
-
-      newMap.add({
-        name: uniqueName,
-        character: newMap.generateChar(),
-        img: imageDataUrl,
-        ascent: 8,
-        height: 9,
-        permission: '',
-      });
-      return;
-    }
-
-    // try reading as an MCEmoji file
-    const buffer = await readAsArrayBuffer(file);
-
-    try {
-      const emojis = await readEmojis(buffer);
-      for (const emoji of emojis) {
-        // process current image data
-        emoji.img = await processImage(emoji.img, file.type);
-
-        // if name is taken, use another name
-        const newName = newMap.ensureUniqueName(emoji.name);
-        if (emoji.name !== newName) {
-          toasts.add('warning', `Emoji with name '${emoji.name}' already exists, name updated to '${newName}'`);
-          emoji.name = newName;
-        }
-
-        if (newMap.byChar.has(emoji.character)) {
-          emoji.character = newMap.generateChar();
-        }
-
-        newMap.add(emoji);
-      }
-    } catch (e) {
-      toasts.add('error', `Cannot load ${file.name}. Invalid file type`);
-    }
-  }
-
-  async function onDrop(files) {
-    const newMap = map.copy();
-    for (let i = 0; i < files.length; i++) {
-      await loadGlyphsFromFile(files[i], newMap);
-    }
-    setMap(newMap);
-  }
-
-  async function _import() {
-    const newMap = map.copy();
-    for (const file of (await promptFiles({ multiple: true, accept: ['.mcemoji', ...ALLOWED_IMAGE_MIME_TYPES] }))) {
-      await loadGlyphsFromFile(file, newMap);
-    }
-    setMap(newMap);
-  }
-
-  return (
-    <DropRegion onDrop={onDrop} onClick={_import}>
-      <h2>
-        Click to select your glyphs<br/>
-        or drop them here...
-      </h2>
-    </DropRegion>
-  );
-}
-
-function EditorHeader() {
-  const [ map ] = useContext(GlyphContext);
-  const toasts = useToasts();
-
-  function upload() {
-    if (map.byName.size < 1) {
-      toasts.add('error', 'No emojis to upload, add some emojis first!',);
-      return;
-    }
-    writeEmojis(map.byName)
-      .then(uploadTemporaryFile)
-      .then(response => {
-        if (response.ok) {
-          response.json().then(json => {
-            const { id } = json;
-            const command = `/emojis update ${id}`;
-
-            navigator.clipboard.writeText(command).catch(console.error);
-
-            toasts.add(
-              'success',
-              'Successfully uploaded emojis, execute the'
-              + ` command (${command}) in your Minecraft server to load them.`,
-            );
-          });
-        } else {
-          const errorMessages = {
-            413: 'Your emoji pack is too large to be received by our backend,'
-              + ' try reducing its size or manually downloading it and uploading to'
-              + ' your Minecraft server (plugins/unemojis/emojis.mcemoji)',
-          };
-
-          toasts.add('error', errorMessages[response.status] || `HTTP Status ${response.status}`);
-        }
-      });
-  }
-
-  function download() {
-    if (map.byName.size < 1) {
-      // no emojis, return
-      toasts.add('error', 'No emojis to save, add some glyphs first!');
-      return;
-    }
-    writeEmojis(map.byName)
-      .then(blob => saveFile(blob, 'emojis.mcemoji'));
-  }
-
-  return (
-    <Header banner={(<span>
-        Hey! This is the new web-editor for µŋglyphs (formerly µŋemojis), if you have a problem, try
-        using <a className="underline cursor-pointer" href="https://unnamed.github.io/emojis/v2">the old version of this editor</a> and
-        reporting this issue on our <Link href="/discord"><span className="underline cursor-pointer">Discord server</span></Link>
-    </span>)}>
-      <div className="flex flex-row md:w-full md:px-16 justify-start gap-2">
-        <Button
-          label="Download"
-          title="Download the glyphs as am MCEMOJI file"
-          color="primaryGhost"
-          size="small"
-          onClick={download}
-        />
-        <Button
-          label="Upload"
-          title="Upload the glyphs to then load them on your Minecraft server"
-          color="primaryGhost"
-          size="small"
-          onClick={upload}
-        />
-      </div>
-    </Header>
   );
 }
 
