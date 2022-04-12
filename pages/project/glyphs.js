@@ -225,20 +225,20 @@ function EditorDropRegion() {
   const [ map, setMap ] = useContext(GlyphContext);
   const toasts = useToasts();
 
-  async function loadGlyphsFromFile(file, into) {
+  async function loadGlyphsFromFile(file, newMap) {
     if (ALLOWED_IMAGE_MIME_TYPES.has(file.type)) {
       // image detected
       const imageDataUrl = await processImage(await readAsDataURL(file), file.type);
       const name = stripExtension(file.name);
-      const uniqueName = map.ensureUniqueName(name);
+      const uniqueName = newMap.ensureUniqueName(name);
 
       if (name !== uniqueName) {
         toasts.add('warning', `Emoji with name '${name}' already exists, name updated to '${uniqueName}'`);
       }
 
-      into.push({
+      newMap.add({
         name: uniqueName,
-        character: map.generateChar(),
+        character: newMap.generateChar(),
         img: imageDataUrl,
         ascent: 8,
         height: 9,
@@ -257,17 +257,17 @@ function EditorDropRegion() {
         emoji.img = await processImage(emoji.img, file.type);
 
         // if name is taken, use another name
-        const newName = map.ensureUniqueName(emoji.name);
+        const newName = newMap.ensureUniqueName(emoji.name);
         if (emoji.name !== newName) {
           toasts.add('warning', `Emoji with name '${emoji.name}' already exists, name updated to '${newName}'`);
           emoji.name = newName;
         }
 
-        if (map.byChar.has(emoji.character)) {
-          emoji.character = map.generateChar();
+        if (newMap.byChar.has(emoji.character)) {
+          emoji.character = newMap.generateChar();
         }
 
-        into.push(emoji);
+        newMap.add(emoji);
       }
     } catch (e) {
       toasts.add('error', `Cannot load ${file.name}. Invalid file type`);
@@ -275,29 +275,17 @@ function EditorDropRegion() {
   }
 
   async function onDrop(files) {
-    const toAdd = [];
-
-    for (let i = 0; i < files.length; i++) {
-      await loadGlyphsFromFile(files[i], toAdd);
-    }
-
     const newMap = map.copy();
-    for (const glyph of toAdd) {
-      newMap.add(glyph);
+    for (let i = 0; i < files.length; i++) {
+      await loadGlyphsFromFile(files[i], newMap);
     }
     setMap(newMap);
   }
 
   async function _import() {
-    const toAdd = [];
-    for (const file of (await promptFiles({ multiple: true, accept: ['.mcemoji', ...ALLOWED_IMAGE_MIME_TYPES] }))) {
-      await loadGlyphsFromFile(file, toAdd);
-    }
-
-    // update state
     const newMap = map.copy();
-    for (const emoji of toAdd) {
-      newMap.add(emoji);
+    for (const file of (await promptFiles({ multiple: true, accept: ['.mcemoji', ...ALLOWED_IMAGE_MIME_TYPES] }))) {
+      await loadGlyphsFromFile(file, newMap);
     }
     setMap(newMap);
   }
