@@ -8,11 +8,11 @@ import Link from 'next/link';
 import { createContext, useContext, useState } from 'react';
 import { processImage, readEmojis, writeEmojis } from '../../lib/glyphio';
 import * as Files from '../../lib/files';
+import { uploadTemporaryFile } from '../../lib/artemis';
 import { ToastContainer, useToasts } from '../../components/toast';
 import Button  from '../../components/Button';
 import Header from '../../components/Header';
 import DropRegion from '../../components/DropRegion';
-import { uploadTemporaryFile } from '../../lib/artemis';
 import clsx from 'clsx';
 
 const ALLOWED_IMAGE_MIME_TYPES = new Set([ 'image/webp', 'image/png' ]);
