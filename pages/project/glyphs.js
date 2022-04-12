@@ -1,3 +1,8 @@
+/*!
+ * The glyphs web-editor page, a web user interface to
+ * help with the creation of µŋglyphs (formerly µŋemojis)
+ * glyphs
+ */
 import Head from 'next/head';
 import Link from 'next/link';
 import { createContext, useContext, useState } from 'react';
@@ -13,8 +18,8 @@ import { ToastContainer, useToasts } from '../../components/toast';
 import Button  from '../../components/Button';
 import Header from '../../components/Header';
 import DropRegion from '../../components/DropRegion';
-import clsx from 'clsx';
 import { uploadTemporaryFile } from '../../lib/artemis';
+import clsx from 'clsx';
 
 const ALLOWED_IMAGE_MIME_TYPES = new Set([ 'image/webp', 'image/png' ]);
 const PATTERNS = {
