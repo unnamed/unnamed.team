@@ -1,4 +1,6 @@
-// UI module to show toasts/notifications on the screen
+/*!
+ * Toast/notification components
+ */
 import { createContext, useContext, useState } from 'react';
 import clsx from 'clsx';
 
