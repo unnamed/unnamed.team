@@ -50,70 +50,53 @@ function NodeElement({ repo, tree, currentRoute, selected, onSelect }) {
   const router = useRouter();
   const indent = tree !== repo.docs;
 
-  function compareNodeEntry(a, b) {
-    const [ aKey, aNode ] = a;
-    const [ bKey, bNode ] = b;
-    if (aNode.type === 'dir') {
-      if (bNode.type === 'file') {
-        return 1;
-      }
-    }
-    if (MAIN_KEYS.includes(bKey)) return 1;
-    if (aKey < bKey) return -1;
-    if (aKey > bKey) return 1;
-    return 0;
-  }
+  const fileChildren = Object.entries(tree).filter(([ _, node ]) => node.type === 'file');
+  const dirChildren = Object.entries(tree).filter(([ _, node ]) => node.type === 'dir');
 
   return (
     <ul className={clsx('flex flex-col gap-1', indent && 'gap-4')}>
-      {Object.entries(tree).sort(compareNodeEntry).map(([ key, node ]) => {
-        const newRoute = [ ...currentRoute, key ];
-
-        if (node.type === 'file') {
-          const isSelected = node === selected;
-          return (
-            <li
-              key={key}
-              className={clsx('flex flex-col gap-1', indent && 'pl-4')}
-              onClick={() => {
-                onSelect(node);
-                router.push(
-                  '/' + newRoute.join('/'),
-                  undefined,
-                  { shallow: true },
-                );
-              }}>
-              <span
-                className={clsx(
-                  'text-base cursor-pointer',
-                  isSelected ? 'font-normal text-pink-200' : 'font-light text-white/60',
-                )}>
-                {node.name}
-              </span>
-            </li>
-          );
-        }
-
+      {fileChildren.map(([ key, node]) => {
         return (
           <li
             key={key}
-            className={clsx(
-              'flex flex-col gap-1 mt-4',
-              indent && 'pl-4',
-            )}>
-
-            <span className="text-base font-normal text-white/80">{node.name}</span>
-
-            <NodeElement
-              repo={repo}
-              tree={node.content}
-              selected={selected}
-              currentRoute={newRoute}
-              onSelect={onSelect}
-            />
+            className={clsx('flex flex-col gap-1', indent && 'pl-4')}
+            onClick={() => {
+              onSelect(node);
+              router.push(
+                '/' + currentRoute.join('/') + '/' + key,
+                undefined,
+                { shallow: true },
+              ).catch(console.error);
+            }}>
+              <span
+                className={clsx(
+                  'text-base cursor-pointer',
+                  node === selected ? 'font-normal text-pink-200' : 'font-light text-white/60',
+                )}>
+                {node.name}
+              </span>
           </li>
         );
       })}
+      {dirChildren.map(([ key, node ]) => (
+        <li
+          key={key}
+          className={clsx(
+            'flex flex-col gap-1 mt-4',
+            indent && 'pl-4',
+          )}>
+
+          <span className="text-base font-normal text-white/80">{node.name}</span>
+
+          <NodeElement
+            repo={repo}
+            tree={node.content}
+            selected={selected}
+            currentRoute={[ ...currentRoute, key ]}
+            onSelect={onSelect}
+          />
+        </li>
+      ))}
     </ul>
   );
 }
@@ -174,7 +157,7 @@ export default function Docs(props) {
 }
 
 export async function getStaticPaths() {
-  const data = await GitHub.cache.get();
+  const { repos } = await GitHub.cache.get();
   const paths = [];
 
   function addPath(path) {
@@ -185,7 +168,7 @@ export async function getStaticPaths() {
     });
   }
 
-  for (const repo of data.repos) {
+  for (const repo of repos) {
 
     if (repo.docs === null) {
       // no docs for this repo
@@ -218,10 +201,9 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-
-  const data = await GitHub.cache.get();
+  const { repos } = await GitHub.cache.get();
   const [ project, ...path ] = params.slug;
-  const repo = data.repos.find(r => r.name === project);
+  const repo = repos.find(r => r.name === project);
   return {
     props: {
       repo,
