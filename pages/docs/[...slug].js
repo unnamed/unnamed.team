@@ -1,13 +1,21 @@
 import Head from 'next/head';
 import { useState } from 'react';
-import * as GitHub from '../../lib/github';
+import * as GitHub from '../../lib/docs';
 
 import styles from './docs.module.scss';
 import Header from '../../components/Header';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
+import Cache from '../../lib/cache';
 
 const MAIN_KEYS = [ 'readme', 'getting-started' ];
+
+/** @type {Cache<GitHubRepos>} */
+const gitHubDataCache = new Cache(
+  async () => await GitHub.fetchGitHubData(process.env.githubSlug),
+  'github',
+  1000 * 60 * 5, // 5 minutes
+);
 
 function find(root, path, off = 0) {
   const remaining = path.length - off;
@@ -55,7 +63,7 @@ function NodeElement({ repo, tree, currentRoute, selected, onSelect }) {
 
   return (
     <ul className={clsx('flex flex-col gap-1', indent && 'gap-4')}>
-      {fileChildren.map(([ key, node]) => {
+      {fileChildren.map(([ key, node ]) => {
         return (
           <li
             key={key}
@@ -68,13 +76,13 @@ function NodeElement({ repo, tree, currentRoute, selected, onSelect }) {
                 { shallow: true },
               ).catch(console.error);
             }}>
-              <span
-                className={clsx(
-                  'text-base cursor-pointer',
-                  node === selected ? 'font-normal text-pink-200' : 'font-light text-white/60',
-                )}>
-                {node.name}
-              </span>
+            <span
+              className={clsx(
+                'text-base cursor-pointer',
+                node === selected ? 'font-normal text-pink-200' : 'font-light text-white/60',
+              )}>
+              {node.name}
+            </span>
           </li>
         );
       })}
@@ -157,7 +165,7 @@ export default function Docs(props) {
 }
 
 export async function getStaticPaths() {
-  const { repos } = await GitHub.cache.get();
+  const repos = await gitHubDataCache.get();
   const paths = [];
 
   function addPath(path) {
@@ -168,12 +176,7 @@ export async function getStaticPaths() {
     });
   }
 
-  for (const repo of repos) {
-
-    if (repo.docs === null) {
-      // no docs for this repo
-      continue;
-    }
+  for (const repo of Object.values(repos)) {
 
     // root path
     addPath([ repo.name ]);
@@ -201,9 +204,9 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const { repos } = await GitHub.cache.get();
+  const repos = await gitHubDataCache.get();
   const [ project, ...path ] = params.slug;
-  const repo = repos.find(r => r.name === project);
+  const repo = repos[project];
   return {
     props: {
       repo,
