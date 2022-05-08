@@ -1,5 +1,6 @@
 import 'tailwindcss/tailwind.css';
 import '../styles/highlight.scss';
+import '../styles/global.scss';
 
 import Head from 'next/head';
 

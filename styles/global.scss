@@ -1,0 +1,22 @@
+/*!
+ * Global Styles
+ */
+
+/*
+ * Scrollbar Styles
+ */
+/* For Chrome, Edge, Safari and Opera */
+::-webkit-scrollbar {
+  @apply w-1.5;
+  &-track {
+    @apply bg-white/0;
+  }
+  &-thumb {
+    @apply bg-pink-200 hover:bg-pink-500 rounded-sm;
+  }
+}
+
+/* For Firefox */
+html {
+  scrollbar-color: #ff8df8 #00000000;
+}
