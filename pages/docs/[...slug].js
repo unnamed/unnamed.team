@@ -7,6 +7,7 @@ import Header from '../../components/Header';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import Cache from '../../lib/cache';
+import Button from '../../components/Button';
 
 const MAIN_KEYS = [ 'readme', 'getting-started' ];
 
@@ -39,9 +40,9 @@ function find(root, path, off = 0) {
   }
 }
 
-function Sidebar({ children }) {
+function Sidebar({ children, className }) {
   return (
-    <aside className="w-72 flex flex-col gap-4 py-9 px-6">
+    <aside className={clsx('w-72 flex-col gap-4 py-9 px-6 md:flex', className)}>
       {children}
     </aside>
   );
@@ -125,24 +126,35 @@ export default function Docs(props) {
         <meta property="og:description" content={`${repo.description}`}/>
       </Head>
       <div className="h-screen overflow-y-hidden">
-        <Header/>
+        <Header>
+          <Button
+            className="md:hidden"
+            size="small"
+            color="primaryGhost"
+            label={sidebar ? 'Close Sidebar' : 'Open Sidebar'}
+            onClick={() => setSidebar(!sidebar)}
+          />
+        </Header>
 
         <div className="flex flex-row justify-between max-w-8xl mx-auto h-full">
           {/* Navigation */}
-          <Sidebar>
+          <Sidebar className={clsx(sidebar ? 'flex' : 'hidden')}>
             <div className="p-2.5">
               <NodeElement
                 repo={repo}
                 tree={repo.docs}
                 currentRoute={[ 'docs', repo.name ]}
                 selected={node}
-                onSelect={setNode}
+                onSelect={selected => {
+                  setSidebar(false);
+                  setNode(selected);
+                }}
               />
             </div>
           </Sidebar>
 
           {/* Content */}
-          <div className={clsx('flex-1 h-full', sidebar ? 'hidden sm:flex' : 'flex')}>
+          <div className={clsx('flex-1 h-full', sidebar ? 'hidden md:flex' : 'flex')}>
             <div className="flex flex-col container mx-auto px-4 py-8 h-full overflow-y-scroll">
               <div
                 className={clsx('text-white/60 font-light', styles.body)}
