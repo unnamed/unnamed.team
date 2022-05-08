@@ -154,10 +154,10 @@ export default function Docs(props) {
           </Sidebar>
 
           {/* Content */}
-          <div className={clsx('flex-1 h-full', sidebar ? 'hidden md:flex' : 'flex')}>
-            <div className="flex flex-col container mx-auto px-4 py-8 h-full overflow-y-scroll">
+          <div className={clsx('flex-1 h-full w-full', sidebar ? 'hidden md:flex' : 'flex')}>
+            <div className="flex flex-col mx-auto px-4 py-8 h-full overflow-y-scroll w-full">
               <div
-                className={clsx('text-white/60 font-light', styles.body)}
+                className={clsx('text-white/60 font-light w-full', styles.body)}
                 dangerouslySetInnerHTML={{ __html: node.content }}
               />
 
