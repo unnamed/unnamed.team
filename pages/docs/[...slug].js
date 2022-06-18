@@ -6,17 +6,9 @@ import styles from './docs.module.scss';
 import Header from '../../components/Header';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
-import Cache from '../../lib/cache';
 import Button from '../../components/Button';
 
 const MAIN_KEYS = [ 'readme', 'getting-started' ];
-
-/** @type {Cache<GitHubRepos>} */
-const gitHubDataCache = new Cache(
-  async () => await GitHub.fetchGitHubData(process.env.githubSlug),
-  'github',
-  1000 * 60 * 5, // 5 minutes
-);
 
 function find(root, path, off = 0) {
   const remaining = path.length - off;
@@ -177,7 +169,7 @@ export default function Docs(props) {
 }
 
 export async function getStaticPaths() {
-  const repos = await gitHubDataCache.get();
+  const repos = await GitHub.cache.get();
   const paths = [];
 
   function addPath(path) {
@@ -216,7 +208,7 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const repos = await gitHubDataCache.get();
+  const repos = await GitHub.cache.get();
   const [ project, ...path ] = params.slug;
   const repo = repos[project];
   return {
