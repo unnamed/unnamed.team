@@ -21,5 +21,10 @@
     "source": "/emojis",
     "destination": "/project/glyphs",
     "permanent": false
+  },
+  {
+    "source": "/project",
+    "destination": "/projects",
+    "permanent": false
   }
 ]
