@@ -13,7 +13,10 @@ const descriptions = {
 };
 
 function ErrorPage({ statusCode }) {
-  const description = descriptions[statusCode];
+  const description = descriptions[statusCode] ?? {
+    name: `Error ${statusCode}`,
+    message: 'Something went wrong!'
+  };
 
   return (
     <>
