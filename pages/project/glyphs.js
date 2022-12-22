@@ -222,9 +222,9 @@ function EditorHeader() {
 
   return (
     <Header banner={(<span>
-        Hey! This is the new web-editor for µŋglyphs (formerly µŋemojis), if you have a problem, try
-        using <a className="underline cursor-pointer" href="https://unnamed.github.io/emojis/v2">the old version of this editor</a> and
-        reporting this issue on our <Link href="/discord"><span className="underline cursor-pointer">Discord server</span></Link>
+        Important! The previous version of the format in which emojis are saved (.MCEMOJI) didn't support large emojis,
+        so they were saved as corrupt images, this is fixed now. If you have a large emoji, make sure you use unemojis
+        <span className="font-bold"> 1.2.0+</span>. Report any issue on our <Link href="/discord"><span className="underline cursor-pointer">Discord server</span></Link>
     </span>)}>
       <div className="flex flex-row md:w-full md:px-16 justify-start gap-2">
         <Button
