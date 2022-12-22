@@ -229,7 +229,7 @@ function EditorHeader() {
       <div className="flex flex-row md:w-full md:px-16 justify-start gap-2">
         <Button
           label="Download"
-          title="Download the glyphs as am MCEMOJI file"
+          title="Download the glyphs as an MCEMOJI file"
           color="primaryGhost"
           size="small"
           onClick={download}
@@ -287,7 +287,8 @@ function GlyphCard({ emoji }) {
     property,
     validate,
     serialize,
-    deserialize
+    deserialize,
+    title
   }) {
     serialize = serialize || (v => v.toString());
     deserialize = deserialize || (v => v);
@@ -310,6 +311,7 @@ function GlyphCard({ emoji }) {
           type="text"
           spellCheck="false"
           value={value}
+          title={title}
           onInput={event => {
             const newValue = event.target.value;
             setValue(newValue);
@@ -348,7 +350,7 @@ function GlyphCard({ emoji }) {
       <div className="flex flex-row py-2 md:py-4 px-4 md:px-8 gap-4 w-full items-center justify-between rounded-2xl border bg-white/10 border-white/[.15]">
         <img src={emoji.img} alt={name} className="flex w-16 sm:w-24 rendering-pixelated"/>
         <div className="flex flex-col gap-1">
-          <Input property="name" validate={regex(PATTERNS.name)}/>
+          <Input property="name" validate={regex(PATTERNS.name)} title="The emoji name, when it's inside colons (like :emoji:), it will be replaced by the emoji image"/>
           <Input property="ascent" validate={input => {
             if (!input.match(PATTERNS.number)) {
               // not a number, it is invalid
@@ -356,10 +358,10 @@ function GlyphCard({ emoji }) {
             }
             const ascent = parseInt(input);
             return ascent <= emoji.height;
-          }}/>
-          <Input property="height" validate={regex(PATTERNS.number)}/>
-          <Input property="permission" validate={regex(PATTERNS.permission)}/>
-          <Input property="character" serialize={String.fromCodePoint} deserialize={n => n.codePointAt(0)} validate={value => value.length === 1}/>
+          }} title="(ADVANCED): Adds a vertical shift to the emoji image (specified in pixels)"/>
+          <Input property="height" validate={regex(PATTERNS.number)} title="The height of the emoji in pixels"/>
+          <Input property="permission" validate={regex(PATTERNS.permission)} title="The permission to use the emoji, leave blank to remove"/>
+          <Input property="character" serialize={String.fromCodePoint} deserialize={n => n.codePointAt(0)} validate={value => value.length === 1} title="(ADVANCED): The replaced character, it will take the texture of the emoji image, so you can't use it in the game anymore, should be a 'rare' character you won't see in the game"/>
         </div>
         <div className="h-full">
           <button className="text-white/70" onClick={remove}>&#10006;</button>
