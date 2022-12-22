@@ -10,7 +10,7 @@ import { processImage, readEmojis, writeEmojis } from '../../lib/glyphio';
 import * as Files from '../../lib/files';
 import { uploadTemporaryFile } from '../../lib/artemis';
 import { ToastContainer, useToasts } from '../../components/toast';
-import Button  from '../../components/Button';
+import Button from '../../components/Button';
 import Header from '../../components/Header';
 import DropRegion from '../../components/DropRegion';
 import clsx from 'clsx';
@@ -179,7 +179,7 @@ function EditorHeader() {
 
   function upload() {
     if (map.byName.size < 1) {
-      toasts.add('error', 'No emojis to upload, add some emojis first!',);
+      toasts.add('error', 'No emojis to upload, add some emojis first!');
       return;
     }
     writeEmojis(map.byName)
@@ -222,9 +222,10 @@ function EditorHeader() {
 
   return (
     <Header banner={(<span>
-        Important! The previous version of the format in which emojis are saved (.MCEMOJI) didn't support large emojis,
+        Important! The previous version of the format in which emojis are saved (.MCEMOJI) didn&apos;t support large emojis,
         so they were saved as corrupt images, this is fixed now. If you have a large emoji, make sure you use unemojis
-        <span className="font-bold"> 1.2.0+</span>. Report any issue on our <Link href="/discord"><span className="underline cursor-pointer">Discord server</span></Link>
+      <span className="font-bold"> 1.2.0+</span>. Report any issue on our <Link href="/discord"><span
+        className="underline cursor-pointer">Discord server</span></Link>
     </span>)}>
       <div className="flex flex-row md:w-full md:px-16 justify-start gap-2">
         <Button
@@ -260,7 +261,10 @@ function EditorDropRegion() {
 
   async function _import() {
     const newMap = map.copy();
-    for (const file of await Files.promptFiles({ multiple: true, accept: ['.mcemoji', ...ALLOWED_IMAGE_MIME_TYPES] })) {
+    for (const file of await Files.promptFiles({
+      multiple: true,
+      accept: [ '.mcemoji', ...ALLOWED_IMAGE_MIME_TYPES ],
+    })) {
       await loadGlyphsFromFile(file, newMap, toasts);
     }
     setMap(newMap);
@@ -288,7 +292,7 @@ function GlyphCard({ emoji }) {
     validate,
     serialize,
     deserialize,
-    title
+    title,
   }) {
     serialize = serialize || (v => v.toString());
     deserialize = deserialize || (v => v);
@@ -306,7 +310,7 @@ function GlyphCard({ emoji }) {
         <input
           className={clsx(
             'rounded-lg font-light w-full py-1 px-2 border focus:outline-none focus:ring',
-            valid ? 'bg-black/30 border-black/10 focus:ring-pink-200' : 'bg-red-500/30 border-red-500/50 focus:ring-red-400'
+            valid ? 'bg-black/30 border-black/10 focus:ring-pink-200' : 'bg-red-500/30 border-red-500/50 focus:ring-red-400',
           )}
           type="text"
           spellCheck="false"
@@ -347,10 +351,12 @@ function GlyphCard({ emoji }) {
 
   return (
     <div className="flex basis-full p-2 md:p-3 md:basis-1/2 xl:basis-1/3">
-      <div className="flex flex-row py-2 md:py-4 px-4 md:px-8 gap-4 w-full items-center justify-between rounded-2xl border bg-white/10 border-white/[.15]">
+      <div
+        className="flex flex-row py-2 md:py-4 px-4 md:px-8 gap-4 w-full items-center justify-between rounded-2xl border bg-white/10 border-white/[.15]">
         <img src={emoji.img} alt={name} className="flex w-16 sm:w-24 rendering-pixelated"/>
         <div className="flex flex-col gap-1">
-          <Input property="name" validate={regex(PATTERNS.name)} title="The emoji name, when it's inside colons (like :emoji:), it will be replaced by the emoji image"/>
+          <Input property="name" validate={regex(PATTERNS.name)}
+            title="The emoji name, when it's inside colons (like :emoji:), it will be replaced by the emoji image"/>
           <Input property="ascent" validate={input => {
             if (!input.match(PATTERNS.number)) {
               // not a number, it is invalid
@@ -360,8 +366,11 @@ function GlyphCard({ emoji }) {
             return ascent <= emoji.height;
           }} title="(ADVANCED): Adds a vertical shift to the emoji image (specified in pixels)"/>
           <Input property="height" validate={regex(PATTERNS.number)} title="The height of the emoji in pixels"/>
-          <Input property="permission" validate={regex(PATTERNS.permission)} title="The permission to use the emoji, leave blank to remove"/>
-          <Input property="character" serialize={String.fromCodePoint} deserialize={n => n.codePointAt(0)} validate={value => value.length === 1} title="(ADVANCED): The replaced character, it will take the texture of the emoji image, so you can't use it in the game anymore, should be a 'rare' character you won't see in the game"/>
+          <Input property="permission" validate={regex(PATTERNS.permission)}
+            title="The permission to use the emoji, leave blank to remove"/>
+          <Input property="character" serialize={String.fromCodePoint} deserialize={n => n.codePointAt(0)}
+            validate={value => value.length === 1}
+            title="(ADVANCED): The replaced character, it will take the texture of the emoji image, so you can't use it in the game anymore, should be a 'rare' character you won't see in the game"/>
         </div>
         <div className="h-full">
           <button className="text-white/70" onClick={remove}>&#10006;</button>
@@ -387,7 +396,7 @@ export default function EditorPage() {
           <EditorHeader/>
           <div className="container mx-auto px-4 md:px-8">
             <div className="flex flex-col gap-8 py-8">
-              <EditorDropRegion />
+              <EditorDropRegion/>
               <div className="flex flex-wrap -mx-1">
                 {map.values().sort((a, b) => {
                   if (a.name < b.name) return -1;
