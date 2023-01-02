@@ -6,7 +6,8 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { createContext, useContext, useState } from 'react';
-import { processImage, readEmojis, writeEmojis } from '../../lib/glyphio';
+import { processImage } from '../../lib/glyphs/bitmap.font.texture';
+import { readEmojis, writeEmojis } from '../../lib/glyphs/mcemoji';
 import * as Files from '../../lib/files';
 import { uploadTemporaryFile } from '../../lib/artemis';
 import { ToastContainer, useToasts } from '../../components/toast';
@@ -31,7 +32,7 @@ const DEFAULT_PERMISSION = '';
  * @typedef {object} Emoji
  * @property {string} name The emoji name
  * @property {number} character The emoji character codepoint
- * @property {string} img The emoji data in Base64
+ * @property {string} img The emoji data URL
  * @property {string} permission The emoji permission
  * @property {number} height The emoji height
  * @property {number} ascent The emoji ascent
@@ -146,8 +147,7 @@ async function loadGlyphsFromFile(file, map, toasts) {
     return;
   }
 
-  // try reading as an MCEMOJI file that may contain
-  // multiple glyphs
+  // try reading as an MCEMOJI file that may contain multiple glyphs
   try {
     for (const emoji of await readEmojis(await Files.readAsArrayBuffer(file))) {
       // process current image data
@@ -167,7 +167,7 @@ async function loadGlyphsFromFile(file, map, toasts) {
     }
   } catch (e) {
     // not an MCEMOJI file?
-    toasts.add('error', `Cannot load ${file.name}. Invalid file type`);
+    toasts.add('error', `Cannot load '${file.name}': ${e.message}`);
   }
 }
 
@@ -369,7 +369,14 @@ function GlyphCard({ emoji }) {
           <Input property="permission" validate={regex(PATTERNS.permission)}
             title="The permission to use the emoji, leave blank to remove"/>
           <Input property="character" serialize={String.fromCodePoint} deserialize={n => n.codePointAt(0)}
-            validate={value => value.length === 1}
+            validate={value => {
+              const matches = value.match(/([\uD800-\uDBFF][\uDC00-\uDFFF])/g);
+              if (matches === null) {
+                return value.length === 1;
+              } else {
+                return matches.length === 1 && value.length === 2;
+              }
+            }}
             title="(ADVANCED): The replaced character, it will take the texture of the emoji image, so you can't use it in the game anymore, should be a 'rare' character you won't see in the game"/>
         </div>
         <div className="h-full">
