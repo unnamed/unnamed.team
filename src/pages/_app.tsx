@@ -1,10 +1,11 @@
 import 'tailwindcss/tailwind.css';
-import '../styles/highlight.scss';
-import '../styles/global.scss';
+import '@/styles/highlight.scss';
+import '@/styles/global.scss';
 
+import type { AppProps } from 'next/app';
 import Head from 'next/head';
 
-export default function App({ Component, pageProps }) {
+export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
