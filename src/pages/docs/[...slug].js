@@ -109,10 +109,12 @@ export default function Docs(props) {
   const [ node, setNode ] = useState(initialNode);
   const [ sidebar, setSidebar ] = useState(false);
 
+  const title = `${repo.name} | Docs`;
+
   return (
     <>
       <Head>
-        <title>{repo.name} | Docs</title>
+        <title>{title}</title>
         <meta property="og:title" content={`${repo.name} | Documentation`}/>
         <meta property="og:url" content={`https://unnamed.team/docs/${repo.name}`}/>
         <meta property="og:description" content={`${repo.description}`}/>
