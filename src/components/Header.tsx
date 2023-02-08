@@ -1,8 +1,14 @@
 import Link from 'next/link';
 import clsx from 'clsx';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 
-export default function Header({ children, className, banner }) {
+export interface HeaderProps {
+  children?: ReactNode;
+  className?: string;
+  banner?: ReactNode;
+}
+
+export default function Header({ children, className, banner }: HeaderProps) {
 
   const [ bannerVisible, setBannerVisible ] = useState(true);
 

@@ -3,7 +3,7 @@ import Header from '../components/Header';
 import * as GitHub from '../lib/docs';
 import Link from 'next/link';
 
-function ProjectCard({ project }) {
+function ProjectCard({ project }: { project: GitHub.GitHubRepo }) {
   return (
     <div className="flex basis-full p-2 md:p-3 md:basis-1/2 xl:basis-1/3">
       <div
@@ -29,7 +29,7 @@ function ProjectCard({ project }) {
   );
 }
 
-export default function Projects({ repos }) {
+export default function Projects({ repos }: { repos: GitHub.GitHubRepos }) {
   return (
     <>
       <Head>
@@ -54,6 +54,6 @@ export default function Projects({ repos }) {
 }
 
 export async function getStaticProps() {
-  const repos = await GitHub.cache.get();
+  const repos: GitHub.GitHubRepos = await GitHub.cache.get();
   return { props: { repos } };
 }

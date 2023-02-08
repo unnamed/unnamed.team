@@ -1,13 +1,13 @@
 /*!
  * Toast/notification components
  */
-import { createContext, useContext, useState } from 'react';
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from 'react';
 import clsx from 'clsx';
 
 // 5 seconds
 const TOAST_TIMEOUT = 5000;
 
-const ToastContext = createContext([]);
+const ToastContext = createContext<[ToastData[], Dispatch<SetStateAction<ToastData[]>>]>([] as any);
 
 const types = {
   success: 'bg-green-500/40 border-green-500/50 text-green-200/80',
@@ -15,7 +15,17 @@ const types = {
   warning: 'bg-[#eab000]'
 };
 
-function Toast({ value }) {
+interface ToastData {
+  id: number;
+  type: keyof typeof types;
+  message: string;
+}
+
+interface ToastProps {
+  value: ToastData
+}
+
+function Toast({ value }: ToastProps) {
   const [ toasts, setToasts ] = useContext(ToastContext);
   const { id, type, message } = value;
 
@@ -35,8 +45,8 @@ function Toast({ value }) {
   );
 }
 
-export function ToastContainer({ children }) {
-  const [ toasts, setToasts ] = useState([]);
+export function ToastContainer({ children }: { children: ReactNode }) {
+  const [ toasts, setToasts ] = useState<ToastData[]>([]);
 
   return (
     <ToastContext.Provider value={[ toasts, setToasts ]}>
@@ -51,7 +61,7 @@ export function ToastContainer({ children }) {
 export function useToasts() {
   const [ toasts, setToasts ] = useContext(ToastContext);
 
-  function remove(id) {
+  function remove(id: number) {
     setToasts(toasts.filter(toast => toast.id !== id));
   }
 
@@ -61,8 +71,8 @@ export function useToasts() {
    * @param {'success' | 'warning' | 'error'} type The toast type
    * @param {string} message The toast message
    */
-  function add(type, message) {
-    const id = setTimeout(() => remove(id), TOAST_TIMEOUT);
+  function add(type: keyof typeof types, message: string) {
+    const id: number = window.setTimeout(() => remove(id), TOAST_TIMEOUT);
     setToasts([
       ...toasts,
       { id, type, message }

@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import * as GitHub from '../../lib/docs';
 
 import styles from './docs.module.scss';
@@ -7,21 +7,22 @@ import Header from '../../components/Header';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import Button from '../../components/Button';
+import { GetStaticProps } from "next";
 
 const MAIN_KEYS = [ 'readme', 'getting-started' ];
 
-function find(root, path, off = 0) {
+function find(root: GitHub.DocTree, path: string[], off = 0): GitHub.DocFile {
   const remaining = path.length - off;
   if (remaining === 0) {
     for (const key of MAIN_KEYS) {
       const node = root[key];
       if (node) {
-        return node;
+        return node as GitHub.DocFile;
       }
     }
-    return Object.values(root)[0];
+    return Object.values(root)[0] as GitHub.DocFile;
   } else if (remaining === 1) {
-    return root[path[off]];
+    return root[path[off]] as GitHub.DocFile;
   } else {
     const sub = root[path[off]];
     if (sub.type === 'dir') {
@@ -32,12 +33,20 @@ function find(root, path, off = 0) {
   }
 }
 
-function Sidebar({ children, className }) {
+function Sidebar({ children, className }: { children: ReactNode, className: string }) {
   return (
     <aside className={clsx('w-72 flex-col gap-4 py-9 px-6 md:flex', className)}>
       {children}
     </aside>
   );
+}
+
+interface NodeElementProps {
+  repo: GitHub.GitHubRepo;
+  tree: GitHub.DocTree;
+  currentRoute: string[];
+  selected: GitHub.DocFile;
+  onSelect: (node: GitHub.DocFile) => void
 }
 
 /**
@@ -47,7 +56,7 @@ function Sidebar({ children, className }) {
  *
  * @returns {JSX.Element} The elements for the tree
  */
-function NodeElement({ repo, tree, currentRoute, selected, onSelect }) {
+function NodeElement({ repo, tree, currentRoute, selected, onSelect }: NodeElementProps) {
   const router = useRouter();
   const indent = tree !== repo.docs;
 
@@ -62,7 +71,7 @@ function NodeElement({ repo, tree, currentRoute, selected, onSelect }) {
             key={key}
             className={clsx('flex flex-col gap-1', indent && 'pl-4')}
             onClick={() => {
-              onSelect(node);
+              onSelect(node as GitHub.DocFile);
               router.push(
                 '/' + currentRoute.join('/') + '/' + key,
                 undefined,
@@ -91,7 +100,7 @@ function NodeElement({ repo, tree, currentRoute, selected, onSelect }) {
 
           <NodeElement
             repo={repo}
-            tree={node.content}
+            tree={node.content as GitHub.DocTree}
             selected={selected}
             currentRoute={[ ...currentRoute, key ]}
             onSelect={onSelect}
@@ -102,11 +111,16 @@ function NodeElement({ repo, tree, currentRoute, selected, onSelect }) {
   );
 }
 
-export default function Docs(props) {
+interface PageProps {
+  repo: GitHub.GitHubRepo;
+  path: string[];
+}
+
+export default function Docs(props: PageProps) {
   const repo = props.repo;
   const initialNode = find(repo.docs, [ ...props.path ]);
 
-  const [ node, setNode ] = useState(initialNode);
+  const [ node, setNode ] = useState<GitHub.DocFile>(initialNode);
   const [ sidebar, setSidebar ] = useState(false);
 
   const title = `${repo.name} | Docs`;
@@ -171,15 +185,25 @@ export default function Docs(props) {
 }
 
 export async function getStaticPaths() {
-  const repos = await GitHub.cache.get();
-  const paths = [];
+  const repos: GitHub.GitHubRepos = await GitHub.cache.get();
+  const paths: any[] = [];
 
-  function addPath(path) {
+  function addPath(path: string[]) {
     paths.push({
       params: {
         slug: path,
       },
     });
+  }
+
+  async function it(key: string, tree: GitHub.DocNode, path: string[]) {
+    if (tree.type === 'file') {
+      addPath([ ...path, key ]);
+    } else {
+      for (const [ childKey, childNode ] of Object.entries((tree as GitHub.DocDir).content)) {
+        await it(childKey, childNode, [ ...path, key ]);
+      }
+    }
   }
 
   for (const repo of Object.values(repos)) {
@@ -188,16 +212,6 @@ export async function getStaticPaths() {
     addPath([ repo.name ]);
 
     // section paths
-    async function it(key, tree, path) {
-      if (tree.type === 'file') {
-        addPath([ ...path, key ]);
-      } else {
-        for (const [ childKey, childNode ] of Object.entries(tree.content)) {
-          await it(childKey, childNode, [ ...path, key ]);
-        }
-      }
-    }
-
     for (const [ key, tree ] of Object.entries(repo.docs)) {
       await it(key, tree, [ repo.name ]);
     }
@@ -209,9 +223,9 @@ export async function getStaticPaths() {
   };
 }
 
-export async function getStaticProps({ params }) {
+export const getStaticProps: GetStaticProps = async ({ params }) => {
   const repos = await GitHub.cache.get();
-  const [ project, ...path ] = params.slug;
+  const [ project, ...path ] = params!['slug'] as string[];
   const repo = repos[project];
   return {
     props: {

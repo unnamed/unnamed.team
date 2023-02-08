@@ -11,7 +11,7 @@ const BASE_URL = 'https://artemis.unnamed.team/';
  * @param {Blob} blob The file data to upload
  * @returns {Promise<Response>} The upload response
  */
-export function uploadTemporaryFile(blob) {
+export function uploadTemporaryFile(blob: Blob): Promise<Response> {
   const formData = new FormData();
   formData.set('file', blob);
   return fetch(

@@ -1,7 +1,13 @@
 import Head from "next/head";
 import Header from '../components/Header';
+import { NextPageContext } from "next";
 
-const descriptions = {
+const descriptions: {
+  [ code: number ]: {
+    name: string;
+    message: string;
+  }
+} = {
   404: {
     name: 'Not Found',
     message: 'Sorry, the page you were looking for does not exist'
@@ -12,7 +18,7 @@ const descriptions = {
   }
 };
 
-function ErrorPage({ statusCode }) {
+function ErrorPage({ statusCode }: { statusCode: number }) {
   const description = descriptions[statusCode] ?? {
     name: `Error ${statusCode}`,
     message: 'Something went wrong!'
@@ -35,7 +41,7 @@ function ErrorPage({ statusCode }) {
   );
 }
 
-ErrorPage.getInitialProps = ({ res, err }) => {
+ErrorPage.getInitialProps = ({ res, err }: NextPageContext) => {
   const statusCode = res ? res.statusCode : (err ? err.statusCode : 404);
   return { statusCode };
 };

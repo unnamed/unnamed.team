@@ -5,15 +5,15 @@
  */
 import Head from 'next/head';
 import Link from 'next/link';
-import { createContext, useContext, useState } from 'react';
-import { processImage } from '../../lib/glyphs/bitmap.font.texture';
-import { readEmojis, writeEmojis } from '../../lib/glyphs/mcemoji';
+import { createContext, Dispatch, SetStateAction, useContext, useState } from 'react';
+import { processImage } from '@/lib/glyphs/bitmap.font.texture';
+import { Emoji, readEmojis, writeEmojis } from '@/lib/glyphs/mcemoji';
 import * as Files from '../../lib/files';
-import { uploadTemporaryFile } from '../../lib/artemis';
-import { ToastContainer, useToasts } from '../../components/toast';
-import Button from '../../components/Button';
-import Header from '../../components/Header';
-import DropRegion from '../../components/DropRegion';
+import { uploadTemporaryFile } from '@/lib/artemis';
+import { ToastContainer, useToasts } from '@/components/toast';
+import Button from '@/components/Button';
+import Header from '@/components/Header';
+import DropRegion from '@/components/DropRegion';
 import clsx from 'clsx';
 
 const ALLOWED_IMAGE_MIME_TYPES = new Set([ 'image/webp', 'image/png' ]);
@@ -28,66 +28,40 @@ const DEFAULT_HEIGHT = 9;
 const DEFAULT_PERMISSION = '';
 
 /**
- * Represents an emoji for the emoji editor
- * @typedef {object} Emoji
- * @property {string} name The emoji name
- * @property {number} character The emoji character codepoint
- * @property {string} img The emoji data URL
- * @property {string} permission The emoji permission
- * @property {number} height The emoji height
- * @property {number} ascent The emoji ascent
- */
-
-/**
  * Represents a map for Emoji objects
  */
 class GlyphMap {
 
-  /**
-   * @param {Map<string, Emoji>} byName
-   * @param {Map<number, Emoji>} byChar
-   */
   constructor(
-    byName = new Map(),
-    byChar = new Map(),
+    public byName: Map<string, Emoji> = new Map<string, Emoji>(),
+    public byChar: Map<number, Emoji> = new Map<number, Emoji>(),
   ) {
-    this.byName = byName;
-    this.byChar = byChar;
   }
 
-  /**
-   * @returns {Emoji[]}
-   */
-  values() {
+  values(): Emoji[] {
     return Array.from(this.byName.values());
   }
 
-  /**
-   * @param {Emoji} glyph
-   */
-  add(glyph) {
+  add(glyph: Emoji) {
     this.byName.set(glyph.name, glyph);
     this.byChar.set(glyph.character, glyph);
   }
 
-  removeByName(name) {
+  removeByName(name: string) {
     const glyph = this.byName.get(name);
-    if (this.byName.delete(name)) {
+    if (this.byName.delete(name) && glyph) {
       this.byChar.delete(glyph.character);
     }
   }
 
-  /**
-   * @returns {GlyphMap}
-   */
-  copy() {
+  copy(): GlyphMap {
     return new GlyphMap(
       new Map(this.byName),
       new Map(this.byChar),
     );
   }
 
-  ensureUniqueName(name) {
+  ensureUniqueName(name: string) {
     if (!this.byName.has(name)) {
       return name;
     } else {
@@ -98,7 +72,7 @@ class GlyphMap {
     }
   }
 
-  generateChar() {
+  generateChar(): number {
     let character = (1 << 15) - this.byChar.size;
     while (this.byChar.has(character)) {
       character--;
@@ -122,7 +96,7 @@ class GlyphMap {
  * @param {GlyphMap} map The glyph map to update
  * @param toasts The toast manager
  */
-async function loadGlyphsFromFile(file, map, toasts) {
+async function loadGlyphsFromFile(file: File, map: GlyphMap, toasts: any) {
 
   if (ALLOWED_IMAGE_MIME_TYPES.has(file.type)) {
 
@@ -165,13 +139,13 @@ async function loadGlyphsFromFile(file, map, toasts) {
 
       map.add(emoji);
     }
-  } catch (e) {
+  } catch (e: any) {
     // not an MCEMOJI file?
     toasts.add('error', `Cannot load '${file.name}': ${e.message}`);
   }
 }
 
-const GlyphContext = createContext([]);
+const GlyphContext = createContext<[ GlyphMap, Dispatch<SetStateAction<GlyphMap>> ]>([] as any);
 
 function EditorHeader() {
   const [ map ] = useContext(GlyphContext);
@@ -199,7 +173,9 @@ function EditorHeader() {
             );
           });
         } else {
-          const errorMessages = {
+          const errorMessages: {
+            [ code: number ]: string
+          } = {
             413: 'Your emoji pack is too large to be received by our backend,'
               + ' try reducing its size or manually downloading it and uploading to'
               + ' your Minecraft server (plugins/unemojis/emojis.mcemoji)',
@@ -251,7 +227,7 @@ function EditorDropRegion() {
   const [ map, setMap ] = useContext(GlyphContext);
   const toasts = useToasts();
 
-  async function onDrop(files) {
+  async function onDrop(files: FileList) {
     const newMap = map.copy();
     for (let i = 0; i < files.length; i++) {
       await loadGlyphsFromFile(files[i], newMap, toasts);
@@ -283,7 +259,7 @@ function EditorDropRegion() {
 /**
  * @param {Emoji} emoji
  */
-function GlyphCard({ emoji }) {
+function GlyphCard({ emoji }: { emoji: Emoji }) {
   const [ map, setMap ] = useContext(GlyphContext);
   const name = emoji.name;
 
@@ -293,11 +269,17 @@ function GlyphCard({ emoji }) {
     serialize,
     deserialize,
     title,
+  }: {
+    property: string,
+    validate: (v: string) => any,
+    serialize?: (v: any) => string,
+    deserialize?: (v: string) => any;
+    title: string;
   }) {
     serialize = serialize || (v => v.toString());
     deserialize = deserialize || (v => v);
 
-    const initialValue = emoji[property];
+    const initialValue = (emoji as any)[property];
     const initialStringValue = serialize(initialValue);
 
     const [ valid, setValid ] = useState(validate(initialStringValue));
@@ -317,7 +299,7 @@ function GlyphCard({ emoji }) {
           value={value}
           title={title}
           onInput={event => {
-            const newValue = event.target.value;
+            const newValue = (event.target as any).value;
             setValue(newValue);
 
             if (!validate(newValue)) {
@@ -331,7 +313,8 @@ function GlyphCard({ emoji }) {
             // updating
             map.removeByName(emoji.name);
 
-            emoji[property] = deserialize(newValue);
+            // @ts-ignore
+            (emoji as any)[property] = deserialize(newValue);
             map.add(emoji);
           }}/>
       </label>
@@ -345,8 +328,8 @@ function GlyphCard({ emoji }) {
     setMap(newMap);
   }
 
-  function regex(pattern) {
-    return value => value.match(pattern);
+  function regex(pattern: RegExp): ((value: string) => any) {
+    return (value: string) => value.match(pattern);
   }
 
   return (
@@ -388,7 +371,7 @@ function GlyphCard({ emoji }) {
 }
 
 export default function EditorPage() {
-  const [ map, setMap ] = useState(new GlyphMap());
+  const [ map, setMap ] = useState<GlyphMap>(new GlyphMap());
 
   return (
     <>
@@ -405,7 +388,7 @@ export default function EditorPage() {
             <div className="flex flex-col gap-8 py-8">
               <EditorDropRegion/>
               <div className="flex flex-wrap -mx-1">
-                {map.values().sort((a, b) => {
+                {map.values().slice().sort((a, b) => {
                   if (a.name < b.name) return -1;
                   if (a.name > b.name) return 1;
                   return 0;

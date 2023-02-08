@@ -11,7 +11,16 @@ const sizes = {
   small: 'rounded-lg px-2 py-1 text-sm'
 };
 
-export default function Button({ label, color, size, href, className, ...props }) {
+export interface ButtonProps {
+  label: string;
+  color?: keyof typeof types;
+  size?: keyof typeof sizes;
+  href?: string;
+  className?: string;
+  [ prop: string ]: any;
+}
+
+export default function Button({ label, color, size, href, className, ...props }: ButtonProps) {
   color = color || 'primary';
   size = size || 'normal';
 

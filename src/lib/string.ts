@@ -13,7 +13,7 @@
  * @param {string} string The input string
  * @returns {string} The output string
  */
-export function capitalize(string) {
+export function capitalize(string: string): string {
   if (string.length === 0) {
     return string;
   } else {

@@ -12,7 +12,7 @@ const MAX_SIZE = 256;
  * @param mimeType {string} The image data mime type
  * @return Promise<string> The processed image data URL (PNG)
  */
-export function processImage(data, mimeType) {
+export function processImage(data: string, mimeType: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const image = new Image();
     image.addEventListener('error', reject);
@@ -34,7 +34,11 @@ export function processImage(data, mimeType) {
         const ctx = canvas.getContext('2d');
 
         // write scaled image
-        ctx.drawImage(image, 0, 0, scaledWidth, scaledHeight);
+        if (ctx) {
+          ctx.drawImage(image, 0, 0, scaledWidth, scaledHeight);
+        } else {
+          console.error('canvas.getContext("2d") returned null');
+        }
 
         resolve(canvas.toDataURL());
       } else {

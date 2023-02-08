@@ -4,19 +4,18 @@
 import fs from 'fs';
 import path from 'path';
 
-const pathOf = key => path.join(process.cwd(), 'cache', `${key}.json`);
+const pathOf = (key: string) => path.join(process.cwd(), 'cache', `${key}.json`);
 
-/**
- * @template T
- */
-export default class Cache {
+export default class Cache<T> {
+
+  private readonly _path: string;
+  public readonly lifetime: number;
 
   constructor(
-    fetch,
-    key,
-    lifetime = 0
+    private fetch: () => Promise<T>,
+    key: string,
+    lifetime: number = 0
   ) {
-    this._fetch = fetch;
     this._path = pathOf(key);
     this.lifetime = lifetime;
   }
@@ -24,10 +23,8 @@ export default class Cache {
   /**
    * Obtains the stored value or revalidates if
    * cache expired
-   *
-   * @returns {Promise<T>}
    */
-  async get() {
+  async get(): Promise<T> {
     let cache = null;
 
     // if cache file exists and its lifetime
@@ -41,7 +38,7 @@ export default class Cache {
 
     // cache expired, fetch again
     try {
-      const data = await this._fetch();
+      const data = await this.fetch();
       await this.set(data);
       return data;
     } catch (e) {
@@ -55,11 +52,8 @@ export default class Cache {
 
   /**
    * Sets the stored value
-   *
-   * @param {T} data The stored value
-   * @returns {Promise<void>}
    */
-  async set(data) {
+  async set(data: T): Promise<void> {
     const dir = path.parse(this._path).dir;
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);

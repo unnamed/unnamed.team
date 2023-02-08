@@ -9,7 +9,7 @@
  * @returns {string} The filename, without
  * extension
  */
-export function stripExtension(filename) {
+export function stripExtension(filename: string): string {
   const index = filename.lastIndexOf('.');
   return (index === -1)
     ? filename
@@ -24,7 +24,7 @@ export function stripExtension(filename) {
  * @param {Blob} blob The file data
  * @param {string} filename The file name
  */
-export function saveFile(blob, filename) {
+export function saveFile(blob: Blob, filename: string) {
   const a = document.createElement('a');
   a.setAttribute('href', URL.createObjectURL(blob));
   a.setAttribute('download', filename);
@@ -39,13 +39,13 @@ export function saveFile(blob, filename) {
  * @param options The file prompt options
  * @return Promise<FileList> The input files
  */
-export function promptFiles(options = { multiple: false }) {
+export function promptFiles(options: { multiple?: boolean, accept?: string[] }): Promise<FileList> {
   return new Promise((resolve, reject) => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.multiple = options.multiple;
+    input.multiple = options.multiple || false;
     if (options.accept) input.accept = options.accept.join(',');
-    input.addEventListener('change', event => resolve(event.target.files));
+    input.addEventListener('change', event => resolve((event.target as any)['files'] as FileList));
     input.addEventListener('abort', reject);
     input.addEventListener('error', reject);
     document.body.appendChild(input);
@@ -54,20 +54,20 @@ export function promptFiles(options = { multiple: false }) {
   });
 }
 
-export async function readAsArrayBuffer(file) {
-  return readAs(file, 'readAsArrayBuffer');
+export async function readAsArrayBuffer(file: File): Promise<ArrayBuffer> {
+  return readAs(file, 'readAsArrayBuffer') as Promise<ArrayBuffer>;
 }
 
-export async function readAsDataURL(file) {
-  return readAs(file, 'readAsDataURL');
+export async function readAsDataURL(file: File): Promise<string> {
+  return readAs(file, 'readAsDataURL') as Promise<string>;
 }
 
-async function readAs(file, func) {
+async function readAs(file: File, func: string): Promise<any> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.addEventListener('load', event => resolve(event.target.result));
+    reader.addEventListener('load', event => resolve(event.target!.result));
     reader.addEventListener('error', reject);
     reader.addEventListener('abort', reject);
-    reader[func](file);
+    (reader as any)[func](file);
   });
 }

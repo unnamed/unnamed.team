@@ -15,7 +15,7 @@
  * - The main documentation page inside a folder must be
  *   named 'readme.md)
  *
- * See /pages/docs/[...slug].js file for more information
+ * See /pages/docs/[...slug].tsx file for more information
  */
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
@@ -29,76 +29,70 @@ import Cache from './cache';
 const PAGE_SUFFIX = '.md';
 const ROOT_FOLDER = 'docs';
 const API_URL = 'https://api.github.com';
-const TITLES = {
+const TITLES: {
+  [ filename: string ]: string;
+} = {
   'readme.md': 'Read Me',
   'getting-started.md': 'Getting Started'
 };
 
-/**
- * @typedef {Node.Dict<DocFile | DocDir>} DocTree
- */
+export interface DocTree {
+  [ key: string ]: DocFile | DocDir
+}
 
-/**
- * @typedef {Object} DocNode
- * @property {'dir' | 'file'} type The node type
- * @property {string} name The node name
- */
+export interface DocNode {
+  type: 'dir' | 'file';
+  name: string;
+}
 
-/**
- * @typedef {DocNode} DocFile
- * @property {'file'} type
- * @property {string} htmlUrl
- * @property {string} content
- */
+export interface DocFile extends DocNode {
+  type: 'file';
+  htmlUrl: string;
+  content: string;
+}
 
-/**
- * @typedef {DocNode} DocDir
- * @property {'dir'} type
- * @property {DocTree} content
- */
+export interface DocDir extends DocNode {
+  type: 'dir';
+  content: DocTree;
+}
 
-/**
- * @typedef {Object} GitHubRepo
- * @property {string} fullName The repo full name (prefixed with the repo owner)
- * @property {string} name The repo name
- * @property {string} description The repo description
- * @property {DocTree} docs The repo documentation tree
- */
+export interface GitHubRepo {
+  fullName: string;
+  name: string;
+  description: string;
+  docs: DocTree;
+}
 
-/**
- * @typedef {Node.Dict<GitHubRepo>} GitHubRepos
- */
+export interface GitHubRepos {
+  [ name: string ]: GitHubRepo;
+}
 
 /**
  * @param {string} endpoint The endpoint, appended
  * to API_URL constant
- * @return {Promise<unknown>} The fetch data
+ * @return {Promise<any>} The fetch data
  */
-async function githubFetch(endpoint) {
+async function githubFetch(endpoint: string): Promise<any> {
   const accessToken = process.env.GITHUB_ACCESS_TOKEN;
   const url = API_URL + endpoint;
   const response = accessToken ? (await fetch(url, { headers: { Authorization: `token ${accessToken}` } })) : (await fetch(url));
   return await response.json();
 }
 
-/**
- * @param {string} organization The organization slug or username
- * @returns {Promise<GitHubRepos>} The fetch github data
- */
-export async function fetchGitHubData(organization) {
+export async function fetchGitHubData(organization: string): Promise<GitHubRepos> {
   const rawRepos = await githubFetch(`/orgs/${organization}/repos`);
 
-  /** @type {GitHubRepos} */
-  const repos = {};
+  const repos: GitHubRepos = {};
 
   for (const raw of rawRepos) {
-    const repo = {
+    const repo: GitHubRepo = {
       name: raw.name,
       fullName: raw.full_name,
       description: raw.description,
+      docs: {}
     };
     await fetchDocs(repo);
-    if (repo.docs) {
+    if (Object.entries(repo.docs).length > 0) {
       console.log(`[INFO] Discovered documented repository \`${repo.name}\``);
       repos[repo.name] = repo;
     }
@@ -112,7 +106,7 @@ export async function fetchGitHubData(organization) {
  *
  * @param {GitHubRepo} repo The repository partial object,
  */
-export async function fetchDocs(repo) {
+export async function fetchDocs(repo: GitHubRepo) {
 
   const basePath = `/${ROOT_FOLDER}/${repo.name}`;
   let currPath = '/';
@@ -120,7 +114,7 @@ export async function fetchDocs(repo) {
   const repoFullName = repo.fullName;
 
   function rehypeRewriteLinks() {
-    return tree => {
+    return (tree: any) => {
       // based on https://github.com/unifiedjs/unifiedjs.github.io/blob/main/generate/plugin/rehype-rewrite-urls.js
       visit(tree, 'element', node => {
         if (node.tagName === 'a') {
@@ -140,13 +134,13 @@ export async function fetchDocs(repo) {
     .use(remarkRehype)
     .use(rehypeHighlight, { ignoreMissing: true })
     .use(rehypeRewriteLinks)
-    .use(rehypeStringify);
+    .use(rehypeStringify as any);
 
-  async function parse(markdown) {
+  async function parse(markdown: string) {
     return String(await processor.process(markdown));
   }
 
-  async function at(parent, path) {
+  async function at(parent: DocTree, path: string): Promise<DocTree | null> {
     const contents = await githubFetch(`/repos/${repoFullName}/contents/${path}`);
 
     if (contents.message === 'Not Found') {
@@ -183,10 +177,10 @@ export async function fetchDocs(repo) {
     return parent;
   }
 
-  repo.docs = await at({}, ROOT_FOLDER);
+  repo.docs = await at({}, ROOT_FOLDER) || {};
 }
 
-function formatFileName(filename, html) {
+function formatFileName(filename: string, html: string) {
   for (const tag of [ 'h1', 'h2' ]) {
     const open = `<${tag}>`;
     const close = `</${tag}>`;
@@ -203,8 +197,8 @@ function formatFileName(filename, html) {
   return TITLES[filename] ?? capitalize(filename);
 }
 
-export const cache = new Cache(
-  async () => await fetchGitHubData(process.env.githubSlug),
+export const cache = new Cache<GitHubRepos>(
+  async () => await fetchGitHubData(process.env.githubSlug!),
   'github',
   1000 * 60 * 5, // 5 minutes
 );

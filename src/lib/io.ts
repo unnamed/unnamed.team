@@ -1,44 +1,27 @@
 export class OutputStream {
 
-  constructor() {
-    this._buffer = [];
-  }
+  private _buffer: number[] = [];
 
-  /**
-   * @param {number} byte
-   */
-  writeByte(byte) {
+  writeByte(byte: number) {
     this._buffer.push(byte);
   }
 
-  /**
-   * @param {number} short
-   */
-  writeShort(short) {
+  writeShort(short: number) {
     this._buffer.push(short >>> 8, short);
   }
 
-  /**
-   * @param {number} int
-   */
-  writeInt(int) {
+  writeInt(int: number) {
     this._buffer.push(int >>> 24, int >>> 16, int >>> 8, int);
   }
 
-  /**
-   * @param {string} string
-   */
-  writeShortString(string) {
+  writeShortString(string: string) {
     this.writeByte(string.length);                 // length (1 byte)
     for (let i = 0; i < string.length; i++) {
-      this.writeShort(string.codePointAt(i));      // character (2 bytes)
+      this.writeShort(string.codePointAt(i) as number);      // character (2 bytes)
     }
   }
 
-  /**
-   * @returns {Uint8Array}
-   */
-  toUint8Array() {
+  toUint8Array(): Uint8Array {
     return new Uint8Array(this._buffer);
   }
 
@@ -46,34 +29,25 @@ export class OutputStream {
 
 export class InputStream {
 
-  /**
-   * @param {ArrayLike<number>} buffer
-   */
-  constructor(buffer) {
+  private readonly _view: Uint8Array;
+  private _cursor: number;
+
+  constructor(buffer: ArrayLike<number> | ArrayBufferLike) {
     this._view = new Uint8Array(buffer);
     this._cursor = 0;
   }
 
-  /**
-   * @returns {number}
-   */
-  readByte() {
+  readByte(): number {
     return this._view[this._cursor++];
   }
 
-  /**
-   * @returns {number}
-   */
-  readShort() {
+  readShort(): number {
     let byte1 = this._view[this._cursor++];
     let byte2 = this._view[this._cursor++];
     return (byte1 << 8) + byte2;
   }
 
-  /**
-   * @returns {number}
-   */
-  readInt() {
+  readInt(): number {
     let byte1 = this._view[this._cursor++];
     let byte2 = this._view[this._cursor++];
     let byte3 = this._view[this._cursor++];
@@ -81,10 +55,7 @@ export class InputStream {
     return (byte1 << 24) + (byte2 << 16) + (byte3 << 8) + byte4;
   }
 
-  /**
-   * @returns {string}
-   */
-  readShortString() {
+  readShortString(): string {
     let len = this.readByte();
     let chars = [];
     for (let i = 0; i < len; i++) {

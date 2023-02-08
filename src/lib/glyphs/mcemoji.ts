@@ -4,6 +4,15 @@ import { InputStream, OutputStream } from '../io';
 
 const supportedMcEmojiVersions = [ 1, 2, 3 ];
 
+export interface Emoji {
+  img: string;
+  character: number;
+  name: string;
+  height: number;
+  ascent: number;
+  permission: string;
+}
+
 /**
  * Creates a file containing all the emojis using
  * the MCEmoji format
@@ -11,13 +20,14 @@ const supportedMcEmojiVersions = [ 1, 2, 3 ];
  * @param {Map<string, Emoji>} emojis
  * @returns {Promise<Blob>} The resulting blob
  */
-export async function writeEmojis(emojis) {
+export async function writeEmojis(emojis: Map<string, Emoji>) {
 
   const output = new OutputStream();
 
   let formatVersion = 1;
 
   // TODO: Remove, only for backwards-compatibility
+  // @ts-ignore
   for (const emoji of emojis.values()) {
     // if an emoji data length is >= than an unsigned short
     // max value, we must use the format version 2, that fixes it
@@ -41,6 +51,7 @@ export async function writeEmojis(emojis) {
   // emoji length
   output.writeByte(emojis.size);
 
+  //@ts-ignore
   for (const emoji of emojis.values()) {
 
     // emoji name
@@ -95,7 +106,7 @@ export async function writeEmojis(emojis) {
  * @param {ArrayBuffer} buffer The data source
  * @returns {Promise<Emoji[]>} The read emojis
  */
-export async function readEmojis(buffer) {
+export async function readEmojis(buffer: ArrayBuffer): Promise<Emoji[]> {
 
   const input = new InputStream(buffer);
 

@@ -1,22 +1,29 @@
-import { useState } from 'react';
+import { DragEvent, ReactNode, useState } from 'react';
 import clsx from 'clsx';
 
-export default function DropRegion({ onDrop, onClick, children, ...props }) {
+export interface DropRegionProps {
+  onDrop: (files: FileList) => void,
+  onClick: any,
+  children: ReactNode;
+  [name: string]: any;
+}
+
+export default function DropRegion({ onDrop, onClick, children, ...props }: DropRegionProps) {
   const [ dragOver, setDragOver ] = useState(false);
 
-  function onDragOver(event) {
+  function onDragOver(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
     setDragOver(true);
   }
 
-  function onDragEnd(event) {
+  function onDragEnd(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
     setDragOver(false);
   }
 
-  function _onDrop(event) {
+  function _onDrop(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
     setDragOver(false);
