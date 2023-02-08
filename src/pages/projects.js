@@ -38,7 +38,7 @@ export default function Projects({ repos }) {
         <meta property="og:url" content="https://unnamed.team/projects"/>
       </Head>
       <Header/>
-      <div className="max-w-8xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <h1 className="p-8 text-white/80 font-medium text-3xl sm:text-4xl md:text-5xl">Our Projects</h1>
         <div className="flex flex-col gap-8 px-8">
           <div className="flex flex-wrap -mx-1">

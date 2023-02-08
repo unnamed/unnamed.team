@@ -401,7 +401,7 @@ export default function EditorPage() {
       <ToastContainer>
         <GlyphContext.Provider value={[ map, setMap ]}>
           <EditorHeader/>
-          <div className="container mx-auto px-4 md:px-8">
+          <div className="max-w-7xl mx-auto">
             <div className="flex flex-col gap-8 py-8">
               <EditorDropRegion/>
               <div className="flex flex-wrap -mx-1">

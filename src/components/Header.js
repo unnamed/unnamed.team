@@ -14,7 +14,7 @@ export default function Header({ children, className, banner }) {
     <header className={clsx('w-full flex flex-col', className)}>
       {banner && bannerVisible && (
         <div className="w-full bg-pink-200">
-          <div className="flex flex-row justify-between items-center max-w-8xl mx-auto py-2 px-8 text-sm text-black/80">
+          <div className="flex flex-row justify-between items-center max-w-5xl mx-auto py-2 px-8 text-sm text-black/80">
             {banner}
             {/* Close button */}
             <span className="cursor-pointer hover:text-white" onClick={closeBanner}>&#10006;</span>
@@ -22,7 +22,7 @@ export default function Header({ children, className, banner }) {
         </div>
       )}
 
-      <div className="w-full flex flex-row justify-between max-w-8xl mx-auto py-4 px-8">
+      <div className="w-full flex flex-row justify-between max-w-5xl mx-auto py-4 px-8">
         {/* Logo + Name */}
         <Link href="/">
           <div className="flex flex-row items-center gap-2.5 cursor-pointer">

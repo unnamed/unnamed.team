@@ -40,10 +40,6 @@ module.exports = {
         300: '#0a0b10',
       }
     },
-    maxWidth: {
-      ...defaultTheme.maxWidth,
-      '8xl': '90rem'
-    },
     fontFamily: {
       sans: [ 'Rubik', ...defaultTheme.fontFamily.sans ],
     },

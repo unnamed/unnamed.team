@@ -130,7 +130,7 @@ export default function Docs(props) {
           />
         </Header>
 
-        <div className="flex flex-row justify-between max-w-8xl mx-auto h-full">
+        <div className="flex flex-row justify-between max-w-5xl mx-auto h-full">
           {/* Navigation */}
           <Sidebar className={clsx(sidebar ? 'flex' : 'hidden')}>
             <div className="p-2.5">

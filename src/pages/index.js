@@ -12,7 +12,7 @@ export default function HomePage() {
         <meta property="og:url" content="https://unnamed.team/"/>
       </Head>
       <Header />
-      <div className="max-w-8xl mx-auto py-12">
+      <div className="max-w-5xl mx-auto py-12">
         {/* Main section */}
         <main className="flex flex-col p-8 gap-8">
           <div className="flex flex-col gap-4">
