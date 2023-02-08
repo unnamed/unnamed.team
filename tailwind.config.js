@@ -41,6 +41,7 @@ module.exports = {
       }
     },
     maxWidth: {
+      ...defaultTheme.maxWidth,
       '8xl': '90rem'
     },
     fontFamily: {
