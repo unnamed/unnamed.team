@@ -157,7 +157,7 @@ export default function Docs(props) {
 
               <footer
                 className="flex flex-row justify-between font-light text-white/50 py-8 my-12">
-                <span>Copyright &copy; {new Date().getFullYear()} Unnamed Team</span>
+                <span>Copyright &copy; 2021-{new Date().getFullYear()} Unnamed Team</span>
                 <span className="hover:text-white/70">
                   <a href={node.htmlUrl}>Edit this page on GitHub</a>
                 </span>
