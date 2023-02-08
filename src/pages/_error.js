@@ -18,10 +18,12 @@ function ErrorPage({ statusCode }) {
     message: 'Something went wrong!'
   };
 
+  const title = `${statusCode} | ${description.name}`;
+
   return (
     <>
       <Head>
-        <title>{statusCode} | {description.name}</title>
+        <title>{title}</title>
       </Head>
       <Header />
       <div className="flex flex-col items-center gap-4 my-10 p-8">
