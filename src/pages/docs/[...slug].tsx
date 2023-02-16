@@ -1,44 +1,35 @@
 import Head from 'next/head';
-import { ReactNode, useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as GitHub from '../../lib/docs';
 
 import styles from './docs.module.scss';
 import Header from '../../components/Header';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
-import Button from '../../components/Button';
 import { GetStaticProps } from "next";
 
 const MAIN_KEYS = [ 'readme', 'getting-started' ];
 
-function find(root: GitHub.DocTree, path: string[], off = 0): GitHub.DocFile {
+function find(root: GitHub.DocTree, path: string[], off = 0): [ GitHub.DocTree, GitHub.DocFile ] {
   const remaining = path.length - off;
   if (remaining === 0) {
     for (const key of MAIN_KEYS) {
       const node = root[key];
       if (node) {
-        return node as GitHub.DocFile;
+        return [ root, node as GitHub.DocFile ];
       }
     }
-    return Object.values(root)[0] as GitHub.DocFile;
+    return [ root, Object.values(root)[0] as GitHub.DocFile ];
   } else if (remaining === 1) {
-    return root[path[off]] as GitHub.DocFile;
+    return [ root, root[path[off]] as GitHub.DocFile ];
   } else {
     const sub = root[path[off]];
     if (sub.type === 'dir') {
       return find(sub.content, path, off + 1);
     } else {
-      return sub;
+      return [ root, sub ];
     }
   }
-}
-
-function Sidebar({ children, className }: { children: ReactNode, className: string }) {
-  return (
-    <aside className={clsx('w-72 flex-col gap-4 py-9 px-6 md:flex', className)}>
-      {children}
-    </aside>
-  );
 }
 
 interface NodeElementProps {
@@ -64,7 +55,7 @@ function NodeElement({ repo, tree, currentRoute, selected, onSelect }: NodeEleme
   const dirChildren = Object.entries(tree).filter(([ _, node ]) => node.type === 'dir');
 
   return (
-    <ul className={clsx('flex flex-col gap-1', indent && 'gap-4')}>
+    <ul className={clsx('flex flex-col gap-2', indent && 'gap-4')}>
       {fileChildren.map(([ key, node ]) => {
         return (
           <li
@@ -118,12 +109,39 @@ interface PageProps {
 
 export default function Docs(props: PageProps) {
   const repo = props.repo;
-  const initialNode = find(repo.docs, [ ...props.path ]);
+  const [ currentTree, initialNode ] = find(repo.docs, [ ...props.path ]);
 
   const [ node, setNode ] = useState<GitHub.DocFile>(initialNode);
   const [ sidebar, setSidebar ] = useState(false);
 
+  const [ previous, setPrevious ] = useState<GitHub.DocFile | null>(null);
+  const [ next, setNext ] = useState<GitHub.DocFile | null>(null);
+
   const title = `${repo.name} | Docs`;
+
+  useEffect(() => {
+    let _previous = null;
+    let _next = null;
+    let found = false;
+    for (const val of Object.values(currentTree)) {
+      if (val.type !== 'file') {
+        // TODO:
+        continue;
+      }
+      if (found) {
+        _next = val;
+        break;
+      }
+      if (val.name === node.name) {
+        found = true;
+        continue;
+      }
+      _previous = val;
+    }
+
+    setPrevious(_previous);
+    setNext(_next);
+  }, [ node ]);
 
   return (
     <>
@@ -133,50 +151,65 @@ export default function Docs(props: PageProps) {
         <meta property="og:url" content={`https://unnamed.team/docs/${repo.name}`}/>
         <meta property="og:description" content={`${repo.description}`}/>
       </Head>
-      <div className="h-screen overflow-y-hidden">
-        <Header>
-          <Button
-            className="md:hidden"
-            size="small"
-            color="primaryGhost"
-            label={sidebar ? 'Close Sidebar' : 'Open Sidebar'}
-            onClick={() => setSidebar(!sidebar)}
-          />
-        </Header>
+      <div className="flex flex-col h-full w-full">
 
-        <div className="flex flex-row justify-between max-w-5xl mx-auto h-full">
-          {/* Navigation */}
-          <Sidebar className={clsx(sidebar ? 'flex' : 'hidden')}>
-            <div className="p-2.5">
-              <NodeElement
-                repo={repo}
-                tree={repo.docs}
-                currentRoute={[ 'docs', repo.name ]}
-                selected={node}
-                onSelect={selected => {
-                  setSidebar(false);
-                  setNode(selected);
-                }}
-              />
-            </div>
-          </Sidebar>
+        {/* Fixed header */}
+        <Header
+          className="fixed bg-wine-900/80 backdrop-blur-sm z-50"
+        />
+        {/* Fixed container, contains header and sidebars */}
+        <div className="fixed w-screen h-screen">
+          <div className="max-w-5xl mx-auto">
+            {/* Navigation */}
+            <aside className="max-w-[256px] flex flex-col p-4 gap-4 z-50 mt-16">
+              <div className="p-2.5">
+                <NodeElement
+                  repo={repo}
+                  tree={repo.docs}
+                  currentRoute={[ 'docs', repo.name ]}
+                  selected={node}
+                  onSelect={selected => {
+                    setSidebar(false);
+                    setNode(selected);
+                  }}
+                />
+              </div>
+            </aside>
+          </div>
+        </div>
 
-          {/* Content */}
-          <div className={clsx('flex-1 h-full w-full', sidebar ? 'hidden md:flex' : 'flex')}>
-            <div className="flex flex-col mx-auto px-4 py-8 h-full overflow-y-scroll w-full">
-              <div
-                className={clsx('text-white/60 font-light w-full', styles.body)}
-                dangerouslySetInnerHTML={{ __html: node.content }}
-              />
 
-              <footer
-                className="flex flex-row justify-between font-light text-white/50 py-8 my-12">
-                <span>Copyright &copy; 2021-{new Date().getFullYear()} Unnamed Team</span>
-                <span className="hover:text-white/70">
-                  <a href={node.htmlUrl}>Edit this page on GitHub</a>
+        <div className="w-screen h-full">
+          <div className="max-w-5xl mx-auto flex flex-row justify-end mt-16">
+            {/* Content */}
+            <main className="max-w-[768px] flex z-10">
+              <div className="flex flex-col mx-auto">
+                <div
+                  className={clsx('text-white/60 font-light w-full', styles.body)}
+                  dangerouslySetInnerHTML={{ __html: node.content }}
+                />
+
+                <div className="flex flex-row justify-between mt-12 text-white/70">
+                <span>
+                  {previous && (<span className="cursor-pointer hover:text-white/90">
+                    &lt; {previous.name}
+                  </span>)}
                 </span>
-              </footer>
-            </div>
+                  <span>
+                  {next && (<span className="cursor-pointer hover:text-white/90">
+                    {next.name} &gt;
+                  </span>)}
+                </span>
+                </div>
+
+                <footer className="flex flex-row justify-between font-light text-white/40 py-8 my-12">
+                  <span>Copyright &copy; 2021-{new Date().getFullYear()} Unnamed Team</span>
+                  <span className="hover:text-white/60">
+                    <a href={node.htmlUrl}>Edit this page on GitHub</a>
+                  </span>
+                </footer>
+              </div>
+            </main>
           </div>
         </div>
       </div>

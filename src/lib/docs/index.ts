@@ -23,9 +23,10 @@ import remarkRehype from 'remark-rehype';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
 import { visit } from 'unist-util-visit';
-import { capitalize } from './string';
-import Cache from './cache';
+import { capitalize } from '@/lib/string';
+import Cache from '@/lib/cache';
 
+const INDEX_FILE_NAME = 'index.txt';
 const PAGE_SUFFIX = '.md';
 const ROOT_FOLDER = 'docs';
 const API_URL = 'https://api.github.com';
@@ -147,30 +148,76 @@ export async function fetchDocs(repo: GitHubRepo) {
       return Promise.resolve(null);
     }
 
+    const entries: Array<[ string, DocFile | DocDir ]> = [];
+    let index: string[] | null = null;
+
     for (const content of contents) {
       const type = content.type;
       if (type === 'file') {
-        if (content.name.endsWith(PAGE_SUFFIX)) {
+        if (content.name === INDEX_FILE_NAME) {
+          const txt = await (await fetch(content.download_url)).text();
+          index = txt.split(/\r?\n/g).map(name => name.trim());
+        } else if (content.name.endsWith(PAGE_SUFFIX)) {
+          // found a file that ends with .md, must be a documentation page
           const key = content.name.slice(0, -PAGE_SUFFIX.length);
           currPath = path.substring(Math.min(ROOT_FOLDER.length, path.length));
           const html = await parse(await (await fetch(content.download_url)).text());
-          parent[key] = {
-            type: 'file',
-            name: formatFileName(key, html),
-            htmlUrl: content.html_url,
-            content: html
-          };
+          entries.push([
+            content.name,
+            {
+              type: 'file',
+              name: formatFileName(key, html),
+              htmlUrl: content.html_url,
+              content: html
+            } as DocFile
+          ]);
         }
       } else {
         const newParent = {};
         await at(newParent, content.path);
         if (Object.entries(newParent).length > 0) {
-          parent[content.name] = {
-            type: 'dir',
-            name: capitalize(content.name),
-            content: newParent
-          };
+          entries.push([
+            content.name,
+            {
+              type: 'dir',
+              name: capitalize(content.name),
+              content: newParent
+            } as DocDir
+          ]);
         }
+      }
+    }
+
+    if (index) {
+      // if there is an index defined, use it
+      entries.sort(([ aKey ], [ bKey ]) => {
+        const leftFirst = 1, rightFirst = -1, equal = 0;
+        const aIndex = index!.indexOf(aKey);
+        const bIndex = index!.indexOf(bKey);
+        if (aIndex !== -1) {
+          if (bIndex !== -1) {
+            return aIndex - bIndex;
+          } else {
+            return leftFirst;
+          }
+        } else {
+          if (bIndex !== -1) {
+            return rightFirst;
+          } else {
+            if (aKey > bKey) return leftFirst;
+            if (bKey < aKey) return rightFirst;
+            return equal;
+          }
+        }
+      });
+    }
+
+    for (const [ key, node ] of entries) {
+      if (node.type === 'file') {
+        const nameWithoutExt = key.slice(0, -PAGE_SUFFIX.length);
+        parent[nameWithoutExt] = node;
+      } else {
+        parent[key] = node;
       }
     }
 

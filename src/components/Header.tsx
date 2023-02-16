@@ -17,7 +17,7 @@ export default function Header({ children, className, banner }: HeaderProps) {
   }
 
   return (
-    <header className={clsx('w-full flex flex-col', className)}>
+    <header className={clsx('w-full flex flex-col justify-center', className)}>
       {banner && bannerVisible && (
         <div className="w-full bg-pink-200">
           <div className="flex flex-row justify-between items-center max-w-5xl mx-auto py-2 px-8 text-sm text-black/80">
@@ -28,7 +28,7 @@ export default function Header({ children, className, banner }: HeaderProps) {
         </div>
       )}
 
-      <div className="w-full flex flex-row justify-between max-w-5xl mx-auto py-4 px-8">
+      <div className="w-full flex flex-row justify-between max-w-5xl h-16 items-center mx-auto px-8">
         {/* Logo + Name */}
         <Link href="/">
           <div className="flex flex-row items-center gap-2.5 cursor-pointer">
