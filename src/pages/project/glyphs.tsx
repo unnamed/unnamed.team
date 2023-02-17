@@ -101,7 +101,7 @@ async function loadGlyphsFromFile(file: File, map: GlyphMap, toasts: any) {
   if (ALLOWED_IMAGE_MIME_TYPES.has(file.type)) {
 
     // file is an image, import it and generate missing data
-    const name = Files.stripExtension(file.name);
+    const name = Files.stripExtension(file.name).toLowerCase();
     const uniqueName = map.ensureUniqueName(name);
 
     if (name !== uniqueName) {
