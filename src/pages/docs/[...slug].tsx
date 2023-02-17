@@ -190,16 +190,16 @@ export default function Docs(props: PageProps) {
                 />
 
                 <div className="flex flex-row justify-between mt-12 text-white/70">
-                <span>
-                  {previous && (<span className="cursor-pointer hover:text-white/90">
-                    &lt; {previous.name}
-                  </span>)}
-                </span>
                   <span>
-                  {next && (<span className="cursor-pointer hover:text-white/90">
-                    {next.name} &gt;
-                  </span>)}
-                </span>
+                    {previous && (<span className="cursor-pointer hover:text-white/90">
+                      &lt; {previous.name}
+                    </span>)}
+                  </span>
+                  <span>
+                    {next && (<span className="cursor-pointer hover:text-white/90">
+                      {next.name} &gt;
+                    </span>)}
+                  </span>
                 </div>
 
                 <footer className="flex flex-row justify-between font-light text-white/40 py-8 my-12">
@@ -266,4 +266,4 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       path,
     },
   };
-}
+};
