@@ -198,9 +198,8 @@ function EditorHeader() {
 
   return (
     <Header banner={(<span>
-        Important! The previous version of the format in which emojis are saved (.MCEMOJI) didn&apos;t support large emojis,
-        so they were saved as corrupt images, this is fixed now. If you have a large emoji, make sure you use unemojis
-      <span className="font-bold"> 1.2.0+</span>. Report any issue on our <Link href="/discord"><span
+        Important! Update to <span className="font-bold"> 1.4.0+</span> if you want to
+        have more than 256 emojis. Report any issue on our <Link href="/discord"><span
         className="underline cursor-pointer">Discord server</span></Link>
     </span>)}>
       <div className="flex flex-row md:w-full md:px-16 justify-start gap-2">
