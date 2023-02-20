@@ -2,7 +2,7 @@
 // to represent an emoji pack, binary format
 import { InputStream, OutputStream } from '../io';
 
-const supportedMcEmojiVersions = [ 1, 2, 3 ];
+const supportedMcEmojiVersions = [ 1, 2, 3, 4 ];
 
 export interface Emoji {
   img: string;
@@ -45,11 +45,23 @@ export async function writeEmojis(emojis: Map<string, Emoji>) {
     }
   }
 
+  if (emojis.size >= 250) {
+    // if we have more than 250 emojis, we must use an int to represent
+    // the emoji count
+    formatVersion = 4;
+  }
+
   // format version
   output.writeByte(formatVersion);
 
   // emoji length
-  output.writeByte(emojis.size);
+  if (formatVersion >= 4) {
+    // use integer since format version 4,
+    // supporting more than 256 emojis
+    output.writeInt(emojis.size);
+  } else {
+    output.writeByte(emojis.size);
+  }
 
   //@ts-ignore
   for (const emoji of emojis.values()) {
@@ -116,7 +128,7 @@ export async function readEmojis(buffer: ArrayBuffer): Promise<Emoji[]> {
     throw new Error(`Unsupported format version '${version}', supported versions: ${supportedMcEmojiVersions.join(', ')}`);
   }
 
-  const emojiLength = input.readByte();
+  const emojiLength = version >= 4 ? input.readInt() : input.readByte();
   const emojis = [];
 
   for (let i = 0; i < emojiLength; i++) {
