@@ -18,7 +18,7 @@ import clsx from 'clsx';
 
 const ALLOWED_IMAGE_MIME_TYPES = new Set([ 'image/webp', 'image/png' ]);
 const PATTERNS = {
-  name: /^[a-z0-9_]{1,14}$/g,
+  name: /^[a-z0-9_]{1,32}$/g,
   number: /^-?\d+$/g,
   permission: /^[A-Za-z0-9_.]*$/g,
 };
