@@ -117,8 +117,6 @@ export default function Docs(props: PageProps) {
   const [ previous, setPrevious ] = useState<GitHub.DocFile | null>(null);
   const [ next, setNext ] = useState<GitHub.DocFile | null>(null);
 
-  const title = `${repo.name} | Docs`;
-
   useEffect(() => {
     let _previous = null;
     let _next = null;
@@ -146,7 +144,7 @@ export default function Docs(props: PageProps) {
   return (
     <>
       <Head>
-        <title>{title}</title>
+        <title>{`${repo.name} | Docs`}</title>
         <meta property="og:title" content={`${repo.name} | Documentation`}/>
         <meta property="og:url" content={`https://unnamed.team/docs/${repo.name}`}/>
         <meta property="og:description" content={`${repo.description}`}/>
