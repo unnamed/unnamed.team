@@ -3,6 +3,10 @@
     margin: 0.725rem 0 1.5rem;
   }
 
+  img {
+    @apply my-4;
+  }
+
   h1, h2, h3, h4 {
     @apply text-white/80;
     margin: 1.5rem 0 0.725rem;
