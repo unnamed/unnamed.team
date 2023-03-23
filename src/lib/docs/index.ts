@@ -61,6 +61,8 @@ export interface GitHubRepo {
   fullName: string;
   name: string;
   description: string;
+  stars: number;
+  defaultBranch: string;
   docs: DocTree;
 }
 
@@ -90,6 +92,8 @@ export async function fetchGitHubData(organization: string): Promise<GitHubRepos
       name: raw.name,
       fullName: raw.full_name,
       description: raw.description,
+      stars: raw.watchers,
+      defaultBranch: raw.default_branch,
       docs: {}
     };
     await fetchDocs(repo);
@@ -124,6 +128,13 @@ export async function fetchDocs(repo: GitHubRepo) {
             const rawPath = ref.slice(0, -PAGE_SUFFIX.length);
             const path = new URL(rawPath, 'https://example.com' /* base doesn't really matter*/).pathname;
             node.properties.href = basePath + currPath + path;
+          }
+        } else if (node.tagName === 'img') {
+          // rewrite image src's
+          const src = node.properties.src;
+          if (src !== undefined && src !== null && !src.startsWith('https://')) {
+            const path = new URL(src, 'https://example.com').pathname;
+            node.properties.src = `https://github.com/${repo.fullName}/raw/${repo.defaultBranch}/${path}`;
           }
         }
       });
