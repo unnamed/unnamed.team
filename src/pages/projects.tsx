@@ -1,7 +1,7 @@
-import Head from 'next/head';
 import Header from '../components/Header';
 import * as GitHub from '../lib/docs';
 import Link from 'next/link';
+import Metadata from "@/components/Metadata";
 
 function ProjectCard({ project }: { project: GitHub.GitHubRepo }) {
   return (
@@ -32,11 +32,12 @@ function ProjectCard({ project }: { project: GitHub.GitHubRepo }) {
 export default function Projects({ repos }: { repos: GitHub.GitHubRepos }) {
   return (
     <>
-      <Head>
-        <title>Unnamed | Projects</title>
-        <meta property="og:description" content="Our projects: open source libraries and Minecraft plugins"/>
-        <meta property="og:url" content="https://unnamed.team/projects"/>
-      </Head>
+      <Metadata options={{
+        title: 'Unnamed | Projects',
+        description: 'Our projects: open source libraries and Minecraft plugins',
+        url: 'https://unnamed.team/projects'
+      }} />
+
       <Header/>
       <div className="max-w-5xl mx-auto">
         <h1 className="p-8 text-white/80 font-medium text-3xl sm:text-4xl md:text-5xl">Our Projects</h1>

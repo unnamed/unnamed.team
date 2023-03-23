@@ -3,7 +3,6 @@
  * help with the creation of µŋglyphs (formerly µŋemojis)
  * glyphs
  */
-import Head from 'next/head';
 import Link from 'next/link';
 import { createContext, Dispatch, SetStateAction, useContext, useState } from 'react';
 import { processImage } from '@/lib/glyphs/bitmap.font.texture';
@@ -15,6 +14,7 @@ import Button from '@/components/Button';
 import Header from '@/components/Header';
 import DropRegion from '@/components/DropRegion';
 import clsx from 'clsx';
+import Metadata from "@/components/Metadata";
 
 const ALLOWED_IMAGE_MIME_TYPES = new Set([ 'image/webp', 'image/png' ]);
 const PATTERNS = {
@@ -374,12 +374,12 @@ export default function EditorPage() {
 
   return (
     <>
-      <Head>
-        <title>Unnamed | Glyph Editor</title>
-        <meta property="og:title" content="Unnamed | Glyphs"/>
-        <meta property="og:description" content="A user interface helper for µŋglyphs, a Minecraft plugin by Unnamed"/>
-        <meta property="og:url" content="https://unnamed.team/project/glyphs"/>
-      </Head>
+      <Metadata options={{
+        title: 'Unnamed | Glyph Editor',
+        description: 'A user interface helper for µŋglyphs, a Minecraft plugin by Unnamed',
+        url: 'https://unnamed.team/project/glyphs'
+      }} />
+
       <ToastContainer>
         <GlyphContext.Provider value={[ map, setMap ]}>
           <EditorHeader/>

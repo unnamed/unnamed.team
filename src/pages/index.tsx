@@ -1,16 +1,16 @@
-import Head from 'next/head';
 import Button from '../components/Button';
 import Header from '../components/Header';
+import Metadata from "@/components/Metadata";
 
 export default function HomePage() {
   return (
     <>
-      <Head>
-        <title>Unnamed | Home</title>
-        <meta property="og:title" content="Unnamed | Home"/>
-        <meta property="og:description" content="Welcome to Unnamed. Let's imagine, let's create"/>
-        <meta property="og:url" content="https://unnamed.team/"/>
-      </Head>
+      <Metadata options={{
+        title: 'Unnamed | Home',
+        description: 'Welcome to Unnamed. Let\'s imagine, let\'s create',
+        url: 'https://unnamed.team/'
+      }} />
+
       <Header />
       <div className="max-w-5xl mx-auto py-12">
         {/* Main section */}
