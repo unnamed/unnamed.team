@@ -26,6 +26,8 @@ export default function DocumentationSideBarNode({ repo, tree, currentRoute, sel
 
   return (
     <ul className={clsx('flex flex-col gap-2', indent && 'gap-4')}>
+
+      {/* File entries */}
       {fileChildren.map(([ key, node ]) => {
         return (
           <li
@@ -49,6 +51,8 @@ export default function DocumentationSideBarNode({ repo, tree, currentRoute, sel
           </li>
         );
       })}
+
+      {/* Directory entries */}
       {dirChildren.map(([ key, node ]) => (
         <li
           key={key}

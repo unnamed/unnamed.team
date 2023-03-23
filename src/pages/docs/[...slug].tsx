@@ -1,4 +1,3 @@
-import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import * as GitHub from '../../lib/docs';
 
@@ -24,6 +23,8 @@ export default function Docs(props: PageProps) {
   const [ previous, setPrevious ] = useState<GitHub.DocFile | null>(null);
   const [ next, setNext ] = useState<GitHub.DocFile | null>(null);
 
+  // computes "previous" and "next" nodes
+  // everytime "node" changes
   useEffect(() => {
     let _previous = null;
     let _next = null;
@@ -75,30 +76,39 @@ export default function Docs(props: PageProps) {
             {/* Content */}
             <main className="max-w-[768px] flex z-10">
               <div className="flex flex-col mx-auto">
+
+                {/* The actual content */}
                 <div
                   className={clsx('text-white/60 font-light w-full', styles.body)}
                   dangerouslySetInnerHTML={{ __html: node.content }}
                 />
 
+                {/* Pagination buttons */}
                 <div className="flex flex-row justify-between mt-12 text-white/70">
                   <span>
-                    {previous && (<span className="cursor-pointer hover:text-white/90">
-                      &lt; {previous.name}
-                    </span>)}
+                    {previous && (
+                      <span className="cursor-pointer hover:text-white/90">
+                        &lt; {previous.name}
+                      </span>
+                    )}
                   </span>
                   <span>
-                    {next && (<span className="cursor-pointer hover:text-white/90">
-                      {next.name} &gt;
-                    </span>)}
+                    {next && (
+                      <span className="cursor-pointer hover:text-white/90">
+                        {next.name} &gt;
+                      </span>
+                    )}
                   </span>
                 </div>
 
+                {/* The page footer */}
                 <footer className="flex flex-row justify-between font-light text-white/40 py-8 my-12">
                   <span>Copyright &copy; 2021-{new Date().getFullYear()} Unnamed Team</span>
                   <span className="hover:text-white/60">
                     <a href={node.htmlUrl}>Edit this page on GitHub</a>
                   </span>
                 </footer>
+                
               </div>
             </main>
           </div>
