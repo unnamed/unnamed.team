@@ -8,6 +8,7 @@ import { GetStaticProps } from "next";
 import { findInTree } from "@/lib/docs/tree";
 import DocumentationSideBar from "@/components/docs/DocumentationSideBar";
 import Metadata from "@/components/Metadata";
+import YearRange from "@/components/text/YearRange";
 
 interface PageProps {
   repo: GitHub.GitHubRepo;
@@ -103,7 +104,7 @@ export default function Docs(props: PageProps) {
 
                 {/* The page footer */}
                 <footer className="flex flex-row justify-between font-light text-white/40 py-8 my-12">
-                  <span>Copyright &copy; 2021-{new Date().getFullYear()} Unnamed Team</span>
+                  <span>Copyright &copy; <YearRange from={2021} /> Unnamed Team</span>
                   <span className="hover:text-white/60">
                     <a href={node.htmlUrl}>Edit this page on GitHub</a>
                   </span>
