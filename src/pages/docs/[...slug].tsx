@@ -1,28 +1,28 @@
 import { useEffect, useState } from 'react';
-import * as GitHub from '../../lib/docs';
 
 import styles from './docs.module.scss';
 import Header from '../../components/Header';
 import clsx from 'clsx';
 import { GetStaticProps } from "next";
-import { findInTree } from "@/lib/docs/tree";
+import {DocDir, DocFile, DocNode, DocProject, findInTree} from "@/lib/docs/tree";
 import DocumentationSideBar from "@/components/docs/DocumentationSideBar";
 import Metadata from "@/components/Metadata";
 import YearRange from "@/components/text/YearRange";
+import {cache, DocProjects} from "@/lib/docs";
 
 interface PageProps {
-  repo: GitHub.GitHubRepo;
+  project: DocProject;
   path: string[];
 }
 
 export default function Docs(props: PageProps) {
-  const repo = props.repo;
-  const [ currentTree, initialNode ] = findInTree(repo.docs, [ ...props.path ]);
+  const { project } = props;
+  const [ currentTree, initialNode ] = findInTree(project.docs, [ ...props.path ]);
 
-  const [ node, setNode ] = useState<GitHub.DocFile>(initialNode);
+  const [ node, setNode ] = useState<DocFile>(initialNode);
 
-  const [ previous, setPrevious ] = useState<GitHub.DocFile | null>(null);
-  const [ next, setNext ] = useState<GitHub.DocFile | null>(null);
+  const [ previous, setPrevious ] = useState<DocFile | null>(null);
+  const [ next, setNext ] = useState<DocFile | null>(null);
 
   // computes "previous" and "next" nodes
   // everytime "node" changes
@@ -53,9 +53,9 @@ export default function Docs(props: PageProps) {
   return (
     <>
       <Metadata options={{
-        title: `${repo.name} | Documentation`,
-        url: `https://unnamed.team/docs/${repo.name}`,
-        description: repo.description
+        title: `${project.name} | Documentation`,
+        url: `https://unnamed.team/docs/${project.name}`,
+        description: project.description
       }} />
       <div className="flex flex-col h-full w-full">
 
@@ -67,7 +67,7 @@ export default function Docs(props: PageProps) {
         <div className="fixed w-screen h-screen">
           <div className="max-w-5xl mx-auto">
             {/* Navigation */}
-            <DocumentationSideBar repo={repo} node={node} setNode={setNode} />
+            <DocumentationSideBar repo={project} node={node} setNode={setNode} />
           </div>
         </div>
 
@@ -120,7 +120,7 @@ export default function Docs(props: PageProps) {
 }
 
 export async function getStaticPaths() {
-  const repos: GitHub.GitHubRepos = await GitHub.cache.get();
+  const repos: DocProjects = await cache.get();
   const paths: any[] = [];
 
   function addPath(path: string[]) {
@@ -131,11 +131,11 @@ export async function getStaticPaths() {
     });
   }
 
-  async function it(key: string, tree: GitHub.DocNode, path: string[]) {
+  async function it(key: string, tree: DocNode, path: string[]) {
     if (tree.type === 'file') {
       addPath([ ...path, key ]);
     } else {
-      for (const [ childKey, childNode ] of Object.entries((tree as GitHub.DocDir).content)) {
+      for (const [ childKey, childNode ] of Object.entries((tree as DocDir).content)) {
         await it(childKey, childNode, [ ...path, key ]);
       }
     }
@@ -159,7 +159,7 @@ export async function getStaticPaths() {
 }
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const repos = await GitHub.cache.get();
+  const repos = await cache.get();
   const [ project, ...path ] = params!['slug'] as string[];
   const repo = repos[project];
   return {
