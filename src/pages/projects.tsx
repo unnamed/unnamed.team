@@ -1,9 +1,10 @@
 import Header from '../components/Header';
-import * as GitHub from '../lib/docs';
 import Link from 'next/link';
 import Metadata from "@/components/Metadata";
+import {DocProject} from "@/lib/docs/tree";
+import {cache, DocProjects} from "@/lib/docs";
 
-function ProjectCard({ project }: { project: GitHub.GitHubRepo }) {
+function ProjectCard({ project }: { project: DocProject }) {
   return (
     <div className="flex basis-full p-2 md:p-3 md:basis-1/2 xl:basis-1/3">
       <div
@@ -29,7 +30,7 @@ function ProjectCard({ project }: { project: GitHub.GitHubRepo }) {
   );
 }
 
-export default function Projects({ repos }: { repos: GitHub.GitHubRepos }) {
+export default function Projects({ projects }: { projects: DocProjects }) {
   return (
     <>
       <Metadata options={{
@@ -43,7 +44,7 @@ export default function Projects({ repos }: { repos: GitHub.GitHubRepos }) {
         <h1 className="p-8 text-white/80 font-medium text-3xl sm:text-4xl md:text-5xl">Our Projects</h1>
         <div className="flex flex-col gap-8 px-8">
           <div className="flex flex-wrap -mx-1">
-            {Object.entries(repos)
+            {Object.entries(projects)
               .map(([ key, repo ]) =>
                 (<ProjectCard key={key} project={repo}/>),
               )}
@@ -55,6 +56,6 @@ export default function Projects({ repos }: { repos: GitHub.GitHubRepos }) {
 }
 
 export async function getStaticProps() {
-  const repos: GitHub.GitHubRepos = await GitHub.cache.get();
-  return { props: { repos } };
+  const projects: DocProjects = await cache.get();
+  return { props: { projects } };
 }

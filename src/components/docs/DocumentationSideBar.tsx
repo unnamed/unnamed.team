@@ -1,14 +1,14 @@
 import DocumentationSideBarNode from "@/components/docs/DocumentationSideBarNode";
-import {GitHubRepo} from "@/lib/docs";
+import {DocProject} from "@/lib/docs/tree";
 
-export default function DocumentationSideBar({ repo, node, setNode }: { repo: GitHubRepo, node: any, setNode: any }) {
+export default function DocumentationSideBar({ project, node, setNode }: { project: DocProject, node: any, setNode: any }) {
   return (
     <aside className="max-w-[256px] flex flex-col p-4 gap-4 z-50 mt-16">
       <div className="p-2.5">
         <DocumentationSideBarNode
-          repo={repo}
-          tree={repo.docs}
-          currentRoute={[ 'docs', repo.name ]}
+          repo={project}
+          tree={project.docs}
+          currentRoute={[ 'docs', project.name ]}
           selected={node}
           onSelect={selected => {
             setNode(selected);

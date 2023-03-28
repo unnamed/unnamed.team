@@ -1,13 +1,13 @@
 import { useRouter } from "next/router";
 import clsx from "clsx";
-import * as GitHub from "@/lib/docs";
+import {DocFile, DocProject, DocTree} from "@/lib/docs/tree";
 
 interface NodeElementProps {
-  repo: GitHub.GitHubRepo;
-  tree: GitHub.DocTree;
+  repo: DocProject;
+  tree: DocTree;
   currentRoute: string[];
-  selected: GitHub.DocFile;
-  onSelect: (node: GitHub.DocFile) => void
+  selected: DocFile;
+  onSelect: (node: DocFile) => void
 }
 
 /**
@@ -34,7 +34,7 @@ export default function DocumentationSideBarNode({ repo, tree, currentRoute, sel
             key={key}
             className={clsx('flex flex-col gap-1', indent && 'pl-4')}
             onClick={() => {
-              onSelect(node as GitHub.DocFile);
+              onSelect(node as DocFile);
               router.push(
                 '/' + currentRoute.join('/') + '/' + key,
                 undefined,
@@ -65,7 +65,7 @@ export default function DocumentationSideBarNode({ repo, tree, currentRoute, sel
 
           <DocumentationSideBarNode
             repo={repo}
-            tree={node.content as GitHub.DocTree}
+            tree={node.content as DocTree}
             selected={selected}
             currentRoute={[ ...currentRoute, key ]}
             onSelect={onSelect}

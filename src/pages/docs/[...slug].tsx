@@ -67,7 +67,7 @@ export default function Docs(props: PageProps) {
         <div className="fixed w-screen h-screen">
           <div className="max-w-5xl mx-auto">
             {/* Navigation */}
-            <DocumentationSideBar repo={project} node={node} setNode={setNode} />
+            <DocumentationSideBar project={project} node={node} setNode={setNode} />
           </div>
         </div>
 
@@ -159,12 +159,12 @@ export async function getStaticPaths() {
 }
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const repos = await cache.get();
-  const [ project, ...path ] = params!['slug'] as string[];
-  const repo = repos[project];
+  const projects = await cache.get();
+  const [ projectName, ...path ] = params!['slug'] as string[];
+  const project = projects[projectName];
   return {
     props: {
-      repo,
+      project,
       path,
     },
   };
