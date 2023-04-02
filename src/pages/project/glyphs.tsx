@@ -375,7 +375,7 @@ export default function EditorPage() {
   return (
     <>
       <Metadata options={{
-        title: 'Unnamed | Glyph Editor',
+        title: 'Glyph Editor',
         description: 'A user interface helper for µŋglyphs, a Minecraft plugin by Unnamed',
         url: 'https://unnamed.team/project/glyphs'
       }} />

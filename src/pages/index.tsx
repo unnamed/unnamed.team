@@ -6,7 +6,7 @@ export default function HomePage() {
   return (
     <>
       <Metadata options={{
-        title: 'Unnamed | Home',
+        title: 'Home',
         description: 'Welcome to Unnamed. Let\'s imagine, let\'s create',
         url: 'https://unnamed.team/'
       }} />

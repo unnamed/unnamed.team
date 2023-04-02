@@ -34,7 +34,7 @@ export default function Projects({ projects }: { projects: DocProjects }) {
   return (
     <>
       <Metadata options={{
-        title: 'Unnamed | Projects',
+        title: 'Projects',
         description: 'Our projects: open source libraries and Minecraft plugins',
         url: 'https://unnamed.team/projects'
       }} />

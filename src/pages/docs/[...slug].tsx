@@ -53,7 +53,7 @@ export default function Docs(props: PageProps) {
   return (
     <>
       <Metadata options={{
-        title: `${project.name} | Documentation`,
+        title: `${project.name} Documentation`,
         url: `https://unnamed.team/docs/${project.name}`,
         description: project.description
       }} />
