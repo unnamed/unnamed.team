@@ -45,6 +45,7 @@ export default function Projects({ projects }: { projects: DocProjects }) {
         <div className="flex flex-col gap-8 px-8">
           <div className="flex flex-wrap -mx-1">
             {Object.entries(projects)
+              .sort(([ , a ], [ , b ]) => b.stars - a.stars)
               .map(([ key, repo ]) =>
                 (<ProjectCard key={key} project={repo}/>),
               )}
