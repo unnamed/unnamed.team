@@ -23,11 +23,12 @@ import remarkRehype from 'remark-rehype';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
 import { visit } from 'unist-util-visit';
-import { capitalize } from '@/lib/string';
+import {capitalize, replaceAsync} from '@/lib/string';
 import Cache from '@/lib/cache';
 import { DocDir, DocFile, DocProject, DocTree } from "@/lib/docs/tree";
 import { getPageTitle } from "@/lib/docs/title";
 import {fetchFromGitHub, fetchGitHubOrganizationRepositories} from "@/lib/github";
+import {fetchVersioning} from "@/lib/nexus.versions";
 
 const INDEX_FILE_NAME = 'index.txt';
 const PAGE_SUFFIX = '.md';
@@ -94,7 +95,30 @@ async function fetchDocs(repo: DocProject) {
     .use(rehypeRewriteLinks)
     .use(rehypeStringify as any);
 
-  async function parse(markdown: string) {
+  async function parseAndProcessMarkdown(markdown: string) {
+    // format is like:
+    //   %%REPLACE_what{the_argument}%%
+    // for example:
+    //   %%REPLACE_latestRelease{team.unnamed:creative-central-api}%%
+    const latestVersionRegex = /%%REPLACE_([^%]+)\{([^%]+)}%%/g;
+
+    markdown = await replaceAsync(markdown, latestVersionRegex, async (match, whatToReplace, argument) => {
+      if (whatToReplace === 'latestRelease' || whatToReplace === 'latestVersion' || whatToReplace === 'latestReleaseOrSnapshot') {
+        const [ groupId, artifactId ] = argument.split(':');
+        const versioning = await fetchVersioning(groupId, artifactId);
+
+        if (whatToReplace === 'latestRelease') {
+          return versioning.release ?? 'unknown';
+        } else if (whatToReplace === 'latestVersion') {
+          return versioning.latest;
+        } else {
+          return versioning.release ?? versioning.latest;
+        }
+      } else {
+        return match;
+      }
+    });
+
     return String(await processor.process(markdown));
   }
 
@@ -118,7 +142,7 @@ async function fetchDocs(repo: DocProject) {
           // found a file that ends with .md, must be a documentation page
           const key = content.name.slice(0, -PAGE_SUFFIX.length);
           currPath = path.substring(Math.min(ROOT_FOLDER.length, path.length));
-          const html = await parse(await (await fetch(content.download_url)).text());
+          const html = await parseAndProcessMarkdown(await (await fetch(content.download_url)).text());
           entries.push([
             content.name,
             {

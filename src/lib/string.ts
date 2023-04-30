@@ -20,3 +20,25 @@ export function capitalize(string: string): string {
     return string.charAt(0).toUpperCase() + string.substring(1);
   }
 }
+
+/**
+ * Replaces all occurrences of a pattern in a string
+ * with the result of an async function
+ *
+ * @param string The input string
+ * @param pattern The pattern to replace
+ * @param asyncFn The async replacer function to call
+ */
+export async function replaceAsync(
+  string: string,
+  pattern: RegExp,
+  asyncFn: (match: string, ...args: any[]) => Promise<string>
+): Promise<string> {
+  const promises: Promise<string>[] = [];
+  string.replace(pattern, (match, ...args) => {
+    promises.push(asyncFn(match, ...args));
+    return match;
+  });
+  const data = await Promise.all(promises);
+  return string.replace(pattern, () => data.shift()!);
+}
