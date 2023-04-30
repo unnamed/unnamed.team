@@ -9,6 +9,7 @@ import DocumentationSideBar from "@/components/docs/DocumentationSideBar";
 import Metadata from "@/components/Metadata";
 import YearRange from "@/components/text/YearRange";
 import {cache, DocProjects} from "@/lib/docs";
+import {Bars3Icon} from "@heroicons/react/24/solid";
 
 interface PageProps {
   project: DocProject;
@@ -23,6 +24,10 @@ export default function Docs(props: PageProps) {
 
   const [ previous, setPrevious ] = useState<DocFile | null>(null);
   const [ next, setNext ] = useState<DocFile | null>(null);
+
+  // the sidebar visibility state, defaults to false, it is ignored
+  // if there is enough space to always show the sidebar
+  const [ showSideBar, setShowSideBar ] = useState<boolean>(false);
 
   // computes "previous" and "next" nodes
   // everytime "node" changes
@@ -60,32 +65,35 @@ export default function Docs(props: PageProps) {
       <div className="flex flex-col h-full w-full">
 
         {/* Fixed header */}
-        <Header
-          className="fixed bg-wine-900/80 backdrop-blur-sm z-50"
-        />
-        {/* Fixed container, contains header and sidebars */}
-        <div className="fixed w-screen h-screen">
-          <div className="max-w-5xl mx-auto">
-            {/* Navigation */}
-            <DocumentationSideBar project={project} node={node} setNode={setNode} />
+        <Header className="fixed bg-wine-900/80 backdrop-blur-sm z-50">
+          <div className="flex md:hidden">
+            <button onClick={() => setShowSideBar(k => !k)}>
+              <Bars3Icon className="w-6 h-6 text-white/80" />
+            </button>
           </div>
-        </div>
+        </Header>
 
+        {/* Fixed left sidebar */}
+        <DocumentationSideBar project={project} node={node} setNode={(n: DocFile) => {
+          // change node and close sidebar
+          setNode(n);
+          setShowSideBar(false);
+        }} shown={showSideBar} />
 
         <div className="w-screen h-full">
-          <div className="max-w-5xl mx-auto flex flex-row justify-end mt-16">
+          <div className="w-screen lg:max-w-5xl lg:mx-auto flex flex-row justify-end mt-16">
             {/* Content */}
-            <main className="max-w-[768px] flex z-10">
+            <main className="w-screen lg:max-w-[768px]">
               <div className="flex flex-col mx-auto">
 
                 {/* The actual content */}
                 <div
-                  className={clsx('text-white/60 font-light w-full', styles.body)}
+                  className={clsx('text-white/60 font-light w-screen px-8 lg:w-full z-10', styles.body)}
                   dangerouslySetInnerHTML={{ __html: node.content }}
                 />
 
                 {/* Pagination buttons */}
-                <div className="flex flex-row justify-between mt-12 text-white/70">
+                <div className="flex flex-row justify-between mt-12 text-white/70 px-8">
                   <span>
                     {previous && (
                       <span className="cursor-pointer hover:text-white/90">
@@ -103,13 +111,13 @@ export default function Docs(props: PageProps) {
                 </div>
 
                 {/* The page footer */}
-                <footer className="flex flex-row justify-between font-light text-white/40 py-8 my-12">
+                <footer className="flex flex-col text-sm lg:text-base lg:flex-row justify-between font-light text-white/40 py-8 my-12 px-8 gap-2 md:gap-0">
                   <span>Copyright &copy; <YearRange from={2021} /> Unnamed Team</span>
                   <span className="hover:text-white/60">
                     <a href={node.htmlUrl}>Edit this page on GitHub</a>
                   </span>
                 </footer>
-                
+
               </div>
             </main>
           </div>

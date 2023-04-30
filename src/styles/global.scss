@@ -21,7 +21,7 @@ body {
  */
 /* For Chrome, Edge, Safari and Opera */
 ::-webkit-scrollbar {
-  @apply w-1.5;
+  @apply w-1.5 h-1 md:h-1.5;
   &-track {
     @apply bg-white/0;
   }
