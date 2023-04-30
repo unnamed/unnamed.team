@@ -11,7 +11,7 @@ import * as Files from '../../lib/files';
 import { uploadTemporaryFile } from '@/lib/artemis';
 import { ToastContainer, useToasts } from '@/components/toast';
 import Button from '@/components/Button';
-import Header from '@/components/Header';
+import Header from '@/components/layout/Header';
 import DropRegion from '@/components/DropRegion';
 import clsx from 'clsx';
 import Metadata from "@/components/Metadata";

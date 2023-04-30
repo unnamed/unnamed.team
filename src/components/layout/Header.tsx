@@ -1,11 +1,9 @@
 import Link from 'next/link';
 import clsx from 'clsx';
-import { ReactNode, useState } from 'react';
-import {DiscordIcon, GitHubIcon} from "@/components/icons";
+import { HTMLProps, ReactNode, useState } from 'react';
+import { DiscordIcon, GitHubIcon, UnnamedIcon } from "@/components/icons";
 
-export interface HeaderProps {
-  children?: ReactNode;
-  className?: string;
+export interface HeaderProps extends HTMLProps<HTMLElement> {
   banner?: ReactNode;
 }
 
@@ -33,7 +31,7 @@ export default function Header({ children, className, banner }: HeaderProps) {
         {/* Logo + Name */}
         <Link href="/">
           <div className="flex flex-row items-center gap-2.5 cursor-pointer">
-            <img className="h-[24px]" src="/logo.svg" alt="logo"/>
+            <UnnamedIcon className="w-[24px] h-[24px] text-pink-200" />
             <span className="leading-normal text-lg text-white">unnamed</span>
           </div>
         </Link>

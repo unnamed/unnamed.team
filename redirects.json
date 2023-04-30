@@ -24,7 +24,12 @@
   },
   {
     "source": "/project",
-    "destination": "/projects",
+    "destination": "/#projects",
+    "permanent": false
+  },
+  {
+    "source": "/projects",
+    "destination": "/#projects",
     "permanent": false
   }
 ]

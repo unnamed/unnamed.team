@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import styles from './docs.module.scss';
-import Header from '../../components/Header';
+import Header from '../../components/layout/Header';
 import clsx from 'clsx';
 import { GetStaticProps } from "next";
 import {DocDir, DocFile, DocNode, DocProject, findInTree} from "@/lib/docs/tree";
