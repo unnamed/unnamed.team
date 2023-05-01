@@ -1,7 +1,8 @@
 import { useRouter } from "next/router";
 import clsx from "clsx";
-import {DocFile, DocTree} from "@/lib/docs/tree";
+import {DocFile, DocTree, openDocFile} from "@/lib/docs/tree";
 import {useDocumentationContext} from "@/context/DocumentationContext";
+import {arrayEqual} from "@/lib/equality";
 
 interface NodeElementProps {
   tree: DocTree;
@@ -22,7 +23,7 @@ export default function DocumentationSideBarNode({ tree, currentRoute }: NodeEle
   const router = useRouter();
   const indent = tree !== documentation.project.docs;
 
-  const fileChildren = Object.entries(tree).filter(([ _, node ]) => node.type === 'file');
+  const fileChildren = Object.entries(tree).filter(([ _, node ]) => node.type === 'file') as [ string, DocFile ][];
   const dirChildren = Object.entries(tree).filter(([ _, node ]) => node.type === 'dir');
 
   return (
@@ -38,18 +39,14 @@ export default function DocumentationSideBarNode({ tree, currentRoute }: NodeEle
               setDocumentation({
                 ...documentation,
                 sideBarVisible: false,
-                file: node as DocFile
+                file: node
               });
-              router.push(
-                '/' + currentRoute.join('/') + '/' + key,
-                undefined,
-                { shallow: true },
-              ).catch(console.error);
+              openDocFile(router, documentation.project, node).catch(console.error);
             }}>
             <span
               className={clsx(
                 'text-base cursor-pointer',
-                node === documentation.file ? 'font-normal text-pink-200' : 'font-light text-white/60',
+                arrayEqual(node.path, documentation.file.path) ? 'font-normal text-pink-200' : 'font-light text-white/60',
               )}>
               {node.name}
             </span>

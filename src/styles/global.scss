@@ -26,8 +26,12 @@ body {
     @apply bg-white/0;
   }
   &-thumb {
-    @apply bg-pink-200 hover:bg-pink-500 rounded-sm;
+    @apply bg-white/0 hover:bg-pink-500 rounded-sm;
   }
+}
+
+:hover::-webkit-scrollbar-thumb {
+  @apply bg-pink-200 hover:bg-pink-500;
 }
 
 /* For Firefox */

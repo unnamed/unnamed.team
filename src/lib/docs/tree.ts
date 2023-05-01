@@ -1,4 +1,5 @@
 import { GitHubRepo } from "@/lib/github";
+import {NextRouter} from "next/router";
 
 export interface DocTree {
   [ key: string ]: DocFile | DocDir
@@ -12,6 +13,7 @@ export interface DocNode {
 export interface DocFile extends DocNode {
   type: 'file';
   htmlUrl: string;
+  path: string[];
   content: string;
 }
 
@@ -24,30 +26,38 @@ export interface DocProject extends GitHubRepo {
   docs: DocTree;
 }
 
-const MAIN_KEYS = [ 'readme', 'getting-started' ];
+export function pathOf(project: DocProject, file: DocFile) {
+  return `/docs/${project.name}/${file.path.join('/')}`;
+}
+
+export async function openDocFile(router: NextRouter, project: DocProject, file: DocFile) {
+  return router.push(
+    pathOf(project, file as DocFile),
+    undefined,
+    { shallow: true, scroll: true },
+  );
+}
 
 export function findInTree(
   root: DocTree,
-  path: string[],
-  off = 0
-): [ DocTree, DocFile ] {
-  const remaining = path.length - off;
-  if (remaining === 0) {
-    for (const key of MAIN_KEYS) {
-      const node = root[key];
-      if (node) {
-        return [root, node as DocFile];
-      }
-    }
-    return [root, Object.values(root)[0] as DocFile];
-  } else if (remaining === 1) {
-    return [root, root[path[off]] as DocFile];
-  } else {
-    const sub = root[path[off]];
-    if (sub.type === 'dir') {
-      return findInTree(sub.content, path, off + 1);
+  path: string[]
+): DocFile | null {
+  let current = root;
+  let off = 0;
+  while (off < path.length) {
+    let currentKey = path[off++];
+    let node = current[currentKey];
+
+    if (!node) {
+      return null;
+    } else if (node.type === 'file') {
+      return node;
     } else {
-      return [root, sub];
+      current = node.content;
     }
   }
+
+  // ended in a directory, return the first
+  // file inside this directory
+  return Object.values(current).find(k => k.type === 'file') as DocFile ?? null;
 }

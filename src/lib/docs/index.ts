@@ -23,7 +23,7 @@ import remarkRehype from 'remark-rehype';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
 import { visit } from 'unist-util-visit';
-import {capitalize, replaceAsync} from '@/lib/string';
+import {capitalize, replaceAsync, trimArray} from '@/lib/string';
 import Cache from '@/lib/cache';
 import { DocDir, DocFile, DocProject, DocTree } from "@/lib/docs/tree";
 import { getPageTitle } from "@/lib/docs/title";
@@ -142,12 +142,17 @@ async function fetchDocs(repo: DocProject) {
           // found a file that ends with .md, must be a documentation page
           const key = content.name.slice(0, -PAGE_SUFFIX.length);
           currPath = path.substring(Math.min(ROOT_FOLDER.length, path.length));
+
+          const directoryPath = currPath.split('/');
+          trimArray(directoryPath);
+
           const html = await parseAndProcessMarkdown(await (await fetch(content.download_url)).text());
           entries.push([
             content.name,
             {
               type: 'file',
               name: getPageTitle(key, html),
+              path: [ ...directoryPath, key ],
               htmlUrl: content.html_url,
               content: html
             } as DocFile

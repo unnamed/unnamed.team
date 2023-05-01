@@ -4,13 +4,16 @@ import styles from './docs.module.scss';
 import Header from '../../components/layout/Header';
 import clsx from 'clsx';
 import { GetStaticProps } from "next";
-import {DocDir, DocFile, DocNode, DocProject, findInTree} from "@/lib/docs/tree";
+import {DocDir, DocNode, DocProject, findInTree} from "@/lib/docs/tree";
 import DocumentationSideBar from "@/components/docs/DocumentationSideBar";
 import Metadata from "@/components/Metadata";
 import {cache, DocProjects} from "@/lib/docs";
 import {Bars3Icon} from "@heroicons/react/24/solid";
 import DocumentationFooter from "@/components/docs/DocumentationFooter";
 import {DocumentationContextProvider, DocumentationData} from "@/context/DocumentationContext";
+import {useRouter} from "next/router";
+import {trimArray} from "@/lib/string";
+import DocumentationNavigationButtons from "@/components/docs/DocumentationNavigationButtons";
 
 interface PageProps {
   project: DocProject;
@@ -18,42 +21,36 @@ interface PageProps {
 }
 
 export default function Docs({ project, ...props }: PageProps) {
-  const [ currentTree, initialNode ] = findInTree(project.docs, [ ...props.path ]);
+
+  const router = useRouter();
 
   const [ documentation, setDocumentation ] = useState<DocumentationData>({
     sideBarVisible: false,
     project,
-    file: initialNode
+    file: findInTree(project.docs, props.path)!
   });
 
-  const [ previous, setPrevious ] = useState<DocFile | null>(null);
-  const [ next, setNext ] = useState<DocFile | null>(null);
-
-  // computes "previous" and "next" nodes
-  // everytime "node" changes
   useEffect(() => {
-    let _previous = null;
-    let _next = null;
-    let found = false;
-    for (const val of Object.values(currentTree)) {
-      if (val.type !== 'file') {
-        // TODO:
-        continue;
-      }
-      if (found) {
-        _next = val;
-        break;
-      }
-      if (val.name === documentation.file.name) {
-        found = true;
-        continue;
-      }
-      _previous = val;
+    console.log(`Path changed to ${router.asPath}`);
+
+    const path = router.asPath.split('/');
+    trimArray(path);
+
+    path.shift(); // remove 'docs' thing
+    path.shift(); // remove the project name
+
+    let file = findInTree(project.docs, path);
+
+    if (file && file.path === documentation.file.path) {
+      // already the same, no need to change
+      return;
     }
 
-    setPrevious(_previous);
-    setNext(_next);
-  }, [ documentation ]);
+    setDocumentation({
+      ...documentation,
+      file: file!
+    });
+  }, [ router ]);
 
   return (
     <DocumentationContextProvider state={[ documentation, setDocumentation ]}>
@@ -88,26 +85,8 @@ export default function Docs({ project, ...props }: PageProps) {
                   dangerouslySetInnerHTML={{ __html: documentation.file.content }}
                 />
 
-                {/* Pagination buttons */}
-                <div className="flex flex-row justify-between mt-12 text-white/70 px-8">
-                  <span>
-                    {previous && (
-                      <span className="cursor-pointer hover:text-white/90">
-                        &lt; {previous.name}
-                      </span>
-                    )}
-                  </span>
-                  <span>
-                    {next && (
-                      <span className="cursor-pointer hover:text-white/90">
-                        {next.name} &gt;
-                      </span>
-                    )}
-                  </span>
-                </div>
-
+                <DocumentationNavigationButtons />
                 <DocumentationFooter />
-
               </div>
             </main>
           </div>
@@ -130,9 +109,8 @@ export async function getStaticPaths() {
   }
 
   async function it(key: string, tree: DocNode, path: string[]) {
-    if (tree.type === 'file') {
-      addPath([ ...path, key ]);
-    } else {
+    addPath([...path, key]);
+    if (tree.type === 'dir') {
       for (const [ childKey, childNode ] of Object.entries((tree as DocDir).content)) {
         await it(childKey, childNode, [ ...path, key ]);
       }

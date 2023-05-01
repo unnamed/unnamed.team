@@ -42,3 +42,18 @@ export async function replaceAsync(
   const data = await Promise.all(promises);
   return string.replace(pattern, () => data.shift()!);
 }
+
+/**
+ * Trims the given array by removing empty strings at the
+ * start and at the end of the array
+ *
+ * @param array The array to trim (mutates)
+ */
+export function trimArray(array: string[]): void {
+  while (array.length > 0 && array[0].length === 0) {
+    array.shift();
+  }
+  while (array.length > 0 && array[array.length - 1].length === 0) {
+    array.pop();
+  }
+}
