@@ -22,16 +22,17 @@ export default function DocumentationSideBar() {
   return (
     <Transition
       as="aside"
+      unmount={false}
       show={documentation.sideBarVisible}
       enter="transition ease-in-out duration-300 transform"
-      enterFrom="-translate-x-full"
+      enterFrom="-translate-x-full lg:translate-x-0"
       enterTo="translate-x-0"
       leave="transition ease-in-out duration-300 transform"
       leaveFrom="translate-x-0"
-      leaveTo="-translate-x-full"
+      leaveTo="-translate-x-full lg:translate-x-0"
       className={clsx(
-        'fixed left-0 lg:left-[calc((100vw-1024px)/2)] lg:max-w-[256px] p-4 gap-4 mt-16 max-h-[calc(100vh-64px)] z-50 bg-wine-900 overflow-y-scroll',
-        documentation.sideBarVisible ? 'inline-block w-screen h-screen' : 'lg:inline-block'
+        'fixed left-0 lg:left-[calc((100vw-1024px)/2)] lg:max-w-[256px] p-4 gap-4 mt-16 max-h-[calc(100vh-64px)] z-50 bg-wine-900 overflow-y-scroll lg:!flex',
+        documentation.sideBarVisible && 'inline-block w-screen h-screen'
       )}>
       <div className="p-2.5">
         <DocumentationSideBarNode
