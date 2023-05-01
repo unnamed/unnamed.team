@@ -7,27 +7,27 @@ import { GetStaticProps } from "next";
 import {DocDir, DocFile, DocNode, DocProject, findInTree} from "@/lib/docs/tree";
 import DocumentationSideBar from "@/components/docs/DocumentationSideBar";
 import Metadata from "@/components/Metadata";
-import YearRange from "@/components/text/YearRange";
 import {cache, DocProjects} from "@/lib/docs";
 import {Bars3Icon} from "@heroicons/react/24/solid";
+import DocumentationFooter from "@/components/docs/DocumentationFooter";
+import {DocumentationContextProvider, DocumentationData} from "@/context/DocumentationContext";
 
 interface PageProps {
   project: DocProject;
   path: string[];
 }
 
-export default function Docs(props: PageProps) {
-  const { project } = props;
+export default function Docs({ project, ...props }: PageProps) {
   const [ currentTree, initialNode ] = findInTree(project.docs, [ ...props.path ]);
 
-  const [ node, setNode ] = useState<DocFile>(initialNode);
+  const [ documentation, setDocumentation ] = useState<DocumentationData>({
+    sideBarVisible: false,
+    project,
+    file: initialNode
+  });
 
   const [ previous, setPrevious ] = useState<DocFile | null>(null);
   const [ next, setNext ] = useState<DocFile | null>(null);
-
-  // the sidebar visibility state, defaults to false, it is ignored
-  // if there is enough space to always show the sidebar
-  const [ showSideBar, setShowSideBar ] = useState<boolean>(false);
 
   // computes "previous" and "next" nodes
   // everytime "node" changes
@@ -44,7 +44,7 @@ export default function Docs(props: PageProps) {
         _next = val;
         break;
       }
-      if (val.name === node.name) {
+      if (val.name === documentation.file.name) {
         found = true;
         continue;
       }
@@ -53,10 +53,10 @@ export default function Docs(props: PageProps) {
 
     setPrevious(_previous);
     setNext(_next);
-  }, [ node ]);
+  }, [ documentation ]);
 
   return (
-    <>
+    <DocumentationContextProvider state={[ documentation, setDocumentation ]}>
       <Metadata options={{
         title: `${project.name} Documentation`,
         url: `https://unnamed.team/docs/${project.name}`,
@@ -67,18 +67,14 @@ export default function Docs(props: PageProps) {
         {/* Fixed header */}
         <Header className="fixed bg-wine-900/80 backdrop-blur-sm z-50">
           <div className="flex md:hidden">
-            <button onClick={() => setShowSideBar(k => !k)}>
+            <button onClick={() => setDocumentation(doc => ({ ...doc, sideBarVisible: !doc.sideBarVisible }))}>
               <Bars3Icon className="w-6 h-6 text-white/80" />
             </button>
           </div>
         </Header>
 
         {/* Fixed left sidebar */}
-        <DocumentationSideBar project={project} node={node} setNode={(n: DocFile) => {
-          // change node and close sidebar
-          setNode(n);
-          setShowSideBar(false);
-        }} shown={showSideBar} />
+        <DocumentationSideBar />
 
         <div className="w-screen h-full">
           <div className="w-screen lg:max-w-5xl lg:mx-auto flex flex-row justify-end mt-16">
@@ -89,7 +85,7 @@ export default function Docs(props: PageProps) {
                 {/* The actual content */}
                 <div
                   className={clsx('text-white/60 font-light w-screen px-8 lg:w-full z-10', styles.body)}
-                  dangerouslySetInnerHTML={{ __html: node.content }}
+                  dangerouslySetInnerHTML={{ __html: documentation.file.content }}
                 />
 
                 {/* Pagination buttons */}
@@ -110,20 +106,14 @@ export default function Docs(props: PageProps) {
                   </span>
                 </div>
 
-                {/* The page footer */}
-                <footer className="flex flex-col text-sm lg:text-base lg:flex-row justify-between font-light text-white/40 py-8 my-12 px-8 gap-2 md:gap-0">
-                  <span>Copyright &copy; <YearRange from={2021} /> Unnamed Team</span>
-                  <span className="hover:text-white/60">
-                    <a href={node.htmlUrl}>Edit this page on GitHub</a>
-                  </span>
-                </footer>
+                <DocumentationFooter />
 
               </div>
             </main>
           </div>
         </div>
       </div>
-    </>
+    </DocumentationContextProvider>
   );
 }
 

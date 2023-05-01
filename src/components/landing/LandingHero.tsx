@@ -10,7 +10,7 @@ export default function LandingHero() {
       <div className="max-w-5xl mx-auto flex flex-col px-8 py-28 gap-8">
         <div className="flex flex-col gap-4">
           <h1 className="flex flex-col gap-1.5">
-            <span className="text-white/70 text-3xl">Let&apos;s imagine, let&apos;s create</span>
+            <span className="text-white/70 text-xl sm:text-2xl md:text-3xl">Let&apos;s imagine, let&apos;s create</span>
             <span className="text-white/90 text-4xl sm:text-5xl md:text-6xl">We are <span className="text-pink-200">Unnamed Team</span></span>
           </h1>
 

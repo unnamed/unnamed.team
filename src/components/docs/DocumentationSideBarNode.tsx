@@ -1,13 +1,11 @@
 import { useRouter } from "next/router";
 import clsx from "clsx";
-import {DocFile, DocProject, DocTree} from "@/lib/docs/tree";
+import {DocFile, DocTree} from "@/lib/docs/tree";
+import {useDocumentationContext} from "@/context/DocumentationContext";
 
 interface NodeElementProps {
-  repo: DocProject;
   tree: DocTree;
   currentRoute: string[];
-  selected: DocFile;
-  onSelect: (node: DocFile) => void
 }
 
 /**
@@ -17,9 +15,12 @@ interface NodeElementProps {
  *
  * @returns {JSX.Element} The elements for the tree
  */
-export default function DocumentationSideBarNode({ repo, tree, currentRoute, selected, onSelect }: NodeElementProps) {
+export default function DocumentationSideBarNode({ tree, currentRoute }: NodeElementProps) {
+
+  const [ documentation, setDocumentation ] = useDocumentationContext();
+
   const router = useRouter();
-  const indent = tree !== repo.docs;
+  const indent = tree !== documentation.project.docs;
 
   const fileChildren = Object.entries(tree).filter(([ _, node ]) => node.type === 'file');
   const dirChildren = Object.entries(tree).filter(([ _, node ]) => node.type === 'dir');
@@ -34,7 +35,11 @@ export default function DocumentationSideBarNode({ repo, tree, currentRoute, sel
             key={key}
             className={clsx('flex flex-col gap-1', indent && 'pl-4')}
             onClick={() => {
-              onSelect(node as DocFile);
+              setDocumentation({
+                ...documentation,
+                sideBarVisible: false,
+                file: node as DocFile
+              });
               router.push(
                 '/' + currentRoute.join('/') + '/' + key,
                 undefined,
@@ -44,7 +49,7 @@ export default function DocumentationSideBarNode({ repo, tree, currentRoute, sel
             <span
               className={clsx(
                 'text-base cursor-pointer',
-                node === selected ? 'font-normal text-pink-200' : 'font-light text-white/60',
+                node === documentation.file ? 'font-normal text-pink-200' : 'font-light text-white/60',
               )}>
               {node.name}
             </span>
@@ -64,11 +69,8 @@ export default function DocumentationSideBarNode({ repo, tree, currentRoute, sel
           <span className="text-base font-normal text-white/80">{node.name}</span>
 
           <DocumentationSideBarNode
-            repo={repo}
             tree={node.content as DocTree}
-            selected={selected}
             currentRoute={[ ...currentRoute, key ]}
-            onSelect={onSelect}
           />
         </li>
       ))}
