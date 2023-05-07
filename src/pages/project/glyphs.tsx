@@ -117,6 +117,7 @@ async function loadGlyphsFromFile(file: File, map: GlyphMap, toasts: any) {
       ascent: DEFAULT_ASCENT,
       height: DEFAULT_HEIGHT,
       permission: DEFAULT_PERMISSION,
+      usages: [`:${uniqueName}:`]
     });
     return;
   }
