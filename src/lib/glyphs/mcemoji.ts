@@ -1,8 +1,8 @@
-// JavaScript implementation of the MCEmoji format, used
+// JavaScript's implementation of the MCEmoji format, used
 // to represent an emoji pack, binary format
 import { InputStream, OutputStream } from '../io';
 
-const supportedMcEmojiVersions = [ 1, 2, 3, 4 ];
+const supportedMcEmojiVersions = [ 1, 2, 3, 4, 5 ];
 
 export interface Emoji {
   img: string;
@@ -11,6 +11,7 @@ export interface Emoji {
   height: number;
   ascent: number;
   permission: string;
+  usages: string[];
 }
 
 /**
@@ -43,12 +44,18 @@ export async function writeEmojis(emojis: Map<string, Emoji>) {
       console.log(`Emoji ${emoji.name} requires MCEmoji v3 as minimum`);
       formatVersion = Math.max(formatVersion, 3); // use 3 if not greater
     }
+
+    // if an emoji uses custom "usages", use format version 5
+    if (emoji.usages.length != 1 || emoji.usages[0] !== `:${emoji.name}:`) {
+      console.log(`Emoji ${emoji.name} requires MCEmoji v5 as minimum`);
+      formatVersion = Math.max(formatVersion, 5); // use 5 if not greater
+    }
   }
 
   if (emojis.size >= 250) {
     // if we have more than 250 emojis, we must use an int to represent
     // the emoji count
-    formatVersion = 4;
+    formatVersion = Math.max(formatVersion, 4);
   }
 
   // format version
@@ -84,6 +91,14 @@ export async function writeEmojis(emojis: Map<string, Emoji>) {
 
     // permission write
     output.writeShortString(emoji.permission);
+
+    if (formatVersion >= 5) {
+      // write usages
+      output.writeInt(emoji.usages.length);
+      for (const usage of emoji.usages) {
+        output.writeShortString(usage);
+      }
+    }
 
     // image write
     const bin = window.atob(emoji.img.substring("data:image/png;base64,".length));
@@ -143,6 +158,17 @@ export async function readEmojis(buffer: ArrayBuffer): Promise<Emoji[]> {
 
     // read permission
     let permission = input.readShortString();
+    const usages: string[] = [];
+
+    if (version >= 5) {
+      const usagesLength = input.readInt();
+      for (let j = 0; j < usagesLength; j++) {
+        usages.push(input.readShortString());
+      }
+    } else {
+      // use a default usage (:name:)
+      usages.push(`:${name}:`);
+    }
 
     // image read
     const imageLength = version >= 2 ? input.readInt() : input.readShort();
@@ -161,6 +187,7 @@ export async function readEmojis(buffer: ArrayBuffer): Promise<Emoji[]> {
       character,
       permission,
       img: base64,
+      usages,
     });
   }
 
