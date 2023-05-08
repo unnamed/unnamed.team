@@ -8,6 +8,14 @@
     "semi": [
       "error",
       "always"
+    ],
+    "object-curly-spacing": [
+      "warn",
+      "always"
+    ],
+    "array-bracket-spacing": [
+      "warn",
+      "always"
     ]
   }
 }
