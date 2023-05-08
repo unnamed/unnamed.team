@@ -40,15 +40,6 @@ export default function Header({ children, className, banner }: HeaderProps) {
 
         {/* Links */}
         <div className="flex-row items-center justify-between gap-12 hidden md:flex">
-          {[
-            [ '/', 'Home' ],
-            [ '/projects', 'Projects' ],
-          ].map(([ path, id ]) => (
-            <span key={id} className="capitalize font-normal text-base text-white/80 hover:text-pink-200">
-              <Link href={path}>{id}</Link>
-            </span>
-          ))}
-
           <span className="flex flex-row gap-4 items-center">
             <a href={`https://github.com/${process.env.githubSlug}/`} className="text-white/60 hover:text-white/80">
               <GitHubIcon />
