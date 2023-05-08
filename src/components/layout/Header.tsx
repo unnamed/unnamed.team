@@ -2,6 +2,7 @@ import Link from 'next/link';
 import clsx from 'clsx';
 import { HTMLProps, ReactNode, useState } from 'react';
 import { DiscordIcon, GitHubIcon, UnnamedIcon } from "@/components/icons";
+import { XMarkIcon } from "@heroicons/react/24/solid";
 
 export interface HeaderProps extends HTMLProps<HTMLElement> {
   banner?: ReactNode;
@@ -22,7 +23,9 @@ export default function Header({ children, className, banner }: HeaderProps) {
           <div className="flex flex-row justify-between items-center max-w-5xl mx-auto py-2 px-8 text-sm text-black/80">
             {banner}
             {/* Close button */}
-            <span className="cursor-pointer hover:text-white" onClick={closeBanner}>&#10006;</span>
+            <span className="cursor-pointer hover:text-white" onClick={closeBanner}>
+              <XMarkIcon className="w-5 h-5" />
+            </span>
           </div>
         </div>
       )}

@@ -2,6 +2,7 @@ import { Emoji, NAME_PATTERN, NUMBER_PATTERN, PERMISSION_PATTERN } from "@/lib/g
 import { useGlyphEditorContext } from "@/context/GlyphEditorContext";
 import { useState } from "react";
 import clsx from "clsx";
+import { XMarkIcon } from "@heroicons/react/24/solid";
 
 /**
  * @param {Emoji} emoji
@@ -110,7 +111,9 @@ export default function GlyphCard({ emoji }: { emoji: Emoji }) {
             title="(ADVANCED): The replaced character, it will take the texture of the emoji image, so you can't use it in the game anymore, should be a 'rare' character you won't see in the game"/>
         </div>
         <div className="h-full">
-          <button className="text-white/70" onClick={remove}>&#10006;</button>
+          <button className="text-white/70" onClick={remove}>
+            <XMarkIcon className="w-5 h-5" />
+          </button>
         </div>
       </div>
     </div>
