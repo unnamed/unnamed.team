@@ -4,24 +4,17 @@ import { InputStream, OutputStream } from '../io';
 
 const supportedMcEmojiVersions = [ 1, 2, 3, 4, 5 ];
 
-export interface Emoji {
-  img: string;
-  character: number;
-  name: string;
-  height: number;
-  ascent: number;
-  permission: string;
-  usages: string[];
-}
+export * from './glyph';
+import { Glyph } from './glyph';
 
 /**
  * Creates a file containing all the emojis using
  * the MCEmoji format
  *
- * @param {Map<string, Emoji>} emojis
+ * @param {Map<string, Glyph>} emojis
  * @returns {Promise<Blob>} The resulting blob
  */
-export async function writeEmojis(emojis: Map<string, Emoji>) {
+export async function writeEmojis(emojis: Map<string, Glyph>) {
 
   const output = new OutputStream();
 
@@ -131,9 +124,9 @@ export async function writeEmojis(emojis: Map<string, Emoji>) {
  * given array buffer
  *
  * @param {ArrayBuffer} buffer The data source
- * @returns {Promise<Emoji[]>} The read emojis
+ * @returns {Promise<Glyph[]>} The read glyphs
  */
-export async function readEmojis(buffer: ArrayBuffer): Promise<Emoji[]> {
+export async function readEmojis(buffer: ArrayBuffer): Promise<Glyph[]> {
 
   const input = new InputStream(buffer);
 
