@@ -1,12 +1,11 @@
-import {DocDir, DocFile, openDocFile, pathOf} from "@/lib/docs/tree";
-import {ReactNode, useEffect, useState} from "react";
-import {useDocumentationContext} from "@/context/DocumentationContext";
-import {useRouter} from "next/router";
+import { DocDir, DocFile, openDocFile, pathOf } from "@/lib/docs/tree";
+import { ReactNode, useEffect, useState } from "react";
+import { useDocumentationContext } from "@/context/DocumentationContext";
+import { useRouter } from "next/router";
 
 export default function DocumentationNavigationButtons() {
 
   const [ documentation ] = useDocumentationContext();
-  const router = useRouter();
 
   const [ [ previous, next ], setPreviousAndNext ] = useState<[ DocFile | null, DocFile | null ]>([ null, null ]);
 

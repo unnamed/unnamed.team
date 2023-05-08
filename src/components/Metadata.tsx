@@ -8,7 +8,7 @@ interface MetadataOptions {
     description: string;
 }
 
-export default function Metadata({options}: { options: MetadataOptions }) {
+export default function Metadata({ options }: { options: MetadataOptions }) {
   const siteName = options.siteName ?? 'Unnamed Team';
   return (
     <Head>

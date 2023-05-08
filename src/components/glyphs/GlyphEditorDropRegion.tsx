@@ -1,11 +1,11 @@
-import {useToasts} from "@/components/toast";
+import { useToasts } from "@/components/toast";
 import * as Files from "@/lib/files";
 import DropRegion from "@/components/DropRegion";
 import GlyphMap from "@/lib/glyphs/glyph.map";
-import {processImage} from "@/lib/glyphs/bitmap.font.texture";
-import {DEFAULT_ASCENT, DEFAULT_HEIGHT, DEFAULT_PERMISSION, DEFAULT_USAGE} from "@/lib/glyphs/glyph";
-import {readEmojis} from "@/lib/glyphs/mcemoji";
-import {useGlyphEditorContext} from "@/context/GlyphEditorContext";
+import { processImage } from "@/lib/glyphs/bitmap.font.texture";
+import { DEFAULT_ASCENT, DEFAULT_HEIGHT, DEFAULT_PERMISSION, DEFAULT_USAGE } from "@/lib/glyphs/glyph";
+import { readEmojis } from "@/lib/glyphs/mcemoji";
+import { useGlyphEditorContext } from "@/context/GlyphEditorContext";
 
 const ALLOWED_IMAGE_MIME_TYPES = new Set([ 'image/webp', 'image/png' ]);
 
@@ -44,7 +44,7 @@ async function loadGlyphsFromFile(file: File, map: GlyphMap, toasts: any) {
       ascent: DEFAULT_ASCENT,
       height: DEFAULT_HEIGHT,
       permission: DEFAULT_PERMISSION,
-      usages: [DEFAULT_USAGE(uniqueName)]
+      usages: [ DEFAULT_USAGE(uniqueName) ]
     });
     return;
   }

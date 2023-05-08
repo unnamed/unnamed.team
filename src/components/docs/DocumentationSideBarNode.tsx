@@ -1,8 +1,8 @@
 import { useRouter } from "next/router";
 import clsx from "clsx";
-import {DocFile, DocTree, openDocFile} from "@/lib/docs/tree";
-import {useDocumentationContext} from "@/context/DocumentationContext";
-import {arrayEqual} from "@/lib/equality";
+import { DocFile, DocTree, openDocFile } from "@/lib/docs/tree";
+import { useDocumentationContext } from "@/context/DocumentationContext";
+import { arrayEqual } from "@/lib/equality";
 
 interface NodeElementProps {
   tree: DocTree;
@@ -12,7 +12,7 @@ interface NodeElementProps {
 /**
  * Creates the elements for the given tree
  * node, will recurse to obtain a full element
- * tree for every sub-tree
+ * tree for every subtree
  *
  * @returns {JSX.Element} The elements for the tree
  */

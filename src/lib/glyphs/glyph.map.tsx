@@ -1,4 +1,4 @@
-import {Emoji} from "@/lib/glyphs/glyph";
+import { Emoji } from "@/lib/glyphs/glyph";
 
 /**
  * Represents a map for Emoji objects

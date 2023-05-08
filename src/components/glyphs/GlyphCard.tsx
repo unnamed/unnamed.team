@@ -1,6 +1,6 @@
-import {Emoji, NAME_PATTERN, NUMBER_PATTERN, PERMISSION_PATTERN} from "@/lib/glyphs/glyph";
-import {useGlyphEditorContext} from "@/context/GlyphEditorContext";
-import {useState} from "react";
+import { Emoji, NAME_PATTERN, NUMBER_PATTERN, PERMISSION_PATTERN } from "@/lib/glyphs/glyph";
+import { useGlyphEditorContext } from "@/context/GlyphEditorContext";
+import { useState } from "react";
 import clsx from "clsx";
 
 /**

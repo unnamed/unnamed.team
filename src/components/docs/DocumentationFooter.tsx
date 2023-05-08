@@ -1,5 +1,5 @@
 import YearRange from "@/components/text/YearRange";
-import {useDocumentationContext} from "@/context/DocumentationContext";
+import { useDocumentationContext } from "@/context/DocumentationContext";
 
 export default function DocumentationFooter() {
   const [ documentation ] = useDocumentationContext();

@@ -1,8 +1,8 @@
 import DocumentationSideBarNode from "@/components/docs/DocumentationSideBarNode";
 import clsx from "clsx";
-import {useEffect} from "react";
-import {useDocumentationContext} from "@/context/DocumentationContext";
-import {Transition} from "@headlessui/react";
+import { useEffect } from "react";
+import { useDocumentationContext } from "@/context/DocumentationContext";
+import { Transition } from "@headlessui/react";
 
 export default function DocumentationSideBar() {
 

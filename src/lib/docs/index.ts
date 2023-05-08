@@ -23,12 +23,12 @@ import remarkRehype from 'remark-rehype';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
 import { visit } from 'unist-util-visit';
-import {capitalize, replaceAsync, trimArray} from '@/lib/string';
+import { capitalize, replaceAsync, trimArray } from '@/lib/string';
 import Cache from '@/lib/cache';
 import { DocDir, DocFile, DocProject, DocTree } from "@/lib/docs/tree";
 import { getPageTitle } from "@/lib/docs/title";
-import {fetchFromGitHub, fetchGitHubOrganizationRepositories} from "@/lib/github";
-import {fetchVersioning} from "@/lib/nexus.versions";
+import { fetchFromGitHub, fetchGitHubOrganizationRepositories } from "@/lib/github";
+import { fetchVersioning } from "@/lib/nexus.versions";
 
 const INDEX_FILE_NAME = 'index.txt';
 const PAGE_SUFFIX = '.md';

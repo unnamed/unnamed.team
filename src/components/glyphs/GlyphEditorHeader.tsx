@@ -1,11 +1,11 @@
-import {useToasts} from "@/components/toast";
-import {writeEmojis} from "@/lib/glyphs/mcemoji";
-import {uploadTemporaryFile} from "@/lib/artemis";
+import { useToasts } from "@/components/toast";
+import { writeEmojis } from "@/lib/glyphs/mcemoji";
+import { uploadTemporaryFile } from "@/lib/artemis";
 import * as Files from "@/lib/files";
 import Header from "@/components/layout/Header";
 import Link from "next/link";
 import Button from "@/components/Button";
-import {useGlyphEditorContext} from "@/context/GlyphEditorContext";
+import { useGlyphEditorContext } from "@/context/GlyphEditorContext";
 
 export default function GlyphEditorHeader() {
   const [ data ] = useGlyphEditorContext();

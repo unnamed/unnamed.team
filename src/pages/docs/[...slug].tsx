@@ -4,15 +4,15 @@ import styles from './docs.module.scss';
 import Header from '../../components/layout/Header';
 import clsx from 'clsx';
 import { GetStaticProps } from "next";
-import {DocDir, DocNode, DocProject, findInTree} from "@/lib/docs/tree";
+import { DocDir, DocNode, DocProject, findInTree } from "@/lib/docs/tree";
 import DocumentationSideBar from "@/components/docs/DocumentationSideBar";
 import Metadata from "@/components/Metadata";
-import {cache, DocProjects} from "@/lib/docs";
-import {Bars3Icon} from "@heroicons/react/24/solid";
+import { cache, DocProjects } from "@/lib/docs";
+import { Bars3Icon } from "@heroicons/react/24/solid";
 import DocumentationFooter from "@/components/docs/DocumentationFooter";
-import {DocumentationContextProvider, DocumentationData} from "@/context/DocumentationContext";
-import {useRouter} from "next/router";
-import {trimArray} from "@/lib/string";
+import { DocumentationContextProvider, DocumentationData } from "@/context/DocumentationContext";
+import { useRouter } from "next/router";
+import { trimArray } from "@/lib/string";
 import DocumentationNavigationButtons from "@/components/docs/DocumentationNavigationButtons";
 
 interface PageProps {
@@ -109,7 +109,7 @@ export async function getStaticPaths() {
   }
 
   async function it(key: string, tree: DocNode, path: string[]) {
-    addPath([...path, key]);
+    addPath([ ...path, key ]);
     if (tree.type === 'dir') {
       for (const [ childKey, childNode ] of Object.entries((tree as DocDir).content)) {
         await it(childKey, childNode, [ ...path, key ]);

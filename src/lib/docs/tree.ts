@@ -1,5 +1,5 @@
 import { GitHubRepo } from "@/lib/github";
-import {NextRouter} from "next/router";
+import { NextRouter } from "next/router";
 
 export interface DocTree {
   [ key: string ]: DocFile | DocDir

@@ -1,8 +1,8 @@
 import Metadata from "@/components/Metadata";
-import {cache, DocProjects} from "@/lib/docs";
-import {DocProject} from "@/lib/docs/tree";
+import { cache, DocProjects } from "@/lib/docs";
+import { DocProject } from "@/lib/docs/tree";
 import Link from "next/link";
-import {GitHubIcon} from "@/components/icons";
+import { GitHubIcon } from "@/components/icons";
 import LandingHero from "@/components/landing/LandingHero";
 
 function ProjectCard({ project }: { project: DocProject }) {

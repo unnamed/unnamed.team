@@ -10,7 +10,7 @@ import GlyphEditorHeader from "@/components/glyphs/GlyphEditorHeader";
 import GlyphEditorDropRegion from "@/components/glyphs/GlyphEditorDropRegion";
 import GlyphCard from "@/components/glyphs/GlyphCard";
 import GlyphMap from "@/lib/glyphs/glyph.map";
-import {GlyphEditorContextProvider, GlyphEditorData} from "@/context/GlyphEditorContext";
+import { GlyphEditorContextProvider, GlyphEditorData } from "@/context/GlyphEditorContext";
 
 export default function EditorPage() {
   const [ data, setData ] = useState<GlyphEditorData>({

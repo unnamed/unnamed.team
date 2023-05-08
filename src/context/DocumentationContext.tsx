@@ -1,6 +1,6 @@
-import {createContext, ReactNode, useContext} from 'react';
-import {DocFile, DocProject} from "@/lib/docs/tree";
-import {MutState} from "@/context/context";
+import { createContext, ReactNode, useContext } from 'react';
+import { DocFile, DocProject } from "@/lib/docs/tree";
+import { MutState } from "@/context/context";
 
 const DocumentationContext = createContext<MutState<DocumentationData>>(
   [ null as unknown as DocumentationData, () => {} ] /* we do a little bit of type trolling */

@@ -1,5 +1,5 @@
-import {createContext, ReactNode, useContext} from 'react';
-import {MutState} from "@/context/context";
+import { createContext, ReactNode, useContext } from 'react';
+import { MutState } from "@/context/context";
 import GlyphMap from "@/lib/glyphs/glyph.map";
 
 export interface GlyphEditorData {
