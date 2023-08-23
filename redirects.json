@@ -36,5 +36,10 @@
     "source": "/docs/creative/central",
     "destination": "/docs/creative-central",
     "permanent": false
+  },
+  {
+    "source": "/docs/creative/central/:path*",
+    "destination": "/docs/creative-central/:path*",
+    "permanent": false
   }
 ]
