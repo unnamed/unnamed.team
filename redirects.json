@@ -31,5 +31,10 @@
     "source": "/projects",
     "destination": "/#projects",
     "permanent": false
+  },
+  {
+    "source": "/docs/creative/central",
+    "destination": "/docs/creative-central",
+    "permanent": false
   }
 ]
