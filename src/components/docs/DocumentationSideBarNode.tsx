@@ -45,10 +45,11 @@ export default function DocumentationSideBarNode({ tree, currentRoute }: NodeEle
             }}>
             <span
               className={clsx(
-                'text-base cursor-pointer',
+                'text-base cursor-pointer flex flex-row items-center gap-2',
                 arrayEqual(node.path, documentation.file.path) ? 'font-normal text-pink-200' : 'font-light text-white/60',
               )}>
-              {node.name}
+              <span className={clsx(arrayEqual(node.path, documentation.file.path) ? 'w-1.5 h-1.5 rounded-full bg-pink-200' : 'hidden')}></span>
+              <span>{node.name}</span>
             </span>
           </li>
         );

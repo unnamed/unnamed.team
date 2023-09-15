@@ -31,8 +31,6 @@ export default function Docs({ project, ...props }: PageProps) {
   });
 
   useEffect(() => {
-    console.log(`Path changed to ${router.asPath}`);
-
     const path = router.asPath.split('/');
     trimArray(path);
 
