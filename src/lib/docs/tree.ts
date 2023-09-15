@@ -15,6 +15,7 @@ export interface DocFile extends DocNode {
   htmlUrl: string;
   path: string[];
   content: string;
+  lastUpdateDate: string;
 }
 
 export interface DocDir extends DocNode {

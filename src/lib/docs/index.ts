@@ -147,6 +147,11 @@ async function fetchDocs(repo: DocProject) {
           trimArray(directoryPath);
 
           const html = await parseAndProcessMarkdown(await (await fetch(content.download_url)).text());
+
+          // try to fetch commit information for this file
+          const commits = await fetchFromGitHub(`/repos/${repoFullName}/commits?path=${content.path}`);
+          const lastUpdateDate = commits[0].commit.committer.date;
+
           entries.push([
             content.name,
             {
@@ -154,7 +159,8 @@ async function fetchDocs(repo: DocProject) {
               name: getPageTitle(key, html),
               path: [ ...directoryPath, key ],
               htmlUrl: content.html_url,
-              content: html
+              content: html,
+              lastUpdateDate,
             } as DocFile
           ]);
         }

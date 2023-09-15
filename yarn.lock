@@ -2311,6 +2311,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"javascript-time-ago@npm:^2.5.9":
+  version: 2.5.9
+  resolution: "javascript-time-ago@npm:2.5.9"
+  dependencies:
+    relative-time-format: ^1.1.6
+  checksum: 401937d46b82c038904d4b9b986b1d10977b77890b0439a6d1b8d2a393cec4c88e7edb06ca9c57f67c0c05308a796cebe930d20f5aa1094bcd8a3fa68e70b2d3
+  languageName: node
+  linkType: hard
+
 "js-tokens@npm:^3.0.0 || ^4.0.0, js-tokens@npm:^4.0.0":
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
@@ -3578,6 +3587,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"relative-time-format@npm:^1.1.6":
+  version: 1.1.6
+  resolution: "relative-time-format@npm:1.1.6"
+  checksum: b0c14f2d81bb086d0bcedabab78cff0cd31d3ad5040db88f0dc671361c33bf5ec924fe897e9308a43c2f569b114dd543557b9df659f7a06e2d06d392b539d5d7
+  languageName: node
+  linkType: hard
+
 "remark-parse@npm:^10.0.1":
   version: 10.0.1
   resolution: "remark-parse@npm:10.0.1"
@@ -4291,6 +4307,7 @@ __metadata:
     clsx: ^1.1.1
     eslint: ^8.10.0
     eslint-config-next: ^12.1.0
+    javascript-time-ago: ^2.5.9
     next: 13.1.4
     postcss: ^8.4.7
     react: ^18.2.0
