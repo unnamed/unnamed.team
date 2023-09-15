@@ -5,6 +5,9 @@ import GlyphMap from "@/lib/glyphs/glyph.map";
 export interface GlyphEditorData {
   // The glyph map being edited
   glyphMap: GlyphMap;
+
+  // Is the editor taking some time on loading glyphs?
+  loading: boolean;
 }
 
 const GlyphEditorContext = createContext<MutState<GlyphEditorData>>(

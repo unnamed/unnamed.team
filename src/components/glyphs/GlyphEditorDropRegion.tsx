@@ -78,22 +78,36 @@ export default function GlyphEditorDropRegion() {
   const toasts = useToasts();
 
   async function onDrop(files: FileList) {
+
+    // set state to loading
+    setData({ ...data, loading: true });
     const newMap = data.glyphMap.copy();
+
+    // load glyphs (may take some time)
     for (let i = 0; i < files.length; i++) {
       await loadGlyphsFromFile(files[i], newMap, toasts);
     }
-    setData({ ...data, glyphMap: newMap });
+
+    // set glyph map, remove loading state
+    setData({ ...data, glyphMap: newMap, loading: false });
   }
 
   async function _import() {
     const newMap = data.glyphMap.copy();
-    for (const file of await Files.promptFiles({
+    const files = await Files.promptFiles({
       multiple: true,
-      accept: [ '.mcemoji', ...ALLOWED_IMAGE_MIME_TYPES ],
-    })) {
+      accept: [ '.mcemoji', '.mcglyph', ...ALLOWED_IMAGE_MIME_TYPES ],
+    });
+    // set state to loading
+    setData({ ...data, loading: true });
+
+    // load glyphs (may take some time)
+    for (const file of files) {
       await loadGlyphsFromFile(file, newMap, toasts);
     }
-    setData({ ...data, glyphMap: newMap });
+
+    // set glyph map, remove loading state
+    setData({ ...data, glyphMap: newMap, loading: false });
   }
 
   return (

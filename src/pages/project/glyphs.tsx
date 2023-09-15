@@ -11,10 +11,12 @@ import GlyphEditorDropRegion from "@/components/glyphs/GlyphEditorDropRegion";
 import GlyphCard from "@/components/glyphs/GlyphCard";
 import GlyphMap from "@/lib/glyphs/glyph.map";
 import { GlyphEditorContextProvider, GlyphEditorData } from "@/context/GlyphEditorContext";
+import LoadingOverlay from '@/components/overlay/LoadingOverlay';
 
 export default function EditorPage() {
   const [ data, setData ] = useState<GlyphEditorData>({
-    glyphMap: new GlyphMap()
+    glyphMap: new GlyphMap(),
+    loading: false
   });
 
   return (
@@ -25,27 +27,29 @@ export default function EditorPage() {
         url: 'https://unnamed.team/project/glyphs'
       }} />
 
-      <ToastContainer>
-        <GlyphEditorContextProvider state={[ data, setData ]}>
-          <GlyphEditorHeader />
-          <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col gap-8 py-8">
-              <GlyphEditorDropRegion />
-              <div className="flex flex-wrap -mx-1">
-                {data.glyphMap.values().slice().sort((a, b) => {
-                  if (a.name < b.name) return -1;
-                  if (a.name > b.name) return 1;
-                  return 0;
-                }).map(emoji => (
-                  <GlyphCard
-                    key={emoji.name}
-                    emoji={emoji}/>
-                ))}
+      {data.loading ? <LoadingOverlay /> :
+        <ToastContainer>
+          <GlyphEditorContextProvider state={[ data, setData ]}>
+            <GlyphEditorHeader />
+            <div className="max-w-7xl mx-auto">
+              <div className="flex flex-col gap-8 py-8">
+                <GlyphEditorDropRegion />
+                <div className="flex flex-wrap -mx-1">
+                  {data.glyphMap.values().slice().sort((a, b) => {
+                    if (a.name < b.name) return -1;
+                    if (a.name > b.name) return 1;
+                    return 0;
+                  }).map(emoji => (
+                    <GlyphCard
+                      key={emoji.name}
+                      emoji={emoji}/>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        </GlyphEditorContextProvider>
-      </ToastContainer>
+          </GlyphEditorContextProvider>
+        </ToastContainer>
+      }
     </>
   );
 }
