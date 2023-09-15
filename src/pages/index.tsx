@@ -40,7 +40,6 @@ export default function HomePage({ projects }: { projects: DocProjects }) {
         url: 'https://unnamed.team/'
       }} />
 
-
       <LandingHero />
 
       <div className="max-w-5xl mx-auto" id="projects">
