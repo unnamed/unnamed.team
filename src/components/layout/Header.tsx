@@ -44,10 +44,10 @@ export default function Header({ children, className, banner }: HeaderProps) {
         {/* Links */}
         <div className="flex-row items-center justify-between gap-12 hidden md:flex">
           <span className="flex flex-row gap-4 items-center">
-            <a href={`https://github.com/${process.env.githubSlug}/`} className="text-white/60 hover:text-white/80">
+            <a href={`https://github.com/${process.env.githubSlug}/`} className="text-white/70 hover:text-white/90">
               <GitHubIcon />
             </a>
-            <span className="text-white/60 hover:text-white/80 cursor-pointer">
+            <span className="text-white/70 hover:text-white/90 cursor-pointer">
               <Link href="/discord">
                 <DiscordIcon />
               </Link>
