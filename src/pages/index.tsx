@@ -6,6 +6,7 @@ import Link from "next/link";
 import { GitHubIcon } from "@/components/icons";
 import LandingHero from "@/components/landing/LandingHero";
 import clsx from "clsx";
+import Footer from "@/components/layout/Footer";
 
 function ProjectCard({ project }: { project: DocProject }) {
   return (
@@ -61,9 +62,7 @@ export default function HomePage({ projects }: { projects: DocProjects }) {
         </div>
       </div>
 
-      <footer className="h-72">
-
-      </footer>
+      <Footer projects={projects} />
     </>
   );
 };
