@@ -23,7 +23,7 @@ export default function Footer({ projects }: { projects: DocProjects }) {
     ],
   };
   return (
-    <footer className="border-t border-t-white/20 pb-20">
+    <footer className="pt-12 pb-20">
       <div className="max-w-5xl mx-auto px-10 lg:px-0 flex flex-col">
 
         {/* Contents */}
