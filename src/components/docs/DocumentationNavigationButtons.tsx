@@ -58,14 +58,20 @@ export default function DocumentationNavigationButtons() {
       <span>
         {previous && (
           <NavigateAnchor file={previous}>
-            &lt; {previous.name}
+            <div className="flex flex-col items-start">
+              <p className="text-pink-200 uppercase text-xs">Previous</p>
+              <p>&lt; {previous.name}</p>
+            </div>
           </NavigateAnchor>
         )}
       </span>
       <span>
         {next && (
           <NavigateAnchor file={next}>
-            {next.name} &gt;
+            <div className="flex flex-col items-end">
+              <p className="text-pink-200 uppercase text-xs">Next</p>
+              <p>{next.name} &gt;</p>
+            </div>
           </NavigateAnchor>
         )}
       </span>
