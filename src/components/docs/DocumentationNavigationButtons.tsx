@@ -13,7 +13,7 @@ export default function DocumentationNavigationButtons() {
   // everytime "node" changes
   useEffect(() => {
     const dirPath = documentation.file.path.slice(0, -1);
-    let currNode = documentation.project.docs;
+    let currNode = documentation.project.docs[documentation.tag];
 
     while (dirPath.length > 0) {
       const key = dirPath.shift()!;
@@ -87,10 +87,10 @@ function NavigateAnchor({ file, children }: { file: DocFile, children: ReactNode
   return (
     <a
       className="cursor-pointer hover:text-white/90"
-      href={pathOf(documentation.project, file)}
+      href={pathOf(documentation.project, documentation.tag, file)}
       onClick={event => {
         event.preventDefault();
-        openDocFile(router, documentation.project, file).catch(console.error);
+        openDocFile(router, documentation.project, documentation.tag, file).catch(console.error);
       }}>
       {children}
     </a>

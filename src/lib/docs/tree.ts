@@ -24,16 +24,16 @@ export interface DocDir extends DocNode {
 }
 
 export interface DocProject extends GitHubRepo {
-  docs: DocTree;
+  docs: { [ tag: string ]: DocTree };
 }
 
-export function pathOf(project: DocProject, file: DocFile) {
-  return `/docs/${project.name}/${file.path.join('/')}`;
+export function pathOf(project: DocProject, tag: string, file: DocFile) {
+  return `/docs/${project.name}/${tag}/${file.path.join('/')}`;
 }
 
-export async function openDocFile(router: NextRouter, project: DocProject, file: DocFile) {
+export async function openDocFile(router: NextRouter, project: DocProject, tag: string, file: DocFile) {
   return router.push(
-    pathOf(project, file as DocFile),
+    pathOf(project, tag, file as DocFile),
     undefined,
     { shallow: true, scroll: true },
   );

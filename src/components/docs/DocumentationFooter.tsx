@@ -11,7 +11,9 @@ export default function DocumentationFooter() {
         <span className="hover:text-white/60">
           <a href={documentation.file.htmlUrl}>Edit this page on GitHub</a>
         </span>
-        <span>Last edit <TimeAgo date={new Date(documentation.file.lastUpdateDate)} /></span>
+        {documentation.file.lastUpdateDate === 'unknown'
+          ? <></>
+          : <span>Last edit <TimeAgo date={new Date(documentation.file.lastUpdateDate)} /></span>}
       </div>
     </footer>
   );

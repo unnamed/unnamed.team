@@ -21,7 +21,7 @@ export default function DocumentationSideBarNode({ tree, currentRoute }: NodeEle
   const [ documentation, setDocumentation ] = useDocumentationContext();
 
   const router = useRouter();
-  const indent = tree !== documentation.project.docs;
+  const indent = tree !== documentation.project.docs[documentation.tag];
 
   const fileChildren = Object.entries(tree).filter(([ _, node ]) => node.type === 'file') as [ string, DocFile ][];
   const dirChildren = Object.entries(tree).filter(([ _, node ]) => node.type === 'dir');
@@ -41,7 +41,7 @@ export default function DocumentationSideBarNode({ tree, currentRoute }: NodeEle
                 sideBarVisible: false,
                 file: node
               });
-              openDocFile(router, documentation.project, node).catch(console.error);
+              openDocFile(router, documentation.project, documentation.tag, node).catch(console.error);
             }}>
             <span
               className={clsx(

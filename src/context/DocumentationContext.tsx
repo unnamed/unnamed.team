@@ -14,6 +14,9 @@ export interface DocumentationData {
   // The documented project
   project: DocProject;
 
+  // The tag
+  tag: string;
+
   // The file being viewed
   file: DocFile;
 }

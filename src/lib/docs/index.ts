@@ -44,7 +44,7 @@ export async function fetchProjects(): Promise<DocProjects> {
   for (const repo of await fetchGitHubOrganizationRepositories(process.env.githubSlug!)) {
     const project: DocProject = { ...repo, docs: {} };
     await fetchDocs(project);
-    if (Object.entries(project.docs).length > 0) {
+    if (Object.entries(project.docs.latest).length > 0) {
       console.log(`[INFO] Discovered documented project \`${project.name}\``);
       projects[project.name] = project;
     }
@@ -59,6 +59,10 @@ export async function fetchProjects(): Promise<DocProjects> {
  * @param {DocProject} repo The repository partial object,
  */
 async function fetchDocs(repo: DocProject) {
+
+  // find all tags for this repo
+  let tags: any[] = await fetchFromGitHub(`/repos/${repo.fullName}/tags`);
+  tags = tags.filter(tag => !tag.name.endsWith('-SNAPSHOT')); // we only want releases
 
   const basePath = `/${ROOT_FOLDER}/${repo.name}`;
   let currPath = '/';
@@ -122,8 +126,8 @@ async function fetchDocs(repo: DocProject) {
     return String(await processor.process(markdown));
   }
 
-  async function at(parent: DocTree, path: string): Promise<DocTree | null> {
-    const contents = await fetchFromGitHub(`/repos/${repoFullName}/contents/${path}`);
+  async function at(parent: DocTree, path: string, ref?: string): Promise<DocTree | null> {
+    const contents = await fetchFromGitHub(`/repos/${repoFullName}/contents/${path}${ref ? `?ref=${ref}` : ''}`);
 
     if (contents.message === 'Not Found') {
       return Promise.resolve(null);
@@ -148,9 +152,9 @@ async function fetchDocs(repo: DocProject) {
 
           const html = await parseAndProcessMarkdown(await (await fetch(content.download_url)).text());
 
-          // try to fetch commit information for this file
-          const commits = await fetchFromGitHub(`/repos/${repoFullName}/commits?path=${content.path}`);
-          const lastUpdateDate = commits[0].commit.committer.date;
+          // fetch the last commit information for this file
+          const commits = await fetchFromGitHub(`/repos/${repoFullName}/commits?path=${content.path}&per_page=1${ref ? `&sha=${ref}` : ''}}`);
+          const lastUpdateDate = commits.length > 0 ? commits[0].commit.committer.date : 'unknown';
 
           entries.push([
             content.name,
@@ -216,7 +220,22 @@ async function fetchDocs(repo: DocProject) {
     return parent;
   }
 
-  repo.docs = await at({}, ROOT_FOLDER) || {};
+  if (tags.length === 0) {
+    // repo has no tags
+    repo.docs = {
+      latest: await at({}, ROOT_FOLDER) || {}
+    };
+  } else {
+    // repo has tags
+    repo.docs = {};
+    for (const tag of tags) {
+      const found = await at({}, ROOT_FOLDER, tag.name);
+      if (found !== null) {
+        repo.docs[tag.name] = found;
+      }
+    }
+    repo.docs.latest = repo.docs[tags[0].name] || Object.values(repo.docs)[0] || await at({}, ROOT_FOLDER) || {};
+  }
 }
 
 

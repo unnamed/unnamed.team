@@ -4,11 +4,11 @@ import styles from './docs.module.scss';
 import Header from '../../components/layout/Header';
 import clsx from 'clsx';
 import { GetStaticProps } from "next";
-import { DocDir, DocNode, DocProject, findInTree } from "@/lib/docs/tree";
+import { DocDir, DocFile, DocNode, DocProject, findInTree, pathOf } from "@/lib/docs/tree";
 import DocumentationSideBar from "@/components/docs/DocumentationSideBar";
 import Metadata from "@/components/Metadata";
 import { cache, DocProjects } from "@/lib/docs";
-import { Bars3Icon } from "@heroicons/react/24/solid";
+import { Bars3Icon, CheckIcon, ChevronDownIcon } from "@heroicons/react/24/solid";
 import DocumentationFooter from "@/components/docs/DocumentationFooter";
 import { DocumentationContextProvider, DocumentationData } from "@/context/DocumentationContext";
 import { useRouter } from "next/router";
@@ -17,6 +17,7 @@ import DocumentationNavigationButtons from "@/components/docs/DocumentationNavig
 
 interface PageProps {
   project: DocProject;
+  tag: string | 'latest';
   path: string[];
 }
 
@@ -24,10 +25,12 @@ export default function Docs({ project, ...props }: PageProps) {
 
   const router = useRouter();
 
+  const [ selectingTag, setSelectingTag ] = useState(false);
   const [ documentation, setDocumentation ] = useState<DocumentationData>({
     sideBarVisible: false,
     project,
-    file: findInTree(project.docs, props.path)!
+    tag: props.tag,
+    file: findInTree(project.docs[props.tag], props.path)!
   });
 
   useEffect(() => {
@@ -37,7 +40,16 @@ export default function Docs({ project, ...props }: PageProps) {
     path.shift(); // remove 'docs' thing
     path.shift(); // remove the project name
 
-    let file = findInTree(project.docs, path);
+    let tag =  path.shift(); // remove the tag
+    if (!tag || project.docs[tag] === undefined) {
+      if (tag) {
+        path.unshift(tag);
+      }
+      // not a valid tag
+      tag = 'latest';
+    }
+
+    let file = findInTree(project.docs[tag], path);
 
     if (file && file.path === documentation.file.path) {
       // already the same, no need to change
@@ -61,6 +73,41 @@ export default function Docs({ project, ...props }: PageProps) {
 
         {/* Fixed header */}
         <Header className="fixed bg-wine-900/80 backdrop-blur-sm z-50">
+          <div className="flex flex-1 items-center justify-start px-6">
+            <div className="flex flex-col relative text-sm text-white/[.45] rounded-lg overflow-hidden shadow-sm border-t border-b border-t-white/10 border-b-black/10 bg-white/[.15]" onClick={() => setSelectingTag(!selectingTag)}>
+              <div className="flex flex-row gap-1 px-2 py-0.5 hover:bg-white/20 cursor-pointer">
+                <span>{documentation.tag}</span>
+                <ChevronDownIcon className="w-3" />
+              </div>
+
+              {selectingTag && (
+                <div className="fixed rounded-lg overflow-hidden flex flex-col bottom-[-165%] z-50 border-t border-b border-t-white/10 border-b-black/10 bg-[#3C3249] w-36 text-base py-1 shadow-lg">
+                  {Object.keys(project.docs)
+                    .map(tag => (
+                      <div
+                        key={tag}
+                        className={`flex flex-row justify-between items-center w-full px-4 py-1.5 ${tag === documentation.tag ? 'text-pink-200' : 'text-white/60 cursor-pointer hover:bg-white/[.15]'}`}
+                        onClick={() => {
+                          setDocumentation({
+                            ...documentation,
+                            file: findInTree(project.docs[tag], [])!,
+                            tag
+                          });
+                          setSelectingTag(false);
+                          router.push(
+                            `/docs/${project.name}/${tag}`,
+                            undefined,
+                            { shallow: true, scroll: true }
+                          );
+                        }}>
+                        <span>{tag}</span>
+                        <span>{tag === documentation.tag && (<CheckIcon className="w-5" />)}</span>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          </div>
           <div className="flex md:hidden">
             <button onClick={() => setDocumentation(doc => ({ ...doc, sideBarVisible: !doc.sideBarVisible }))}>
               <Bars3Icon className="w-6 h-6 text-white/80" />
@@ -121,8 +168,14 @@ export async function getStaticPaths() {
     addPath([ repo.name ]);
 
     // section paths
-    for (const [ key, tree ] of Object.entries(repo.docs)) {
+    for (const [ key, tree ] of Object.entries(repo.docs['latest'])) {
       await it(key, tree, [ repo.name ]);
+    }
+    for (const tag of Object.keys(repo.docs)) {
+      addPath([ repo.name, tag ]);
+      for (const [ key, tree ] of Object.entries(repo.docs[tag])) {
+        await it(key, tree, [ repo.name, tag ]);
+      }
     }
   }
 
@@ -136,9 +189,25 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const projects = await cache.get();
   const [ projectName, ...path ] = params!['slug'] as string[];
   const project = projects[projectName];
+
+  // check tag
+  let tag;
+  if (path.length === 0) {
+    tag = 'latest';
+  } else {
+    tag = path[0];
+    if (!project.docs[tag]) {
+      // not a valid tag
+      tag = 'latest';
+    } else {
+      path.shift();
+    }
+  }
+
   return {
     props: {
       project,
+      tag,
       path,
     },
   };
