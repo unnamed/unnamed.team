@@ -17,7 +17,7 @@ export default function Select<T>(props: SelectProps<T>) {
   const [ selection, setSelection ] = useState(props.options.find(o => o.key === props.defaultKey)!);
 
   const selectorRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLDivElement>();
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // set the 'list' position at the end of the 'selector' position
