@@ -86,8 +86,19 @@ export default function GlyphCard({ emoji }: { emoji: Emoji }) {
         className="flex flex-row py-2 md:py-4 px-4 md:px-8 gap-4 w-full items-center justify-between rounded-2xl border bg-white/10 border-white/[.15]">
         <img src={emoji.img} alt={name} className="flex w-16 sm:w-24 rendering-pixelated"/>
         <div className="flex flex-col gap-1">
-          <Input property="name" validate={regex(NAME_PATTERN)}
-            title="The emoji name, when it's inside colons (like :emoji:), it will be replaced by the emoji image"/>
+          <Input
+            property="name"
+            validate={regex(NAME_PATTERN)}
+            title="The emoji name, when it's inside colons (like :emoji:), it will be replaced by the emoji image"
+            deserialize={v => {
+              // also update the single usage we have
+              // todo: remove and allow multiple usages
+              if (!emoji.usages || emoji.usages.length !== 1)
+                emoji.usages = [ `:${v}:` ];
+              else
+                emoji.usages[0] = `:${v}:`;
+              return v;
+            }}/>
           <Input property="ascent" validate={input => {
             if (!input.match(NUMBER_PATTERN)) {
               // not a number, it is invalid
