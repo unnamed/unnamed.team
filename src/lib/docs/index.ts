@@ -19,6 +19,7 @@
  */
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
 import remarkRehype from 'remark-rehype';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
@@ -94,6 +95,7 @@ async function fetchDocs(repo: DocProject) {
 
   const processor = unified()
     .use(remarkParse)
+    .use(remarkGfm) // support GitHub Flavored Markdown (tables, autolinks, task lists, strikethrought)
     .use(remarkRehype)
     .use(rehypeHighlight, { ignoreMissing: true })
     .use(rehypeRewriteLinks)

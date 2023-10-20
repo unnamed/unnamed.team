@@ -2,20 +2,6 @@ pre code.hljs {
   @apply block overflow-x-auto p-5 w-full;
 }
 
-code {
-  @apply text-sm;
-}
-
-code:not(pre code) {
-  @apply p-1;
-  &::before {
-    content: '`';
-  }
-  &::after {
-    content: '`';
-  }
-}
-
 .hljs {
   @apply bg-white/10 border border-white/[.15] rounded-xl text-white/60 relative;
 }
