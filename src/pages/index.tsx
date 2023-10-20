@@ -69,5 +69,20 @@ export default function HomePage({ projects }: { projects: DocProjects }) {
 
 export async function getStaticProps() {
   const projects: DocProjects = await cache.get();
-  return { props: { projects } };
+  const partialProjects: DocProjects = {};
+
+  // remove "docs" data from the projects, it is not required
+  // for this page, and it may contain a lot of data, making the
+  // page load slower!
+  for (const [ key, project ] of Object.entries(projects)) {
+    partialProjects[key] = {
+      name: project.name,
+      description: project.description,
+      stars: project.stars,
+      fullName: project.fullName,
+      docs: {},
+      defaultBranch: project.defaultBranch
+    };
+  }
+  return { props: { projects: partialProjects } };
 }
