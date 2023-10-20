@@ -34,7 +34,7 @@ export default function DocumentationSideBar() {
         'fixed left-0 lg:left-[calc((100vw-1024px)/2)] lg:max-w-[256px] p-4 gap-4 mt-16 max-h-[calc(100vh-64px)] z-40 bg-wine-900 overflow-y-scroll lg:!flex',
         documentation.sideBarVisible && 'inline-block w-screen h-screen'
       )}>
-      <div className="p-2.5">
+      <div className="p-2.5 pb-12 h-max">
         <DocumentationSideBarNode
           tree={documentation.project.docs[documentation.tag]}
           currentRoute={[ 'docs', documentation.project.name ]}
