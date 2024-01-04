@@ -27,7 +27,7 @@ class SemVer {
 
   static parse(str: string): SemVer {
     const snapshot = str.endsWith('-SNAPSHOT');
-    const [ major, minor, patch ] = str.replace('-SNAPSHOT', '').split('.').map(parseInt);
+    const [ major, minor, patch ] = str.split('-')[0].split('.').map(parseInt);
     return new SemVer(major, minor, patch, snapshot);
   }
 }
