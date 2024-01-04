@@ -45,6 +45,8 @@ export async function fetchVersioning(groupId: string, artifactId: string): Prom
         if (latestReleaseOrSnapshot === null || latestSemVer.isNewerThan(latestReleaseOrSnapshot)) {
           latestReleaseOrSnapshot = latestSemVer;
         }
+      } else if (latestRelease == null || latestSemVer.isNewerThan(latestRelease)) {
+        latestRelease = latestSemVer;
       }
 
       if (releaseSemVer !== null && (latestRelease === null || releaseSemVer.isNewerThan(latestRelease))) {
@@ -61,5 +63,5 @@ export async function fetchVersioning(groupId: string, artifactId: string): Prom
     return versions;
   }
 
-  throw new Error(`Failed to parse versioning for ${groupId}:${artifactId}: Not found in any repository`);
+  throw new Error(`Failed to fetch versioning for ${groupId}:${artifactId}: Not found in any repository`);
 }
