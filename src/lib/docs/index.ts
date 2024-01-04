@@ -131,8 +131,10 @@ async function fetchDocs(repo: DocProject) {
   async function at(parent: DocTree, path: string, ref?: string): Promise<DocTree | null> {
     const contents = await fetchFromGitHub(`/repos/${repoFullName}/contents/${path}${ref ? `?ref=${ref}` : ''}`);
 
-    if (contents.message === 'Not Found') {
+    if (contents.message === 'Not Found' || contents.message === 'This repository is empty.') {
       return Promise.resolve(null);
+    } else if (!Array.isArray(contents)) {
+      return Promise.reject(new Error(`Unexpected response from GitHub: ${JSON.stringify(contents, null, 2)} for repo: ${repoFullName}, path: ${path}, ref: ${ref}`));
     }
 
     const entries: Array<[ string, DocFile | DocDir ]> = [];
