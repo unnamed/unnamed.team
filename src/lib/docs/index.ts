@@ -29,7 +29,6 @@ import Cache from '@/lib/cache';
 import { DocDir, DocFile, DocProject, DocTree } from "@/lib/docs/tree";
 import { getPageTitle } from "@/lib/docs/title";
 import { fetchFromGitHub, fetchGitHubOrganizationRepositories } from "@/lib/github";
-import { fetchVersioning } from "@/lib/nexus.versions";
 
 const INDEX_FILE_NAME = 'index.txt';
 const PAGE_SUFFIX = '.md';
@@ -101,7 +100,7 @@ async function fetchDocs(repo: DocProject) {
     .use(rehypeRewriteLinks)
     .use(rehypeStringify as any);
 
-  async function parseAndProcessMarkdown(markdown: string) {
+  async function parseAndProcessMarkdown(markdown: string, ref: string) {
     // format is like:
     //   %%REPLACE_what{the_argument}%%
     // for example:
@@ -110,15 +109,16 @@ async function fetchDocs(repo: DocProject) {
 
     markdown = await replaceAsync(markdown, latestVersionRegex, async (match, whatToReplace, argument) => {
       if (whatToReplace === 'latestRelease' || whatToReplace === 'latestVersion' || whatToReplace === 'latestReleaseOrSnapshot') {
-        const [ groupId, artifactId ] = argument.split(':');
-        const versioning = await fetchVersioning(groupId, artifactId);
-
-        if (whatToReplace === 'latestRelease') {
-          return versioning.release ?? 'unknown';
-        } else if (whatToReplace === 'latestVersion') {
-          return versioning.latest;
+        // backwards compatibility :(
+        return ref;
+      } else if (whatToReplace === 'CURRENT_VERSION') {
+        // %%REPLACE_CURRENT_VERSION%
+        if (ref.startsWith('v')) {
+          // by convention, they should always start with 'v' though
+          return ref.substring(1);
         } else {
-          return versioning.release ?? versioning.latest;
+          console.error(`[WARN] Found %%REPLACE_CURRENT_VERSION%% in ${repoFullName} but ref '${ref}' doesn't start with 'v'`);
+          return ref;
         }
       } else {
         return match;
@@ -128,7 +128,7 @@ async function fetchDocs(repo: DocProject) {
     return String(await processor.process(markdown));
   }
 
-  async function at(parent: DocTree, path: string, ref?: string): Promise<DocTree | null> {
+  async function at(parent: DocTree, path: string, ref: string): Promise<DocTree | null> {
     const contents = await fetchFromGitHub(`/repos/${repoFullName}/contents/${path}${ref ? `?ref=${ref}` : ''}`);
 
     if (contents.message === 'Not Found' || contents.message === 'This repository is empty.') {
@@ -154,7 +154,7 @@ async function fetchDocs(repo: DocProject) {
           const directoryPath = currPath.split('/');
           trimArray(directoryPath);
 
-          const html = await parseAndProcessMarkdown(await (await fetch(content.download_url)).text());
+          const html = await parseAndProcessMarkdown(await (await fetch(content.download_url)).text(), ref);
 
           // fetch the last commit information for this file
           const commits = await fetchFromGitHub(`/repos/${repoFullName}/commits?path=${content.path}&per_page=1${ref ? `&sha=${ref}` : ''}}`);
@@ -174,7 +174,7 @@ async function fetchDocs(repo: DocProject) {
         }
       } else {
         const newParent = {};
-        await at(newParent, content.path);
+        await at(newParent, content.path, ref);
         if (Object.entries(newParent).length > 0) {
           entries.push([
             content.name,
@@ -225,10 +225,8 @@ async function fetchDocs(repo: DocProject) {
   }
 
   if (tags.length === 0) {
-    // repo has no tags
-    repo.docs = {
-      latest: await at({}, ROOT_FOLDER) || {}
-    };
+    // repo has no tags, and for so, no documentation available
+    repo.docs = {};
   } else {
     // repo has tags
     repo.docs = {};
@@ -238,7 +236,7 @@ async function fetchDocs(repo: DocProject) {
         repo.docs[tag.name] = found;
       }
     }
-    repo.docs.latest = repo.docs[tags[0].name] || Object.values(repo.docs)[0] || await at({}, ROOT_FOLDER) || {};
+    repo.docs.latest = repo.docs[tags[0].name];
   }
 }
 
