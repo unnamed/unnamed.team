@@ -7,6 +7,7 @@ import { GitHubIcon } from "@/components/icons";
 import LandingHero from "@/components/landing/LandingHero";
 import clsx from "clsx";
 import Footer from "@/components/layout/Footer";
+import { downloadAll } from "@/lib/javadoc";
 
 function ProjectCard({ project }: { project: DocProject }) {
   return (
@@ -70,6 +71,8 @@ export default function HomePage({ projects }: { projects: DocProjects }) {
 export async function getStaticProps() {
   const projects: DocProjects = await cache.get();
   const partialProjects: DocProjects = {};
+
+  await downloadAll();
 
   // remove "docs" data from the projects, it is not required
   // for this page, and it may contain a lot of data, making the

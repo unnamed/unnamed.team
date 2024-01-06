@@ -17,6 +17,9 @@
 # cache
 /cache/
 
+# output
+/public/javadoc/
+
 # misc
 .DS_Store
 *.pem

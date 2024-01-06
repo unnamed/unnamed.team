@@ -44,7 +44,7 @@ export async function fetchProjects(): Promise<DocProjects> {
   for (const repo of await fetchGitHubOrganizationRepositories(process.env.githubSlug!)) {
     const project: DocProject = { ...repo, docs: {} };
     await fetchDocs(project);
-    if (Object.entries(project.docs.latest).length > 0) {
+    if (project.docs.latest && Object.entries(project.docs.latest).length > 0) {
       console.log(`[INFO] Discovered documented project \`${project.name}\``);
       projects[project.name] = project;
     }

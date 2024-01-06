@@ -30,7 +30,9 @@
   "dependencies": {
     "@headlessui/react": "^1.7.14",
     "@heroicons/react": "^2.0.17",
+    "@types/decompress": "^4.2.7",
     "clsx": "^1.1.1",
+    "decompress": "^4.2.1",
     "javascript-time-ago": "^2.5.9",
     "next": "13.1.4",
     "react": "^18.2.0",
