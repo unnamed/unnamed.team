@@ -107,19 +107,22 @@ async function fetchDocs(repo: DocProject) {
     //   %%REPLACE_latestRelease{team.unnamed:creative-central-api}%%
     const latestVersionRegex = /%%REPLACE_([^%]+)\{([^%]+)}%%/g;
 
+    let currentVersion: string;
+    if (ref.startsWith('v')) {
+      // by convention, they should always start with 'v' though
+      currentVersion = ref.substring(1);
+    } else {
+      console.error(`[WARN] Found %%REPLACE_CURRENT_VERSION%% in ${repoFullName} but ref '${ref}' doesn't start with 'v'`);
+      currentVersion = ref;
+    }
+
     markdown = await replaceAsync(markdown, latestVersionRegex, async (match, whatToReplace, argument) => {
       if (whatToReplace === 'latestRelease' || whatToReplace === 'latestVersion' || whatToReplace === 'latestReleaseOrSnapshot') {
         // backwards compatibility :(
-        return ref;
+        return currentVersion;
       } else if (whatToReplace === 'CURRENT_VERSION') {
         // %%REPLACE_CURRENT_VERSION%
-        if (ref.startsWith('v')) {
-          // by convention, they should always start with 'v' though
-          return ref.substring(1);
-        } else {
-          console.error(`[WARN] Found %%REPLACE_CURRENT_VERSION%% in ${repoFullName} but ref '${ref}' doesn't start with 'v'`);
-          return ref;
-        }
+        return currentVersion;
       } else {
         return match;
       }
